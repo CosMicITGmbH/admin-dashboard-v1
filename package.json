@@ -88,8 +88,8 @@
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"
   },
-  "peerDependencies": {
-    "react": "^16.x"
+  "engines": {
+    "node": "^16.10.x"
   },
   "scripts": {
     "start": "react-scripts start",
