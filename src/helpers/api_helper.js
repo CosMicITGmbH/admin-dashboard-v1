@@ -7,15 +7,13 @@ axios.defaults.baseURL = api.API_URL;
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 // content type
-const token = JSON.parse(sessionStorage.getItem("authUser"))
-  ? JSON.parse(sessionStorage.getItem("authUser")).token
-  : null;
-if (token) axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+const token = JSON.parse(sessionStorage.getItem("authUser")) ? JSON.parse(sessionStorage.getItem("authUser")).token : null;
+if(token)
+axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 
 // intercepting to capture errors
 axios.interceptors.response.use(
   function (response) {
-    // console.log("response from api helper", response);
     return response.data ? response.data : response;
   },
   function (error) {
@@ -59,13 +57,12 @@ class APIClient {
     let paramKeys = [];
 
     if (params) {
-      Object.keys(params).map((key) => {
-        paramKeys.push(key + "=" + params[key]);
+      Object.keys(params).map(key => {
+        paramKeys.push(key + '=' + params[key]);
         return paramKeys;
       });
 
-      const queryString =
-        paramKeys && paramKeys.length ? paramKeys.join("&") : "";
+      const queryString = paramKeys && paramKeys.length ? paramKeys.join('&') : "";
       response = axios.get(`${url}?${queryString}`, params);
     } else {
       response = axios.get(`${url}`, params);
@@ -83,15 +80,7 @@ class APIClient {
    * Updates data
    */
   update = (url, data) => {
-    // console.log("patch url", url, data);
     return axios.patch(url, data);
-  };
-  /**
-   * Updates data with post method
-   */
-  updateWithPost = (url, data) => {
-    console.log("post update url", url, data);
-    return axios.post(url, data);
   };
   /**
    * Delete

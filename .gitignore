@@ -4,12 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
-package copy.json
 
 # testing
 /coverage
-cert.pem
-keytmp.pem
+
 # production
 /build
 

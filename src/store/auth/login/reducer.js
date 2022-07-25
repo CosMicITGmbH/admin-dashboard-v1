@@ -4,7 +4,7 @@ import {
   LOGOUT_USER,
   LOGOUT_USER_SUCCESS,
   API_ERROR,
-  RESET_LOGIN_FLAG,
+  RESET_LOGIN_FLAG
 } from "./actionTypes";
 
 const initialState = {
@@ -33,10 +33,9 @@ const login = (state = initialState, action) => {
       state = { ...state, isUserLogout: true };
       break;
     case API_ERROR:
-      console.log("from reducer login error", action.payload);
       state = {
         ...state,
-        error: action.payload,
+        error: action.payload.data,
         loading: false,
         isUserLogout: false,
       };
@@ -44,7 +43,7 @@ const login = (state = initialState, action) => {
     case RESET_LOGIN_FLAG:
       state = {
         ...state,
-        error: null,
+        error: null
       };
       break;
     default:

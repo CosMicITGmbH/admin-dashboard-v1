@@ -13,20 +13,26 @@ import {
 const fireBaseBackend = getFirebaseBackend();
 
 function* editProfile({ payload: { user } }) {
+
   try {
-    if (process.env.REACT_APP_API_URL) {
-      // console.log("modfied user profile data", user);
-      const response = yield call(postFakeProfile, user);
-      // console.log("response from profile saga", response);
-      yield put(
-        profileSuccess({
-          status: "Profile updated successfully !",
-          data: user,
-        })
+    if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
+      const response = yield call(
+        fireBaseBackend.editProfileAPI,
+        user.username,
+        user.idx
       );
+      yield put(profileSuccess(response));
+    } else if (process.env.REACT_APP_DEFAULTAUTH === "jwt") {
+      const response = yield call(postJwtProfile, "/post-jwt-profile", {
+        username: user.username,
+        idx: user.idx,
+      });
+      yield put(profileSuccess(response));
+    } else if (process.env.REACT_APP_API_URL) {
+      const response = yield call(postFakeProfile, user);
+      yield put(profileSuccess(response));
     }
   } catch (error) {
-    // console.log("error while updating the profile", error);
     yield put(profileError(error));
   }
 }

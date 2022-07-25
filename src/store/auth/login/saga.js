@@ -12,35 +12,38 @@ import {
   postSocialLogin,
 } from "../../../helpers/fakebackend_helper";
 
-//impor the base url from axios config
-// import api from "../../../Axios/axiosConfig";
-
 const fireBaseBackend = getFirebaseBackend();
 
 function* loginUser({ payload: { user, history } }) {
   try {
-    if (process.env.REACT_APP_API_URL) {
-      // console.log("calling api from saga");
+    if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
+      const response = yield call(
+        fireBaseBackend.loginUser,
+        user.email,
+        user.password
+      );
+      yield put(loginSuccess(response));
+    } else if (process.env.REACT_APP_DEFAULTAUTH === "jwt") {
+      const response = yield call(postJwtLogin, {
+        email: user.email,
+        password: user.password,
+      });
+      sessionStorage.setItem("authUser", JSON.stringify(response));
+      yield put(loginSuccess(response));
+    } else if (process.env.REACT_APP_API_URL) {
       const response = yield call(postFakeLogin, {
         email: user.email,
         password: user.password,
       });
-
-      //console.log("response from saga", response);
-      if (response.token) {
-        response.data = response.user;
-        delete response.user;
-        //  console.log("response from saga with data", response);
-        sessionStorage.setItem("authUser", JSON.stringify(response));
+    sessionStorage.setItem("authUser", JSON.stringify(response));
+      if (response.status === "success") {
         yield put(loginSuccess(response));
         history.push("/dashboard");
       } else {
-        //  console.log("error", response);
         yield put(apiError(response));
       }
     }
   } catch (error) {
-    //  console.log("error from catch", error);
     yield put(apiError(error));
   }
 }
@@ -63,7 +66,11 @@ function* socialLogin({ payload: { data, history, type } }) {
   try {
     if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
       const fireBaseBackend = getFirebaseBackend();
-      const response = yield call(fireBaseBackend.socialLoginUser, data, type);
+      const response = yield call(
+        fireBaseBackend.socialLoginUser,
+        data,
+        type,
+      );
       sessionStorage.setItem("authUser", JSON.stringify(response));
       yield put(loginSuccess(response));
     } else {
