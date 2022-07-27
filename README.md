@@ -6,6 +6,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+### `npm install`
+
+Run this command to install the dependency from your root folder. If this causes error then try installing _npm install --legacy-peer-deps_.
+
 ### `npm start`
 
 Runs the app in the development mode.\
