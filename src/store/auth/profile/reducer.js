@@ -1,9 +1,14 @@
-import { PROFILE_ERROR, PROFILE_SUCCESS, EDIT_PROFILE, RESET_PROFILE_FLAG } from "./actionTypes";
+import {
+  PROFILE_ERROR,
+  PROFILE_SUCCESS,
+  EDIT_PROFILE,
+  RESET_PROFILE_FLAG,
+} from "./actionTypes";
 
 const initialState = {
   error: "",
   success: "",
-  user: {}
+  user: {},
 };
 
 const profile = (state = initialState, action) => {
@@ -12,22 +17,23 @@ const profile = (state = initialState, action) => {
       state = { ...state };
       break;
     case PROFILE_SUCCESS:
+      console.log("profile success reducer", action, " and state", state);
       state = {
         ...state,
         success: action.payload.status,
-        user: action.payload.data
+        user: action.payload.data,
       };
       break;
     case PROFILE_ERROR:
       state = {
         ...state,
-        error: action.payload
+        error: action.payload,
       };
       break;
     case RESET_PROFILE_FLAG:
       state = {
         ...state,
-        success: null
+        success: null,
       };
       break;
     default:

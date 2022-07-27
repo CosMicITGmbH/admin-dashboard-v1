@@ -106,6 +106,10 @@
       "@babel/preset-react"
     ]
   },
+  "engines": {
+    "npm": "^8.13.1",
+    "node": "^16.16.0"
+  },
   "eslintConfig": {
     "extends": [
       "eslint:recommended",

@@ -2,7 +2,8 @@
 export const POST_FAKE_REGISTER = "/auth/signup";
 
 //LOGIN
-export const POST_FAKE_LOGIN = "/auth/signin";
+//export const POST_FAKE_LOGIN = "/auth/signin";
+export const POST_FAKE_LOGIN = "/auth/user/login"; //changes
 export const POST_FAKE_JWT_LOGIN = "/post-jwt-login";
 export const POST_FAKE_PASSWORD_FORGET = "/auth/forgot-password";
 export const POST_FAKE_JWT_PASSWORD_FORGET = "/jwt-forget-pwd";
@@ -10,7 +11,7 @@ export const SOCIAL_LOGIN = "/social-login";
 
 //PROFILE
 export const POST_EDIT_JWT_PROFILE = "/post-jwt-profile";
-export const POST_EDIT_PROFILE = "/user";
+export const POST_EDIT_PROFILE = "/users/profile"; //changed
 
 // Calendar
 export const GET_EVENTS = "/events";
@@ -96,4 +97,3 @@ export const GET_TICKETS_LIST = "/apps/ticket";
 export const ADD_NEW_TICKET = "/apps/ticket";
 export const UPDATE_TICKET = "/apps/ticket";
 export const DELETE_TICKET = "/apps/ticket";
-
