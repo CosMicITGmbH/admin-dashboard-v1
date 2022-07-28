@@ -19,8 +19,10 @@ import {
   ModalBody,
 } from "reactstrap";
 import { Cell } from "gridjs";
+import RegisterUserModal from "./RegisterUserModal";
+import Loader from "../../../Components/Common/Loader";
 
-const AllUsers = () => {
+const AllUsers = (props) => {
   const [userData, setUserData] = useState([]);
   const [data, setData] = useState([
     [
@@ -40,7 +42,8 @@ const AllUsers = () => {
     ["10", "Tyrone", "tyrone@example.com", "Senior Response Liaison"],
   ]);
   const [modal_profile, setmodal_profile] = useState(false);
-
+  const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   function tog_profileModal() {
     setmodal_profile(!modal_profile);
   }
@@ -65,6 +68,7 @@ const AllUsers = () => {
   }
 
   function getAllUsers() {
+    setLoading(true);
     axios
       .post("/users", {})
       .then((data) => {
@@ -86,14 +90,24 @@ const AllUsers = () => {
         // console.log("res1", res1);
         // console.log("newArr", newArr);
         setUserData(newArr);
+        setLoading(false);
       })
 
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
   }
   useEffect(() => {
-    getAllUsers();
+    //check role n
+    let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
+    console.log("user role", userRole);
+    if (userRole !== "user") {
+      getAllUsers();
+    } else {
+      //redirect to dashboard
+      props.history.push("/dashboard");
+    }
   }, []);
 
   const deleteUserById = (id) => {
@@ -101,65 +115,94 @@ const AllUsers = () => {
       .delete(`/users/${id}`)
       .then((data) => {
         //  console.log("data delete successfully");
-        getAllUsers();
+
+        getAllUsers(); //already handles loading
       })
-      .catch((err) => console.log("err occurred while delete data", err));
+      .catch((err) => {
+        console.log("err occurred while delete data", err);
+        setLoading(false);
+      });
   };
-  const openProfileById = (id) => {
-    //props.history.push();
-  };
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <h5> List of all users</h5>
-          <Grid
-            data={userData}
-            columns={[
-              {
-                name: "ID",
-                formatter: (cell) =>
-                  _(<span className="fw-semibold">{cell}</span>),
-              },
-              "Name",
-              {
-                name: "Email",
-                formatter: (cell) => _(<a href={"mailto:" + cell}> {cell} </a>),
-              },
-              "Role",
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              type="button"
+              color="info"
+              //  disabled={userData.currentRole === "user"}
+              onClick={() => {
+                //  changePassword();
+                setmodal_RegistrationModal(true);
 
-              {
-                name: "Open",
-                width: "120px",
-                formatter: (cell, row) =>
-                  _(
-                    <a href={"/profile?profileID=" + row._cells[0].data}>
-                      Profile
-                    </a>
-                  ),
-              },
-              {
-                name: "Delete",
-                width: "120px",
-                formatter: (cell, row) =>
-                  _(
-                    <Button
-                      color="danger"
-                      onClick={() => {
-                        console.log("delete row", row._cells[0].data);
-                        // console.log("cell", cell);
-                        deleteUserById(row._cells[0].data);
-                      }}
-                    >
-                      {" "}
-                      Delete
-                    </Button>
-                  ),
-              },
-            ]}
-            search={true}
-            sort={true}
-            pagination={{ enabled: true, limit: 5 }}
+                console.log("open register gui");
+              }}
+              style={{ marginLeft: "3px" }}
+            >
+              Register a user
+            </Button>{" "}
+          </div>
+          {loading ? (
+            <Loader />
+          ) : (
+            <Grid
+              data={userData}
+              columns={[
+                {
+                  name: "ID",
+                  formatter: (cell) =>
+                    _(<span className="fw-semibold">{cell}</span>),
+                },
+                "Name",
+                {
+                  name: "Email",
+                  formatter: (cell) =>
+                    _(<a href={"mailto:" + cell}> {cell} </a>),
+                },
+                "Role",
+
+                {
+                  name: "Open",
+                  width: "120px",
+                  formatter: (cell, row) =>
+                    _(
+                      <a href={"/profile?profileID=" + row._cells[0].data}>
+                        Profile
+                      </a>
+                    ),
+                },
+                {
+                  name: "Delete",
+                  width: "120px",
+                  formatter: (cell, row) =>
+                    _(
+                      <Button
+                        color="danger"
+                        onClick={() => {
+                          console.log("delete row", row._cells[0].data);
+                          // console.log("cell", cell);
+                          deleteUserById(row._cells[0].data);
+                        }}
+                      >
+                        {" "}
+                        Delete
+                      </Button>
+                    ),
+                },
+              ]}
+              search={true}
+              sort={true}
+              pagination={{ enabled: true, limit: 5 }}
+            />
+          )}
+
+          <RegisterUserModal
+            modalState={modal_RegistrationModal}
+            closeRegModal={() => {
+              setmodal_RegistrationModal(!modal_RegistrationModal);
+            }}
           />
         </Container>
       </div>

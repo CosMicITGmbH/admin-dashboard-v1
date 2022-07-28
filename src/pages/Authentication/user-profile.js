@@ -53,15 +53,14 @@ const UserProfile = (props) => {
 
   const [modal_grid, setmodal_grid] = useState(false);
 
-  function getRole(value) {
-    // console.log("value from progile", value);
-    setUserData({ ...userData, role: value.label });
-  }
   function tog_grid() {
     setmodal_grid(!modal_grid);
   }
   const [modal_role, setmodal_role] = useState(false);
-
+  function getRole(value) {
+    // console.log("value from progile", value);
+    setUserData({ ...userData, role: value.label });
+  }
   function tog_roleModal() {
     setmodal_role(!modal_role);
   }
@@ -131,7 +130,7 @@ const UserProfile = (props) => {
         }, 3000);
       }
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, profid]);
 
   // const changePassword = () => {
   //   console.log("change password requested");
@@ -144,7 +143,9 @@ const UserProfile = (props) => {
       changePassword: "",
     },
     validationSchema: Yup.object({
-      password: Yup.string().required("New Password is required"),
+      password: Yup.string()
+        .required("New Password is required")
+        .min(4, "Password should be minimum 4 characters long."),
       changePassword: Yup.string().when("password", {
         is: (val) => (val && val.length > 0 ? true : false),
         then: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
@@ -441,20 +442,22 @@ const UserProfile = (props) => {
               tog_grid();
             }}
           >
-            <ModalHeader>
-              <Button
-                type="button"
-                onClick={() => {
-                  setmodal_grid(false);
-                }}
-                className="btn-close m-lg-auto"
-                aria-label="Close"
-              ></Button>
+            <ModalHeader style={{ marginLeft: "auto" }}>
+              <div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setmodal_grid(false);
+                  }}
+                  className="btn-close"
+                  aria-label="Close"
+                ></Button>
+              </div>
             </ModalHeader>
             <ModalBody>
               <Row className="justify-content-center">
-                <Card className="mt-2">
-                  <CardBody className="p-2">
+                <div className="mt-2">
+                  <div className="p-2">
                     {/* <h5 className="modal-title">Grid Modals</h5> */}
                     {successMsg.error ? (
                       <Alert color="danger">{successMsg.msg}</Alert>
@@ -538,25 +541,6 @@ const UserProfile = (props) => {
                             </FormFeedback>
                           ) : null}
                         </div>
-                        {/* password should contain note */}
-                        <div
-                          // id="password-contain"
-                          className="p-3 bg-light mb-2 rounded mt-3"
-                        >
-                          <h5 className="fs-13">Password must contain:</h5>
-                          <p id="pass-length" className="invalid fs-12 mb-2">
-                            Minimum <b>8 characters</b>
-                          </p>
-                          <p id="pass-lower" className="invalid fs-12 mb-2">
-                            At <b>lowercase</b> letter (a-z)
-                          </p>
-                          <p id="pass-upper" className="invalid fs-12 mb-2">
-                            At least <b>uppercase</b> letter (A-Z)
-                          </p>
-                          <p id="pass-number" className="invalid fs-12 mb-0">
-                            A least <b>number</b> (0-9)
-                          </p>
-                        </div>
 
                         <div className="mt-4">
                           <Button
@@ -569,8 +553,8 @@ const UserProfile = (props) => {
                         </div>
                       </Form>
                     </div>
-                  </CardBody>
-                </Card>
+                  </div>
+                </div>
               </Row>
             </ModalBody>
           </Modal>
@@ -581,24 +565,27 @@ const UserProfile = (props) => {
               tog_roleModal();
             }}
           >
-            <ModalHeader>
+            <ModalHeader style={{ marginLeft: "auto" }}>
               {/* <h6>Close</h6> */}
-              <Button
-                type="button"
-                onClick={() => {
-                  setmodal_role(false);
-                }}
-                className="btn-close m-lg-auto"
-                aria-label="Close"
-              ></Button>
+              <div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setmodal_role(false);
+                  }}
+                  className="btn-close m-lg-auto"
+                  aria-label="Close"
+                ></Button>
+              </div>
             </ModalHeader>
             <ModalBody>
               <Row className="justify-content-center">
-                <Card className="mt-2">
-                  <CardBody className="p-2">
+                <div className="mt-2">
+                  <RoleOptions getRole={getRole} />
+                  {/* <CardBody className="p-2">
                     <RoleOptions getRole={getRole} />
-                  </CardBody>
-                </Card>
+                  </CardBody> */}
+                </div>
               </Row>
             </ModalBody>
           </Modal>

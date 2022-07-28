@@ -49,7 +49,7 @@ const RoleOptions = (props) => {
       <div className="page-contentsdsd">
         <Row>
           <Col lg={12}>
-            <h5 className="card-title mb-0">Choose a role to change</h5>
+            <h5 className="card-title mb-3">Choose a role to change</h5>
             <Select
               value={sortBy}
               onChange={(value) => {

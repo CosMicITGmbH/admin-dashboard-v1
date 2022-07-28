@@ -88,7 +88,7 @@ const BasicPasswCreate = (props) => {
                           </Button>
                         </div>
                         <div id="passwordInput" className="form-text">
-                          Must be at least 8 characters.
+                          Must be at least 5 characters.
                         </div>
                       </div>
 
@@ -119,30 +119,6 @@ const BasicPasswCreate = (props) => {
                           </Button>
                         </div>
                       </div>
-
-                      <div
-                        // id="password-contain"
-                        className="p-3 bg-light mb-2 rounded"
-                      >
-                        <h5 className="fs-13">Password must contain:</h5>
-                        <p id="pass-length" className="invalid fs-12 mb-2">
-                          Minimum <b>8 characters</b>
-                        </p>
-                        <p id="pass-lower" className="invalid fs-12 mb-2">
-                          At <b>lowercase</b> letter (a-z)
-                        </p>
-                        <p id="pass-upper" className="invalid fs-12 mb-2">
-                          At least <b>uppercase</b> letter (A-Z)
-                        </p>
-                        <p id="pass-number" className="invalid fs-12 mb-0">
-                          A least <b>number</b> (0-9)
-                        </p>
-                      </div>
-
-                      {/* <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="auth-remember-check" />
-                                                <label className="form-check-label" htmlFor="auth-remember-check">Remember me</label>
-                                            </div> */}
 
                       <div className="mt-4">
                         <Button color="success" className="w-100" type="submit">
