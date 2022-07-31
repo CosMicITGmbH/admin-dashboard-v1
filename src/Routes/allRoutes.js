@@ -219,7 +219,14 @@ import NFTLanding from "../pages/Landing/NFTLanding";
 import UserProfile from "../pages/Authentication/user-profile";
 import AllUsers from "../pages/Pages/AllUsers/AllUsers.js";
 
+//All services
+import Services from "../pages/Pages/Services/Services";
+
 const authProtectedRoutes = [
+  //services
+  { path: "/all-services", component: Services },
+
+  //others
   { path: "/dashboard-analytics", component: DashboardAnalytics },
   { path: "/dashboard-crm", component: DashboardCrm },
   { path: "/dashboard", component: DashboardEcommerce },

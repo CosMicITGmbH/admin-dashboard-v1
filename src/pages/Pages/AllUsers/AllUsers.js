@@ -2,25 +2,11 @@ import React, { useState, useEffect } from "react";
 import { isEmpty } from "lodash";
 import axios from "axios";
 import { Grid, _ } from "gridjs-react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Alert,
-  CardBody,
-  Button,
-  Label,
-  Input,
-  FormFeedback,
-  Form,
-  Modal,
-  ModalHeader,
-  ModalBody,
-} from "reactstrap";
-import { Cell } from "gridjs";
+import { Container, Button } from "reactstrap";
+// import { Cell } from "gridjs";
 import RegisterUserModal from "./RegisterUserModal";
 import Loader from "../../../Components/Common/Loader";
+import Groups from "../Groups/Groups";
 
 const AllUsers = (props) => {
   const [userData, setUserData] = useState([]);
@@ -41,12 +27,12 @@ const AllUsers = (props) => {
     ["09", "Cathy", "cathy@example.com", "Customer Data Director"],
     ["10", "Tyrone", "tyrone@example.com", "Senior Response Liaison"],
   ]);
-  const [modal_profile, setmodal_profile] = useState(false);
+  // const [modal_profile, setmodal_profile] = useState(false);
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  function tog_profileModal() {
-    setmodal_profile(!modal_profile);
-  }
+  // function tog_profileModal() {
+  //   setmodal_profile(!modal_profile);
+  // }
 
   function getRole(role) {
     let newRole;
@@ -95,6 +81,9 @@ const AllUsers = (props) => {
 
       .catch((err) => {
         console.log(err);
+        if (err.split(" ").includes("401")) {
+          props.history.push("/login");
+        }
         setLoading(false);
       });
   }
@@ -120,6 +109,7 @@ const AllUsers = (props) => {
       })
       .catch((err) => {
         console.log("err occurred while delete data", err);
+        alert(err);
         setLoading(false);
       });
   };
@@ -147,55 +137,59 @@ const AllUsers = (props) => {
           {loading ? (
             <Loader />
           ) : (
-            <Grid
-              data={userData}
-              columns={[
-                {
-                  name: "ID",
-                  formatter: (cell) =>
-                    _(<span className="fw-semibold">{cell}</span>),
-                },
-                "Name",
-                {
-                  name: "Email",
-                  formatter: (cell) =>
-                    _(<a href={"mailto:" + cell}> {cell} </a>),
-                },
-                "Role",
+            <>
+              <Grid
+                data={userData}
+                columns={[
+                  {
+                    name: "ID",
+                    formatter: (cell) =>
+                      _(<span className="fw-semibold">{cell}</span>),
+                  },
+                  "Name",
+                  {
+                    name: "Email",
+                    formatter: (cell) =>
+                      _(<a href={"mailto:" + cell}> {cell} </a>),
+                  },
+                  "Role",
 
-                {
-                  name: "Open",
-                  width: "120px",
-                  formatter: (cell, row) =>
-                    _(
-                      <a href={"/profile?profileID=" + row._cells[0].data}>
-                        Profile
-                      </a>
-                    ),
-                },
-                {
-                  name: "Delete",
-                  width: "120px",
-                  formatter: (cell, row) =>
-                    _(
-                      <Button
-                        color="danger"
-                        onClick={() => {
-                          console.log("delete row", row._cells[0].data);
-                          // console.log("cell", cell);
-                          deleteUserById(row._cells[0].data);
-                        }}
-                      >
-                        {" "}
-                        Delete
-                      </Button>
-                    ),
-                },
-              ]}
-              search={true}
-              sort={true}
-              pagination={{ enabled: true, limit: 5 }}
-            />
+                  {
+                    name: "Open",
+                    width: "120px",
+                    formatter: (cell, row) =>
+                      _(
+                        <a href={"/profile?profileID=" + row._cells[0].data}>
+                          Profile
+                        </a>
+                      ),
+                  },
+                  {
+                    name: "Delete",
+                    width: "120px",
+                    formatter: (cell, row) =>
+                      _(
+                        <Button
+                          color="danger"
+                          onClick={() => {
+                            console.log("delete row", row._cells[0].data);
+                            // console.log("cell", cell);
+                            deleteUserById(row._cells[0].data);
+                          }}
+                        >
+                          {" "}
+                          Delete
+                        </Button>
+                      ),
+                  },
+                ]}
+                search={true}
+                sort={true}
+                pagination={{ enabled: true, limit: 5 }}
+              />
+              {/* Groups table: Add,update,delete */}
+              <Groups />
+            </>
           )}
 
           <RegisterUserModal

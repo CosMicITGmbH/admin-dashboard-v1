@@ -17,7 +17,7 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
-
+import { Grid, _ } from "gridjs-react";
 // Formik Validation
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -48,9 +48,9 @@ const UserProfile = (props) => {
     email: "",
     role: "user",
     currentRole: "",
-    groups: "",
+    groups: [],
   });
-
+  const [userGroup, setUserGroup] = useState([]);
   const [modal_grid, setmodal_grid] = useState(false);
 
   function tog_grid() {
@@ -84,16 +84,18 @@ const UserProfile = (props) => {
         .get(`/users/profile/${profid}`)
         .then((data) => {
           setUserData({
+            ...userData,
             idx: data.id,
             firstName: data.firstName,
             lastName: data.lastName,
             email: data.email,
             role: data.role,
-            // password: data.password,
+
             currentRole: JSON.parse(sessionStorage.getItem("authUser")).data
               .role,
-            groups: data.groups.join(","),
+            groups: data.groups,
           });
+          setGroupArr(data.groups);
         })
         .catch((err) => {
           //console.log("error while fethcing the data", err);
@@ -102,6 +104,9 @@ const UserProfile = (props) => {
             error: true,
             msg: "No Results found.",
           });
+          if (err.split(" ").includes("401")) {
+            props.history.push("/login");
+          }
           // console.log("error while fethcing the data", err);
         });
     } else {
@@ -116,14 +121,19 @@ const UserProfile = (props) => {
         }
 
         setUserData({
+          ...userData,
           idx: obj.data.id,
           firstName: obj.data.firstName,
           lastName: obj.data.lastName,
           email: obj.data.email,
           role: obj.data.role,
-          // password: obj.data.password,
-          groups: obj.data.groups.join(","),
+
+          groups: obj.data.groups,
         });
+
+        //make group arr for data grid
+
+        setGroupArr(obj.data.groups);
 
         setTimeout(() => {
           dispatch(resetProfileFlag());
@@ -132,10 +142,26 @@ const UserProfile = (props) => {
     }
   }, [dispatch, user, profid]);
 
-  // const changePassword = () => {
-  //   console.log("change password requested");
-  //   props.history.push("/auth-pass-change-basic");
-  // };
+  const setGroupArr = (groups) => {
+    console.log("sett6ing groups");
+    let newArr = [];
+    let res1 = groups.map((item) => {
+      let n1 = [];
+      n1.push(item.groupId, item.name);
+      newArr.push(n1);
+      return newArr;
+    });
+    console.log("newArr groups", newArr);
+    setUserGroup(newArr);
+  };
+
+  const deleteUserGroupId = (id) => {
+    console.log("delete id", id, userData);
+    let newGroup = userData.groups.filter((item) => item.groupId !== id);
+    console.log("new group", newGroup);
+    setUserData({ ...userData, groups: newGroup });
+    setGroupArr(newGroup);
+  };
   const resetPwdValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -180,6 +206,9 @@ const UserProfile = (props) => {
             error: true,
             msg: err,
           });
+          if (err.split(" ").includes("401")) {
+            props.history.push("/login");
+          }
         });
     },
   });
@@ -260,7 +289,7 @@ const UserProfile = (props) => {
             </Col>
           </Row>
 
-          <h4 className="card-title mb-4">Change User Profile</h4>
+          <h4 className="card-title mb-4">Edit User Profile</h4>
 
           <Card>
             <CardBody>
@@ -409,11 +438,51 @@ const UserProfile = (props) => {
                     </Button>{" "}
                   </Col>
                 </div>
+                {/*groups*/}
 
+                {userGroup.length > 0 && (
+                  <div
+                    style={{ width: "50%", marginTop: "0.5rem" }}
+                    className="form-group"
+                  >
+                    <Label className="form-label">Groups</Label>
+                    <Grid
+                      data={userGroup}
+                      columns={[
+                        {
+                          name: "ID",
+                          formatter: (cell) =>
+                            _(<span className="fw-semibold">{cell}</span>),
+                        },
+                        "Name",
+
+                        // {
+                        //   name: "Delete",
+                        //   width: "120px",
+                        //   formatter: (cell, row) =>
+                        //     _(
+                        //       <Button
+                        //         color="danger"
+                        //         onClick={() => {
+
+                        //           deleteUserGroupId(row._cells[0].data);
+                        //         }}
+                        //       >
+                        //         {" "}
+                        //         Delete
+                        //       </Button>
+                        //     ),
+                        // },
+                      ]}
+                    />{" "}
+                  </div>
+                )}
+
+                {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
                 <div className="text-center mt-4 mx-2">
                   <Button
                     type="submit"
-                    color="danger"
+                    color="success"
                     disabled={userData.currentRole === "user"}
                   >
                     Update Profile
