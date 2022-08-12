@@ -1,39 +1,60 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { isEmpty } from "lodash";
 import axios from "axios";
 import { Grid, _ } from "gridjs-react";
-import { Container, Button } from "reactstrap";
+import { Container, Button, InputGroup, Input, Row, Col } from "reactstrap";
+import DataTable from "react-data-table-component";
 // import { Cell } from "gridjs";
 import RegisterUserModal from "./RegisterUserModal";
 import Loader from "../../../Components/Common/Loader";
 import Groups from "../Groups/Groups";
+import { debounce } from "lodash";
+import Select from "../../../Components/Reusable/SelectPage";
+//let pages = [5, 10, 20, 30, 40, 50];
 
 const AllUsers = (props) => {
   const [userData, setUserData] = useState([]);
   const [data, setData] = useState([
-    [
-      "01",
-      "Jonathan",
-      "jonathan@example.com",
-      "Senior Implementation Architect",
-    ],
-    ["02", "Harold", "harold@example.com", "Forward Creative Coordinator"],
-    ["03", "Shannon", "shannon@example.com", "Legacy Functionality Associate"],
-    ["04", "Robert", "robert@example.com", "Product Accounts Technician"],
-    ["05", "Noel", "noel@example.com", "Customer Data Director"],
-    ["06", "Traci", "traci@example.com", "Corporate Identity Director"],
-    ["07", "Kerry", "kerry@example.com", "Lead Applications Associate"],
-    ["08", "Patsy", "patsy@example.com", "Dynamic Assurance Director"],
-    ["09", "Cathy", "cathy@example.com", "Customer Data Director"],
-    ["10", "Tyrone", "tyrone@example.com", "Senior Response Liaison"],
+    {
+      id: 1,
+      Name: "admin example",
+      Email: "admin@example.com",
+      Role: "admin",
+    },
+    {
+      id: 2,
+      Name: "manager example",
+      Email: "manager@example.com",
+      Role: "manager",
+    },
+    {
+      id: 3,
+      Name: "user example",
+      Email: "user@example.com",
+      Role: "user",
+    },
+    {
+      id: 4,
+      Name: "admin1 admin11",
+      Email: "admin1@example.com",
+      Role: "admin",
+    },
+    {
+      id: 5,
+      Name: "admin2 admin11",
+      Email: "admin2@example.com",
+      Role: "admin",
+    },
   ]);
-  // const [modal_profile, setmodal_profile] = useState(false);
+  // const [page, setPage] = useState(pages[0]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [perPage, setPerPage] = useState(10);
+
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  // function tog_profileModal() {
-  //   setmodal_profile(!modal_profile);
-  // }
-
+  const [filterText, setFilterText] = React.useState("");
+  const [resetPaginationToggle, setResetPaginationToggle] =
+    React.useState(false);
   function getRole(role) {
     let newRole;
     switch (role) {
@@ -52,30 +73,83 @@ const AllUsers = (props) => {
     }
     return newRole;
   }
-
-  function getAllUsers() {
+  const columns = [
+    {
+      name: <span className="font-weight-bold fs-13">ID</span>,
+      selector: (row) => row.id,
+      sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Name</span>,
+      selector: (row) => row.Name,
+      sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Email</span>,
+      selector: (row) => row.Email,
+      sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Role</span>,
+      selector: (row) => row.Role,
+      sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Open</span>,
+      cell: (row) => <a href={"/profile?profileID=" + row.id}>Profile</a>,
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Delete</span>,
+      cell: (row, column) => (
+        <Button
+          onClick={() => {
+            console.log("button clicked", row.id);
+            deleteUserById(row.id);
+          }}
+        >
+          Delete
+        </Button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Groups</span>,
+      columns: [
+        {
+          name: "ID",
+        },
+        {
+          name: "Name",
+        },
+      ],
+    },
+  ];
+  function getAllUsers(pageNo, per_Page) {
     setLoading(true);
+    console.log(`url=/users?page=${pageNo}&itemsPerPage=${per_Page}`);
     axios
-      .post("/users", {})
+      .post(`/users?page=${pageNo}&itemsPerPage=${per_Page}`, {})
       .then((data) => {
-        // console.log(data);
-        let newArr = [];
+        console.log(data);
+        //  let newArr = [];
         let res1 = data.items.map((item) => {
-          let n1 = [];
-          n1.push(
-            item.id,
-            item.firstName + " " + item.lastName,
-            item.email,
-            getRole(item.role)
-          );
-          newArr.push(n1);
-          //console.log("newArr", newArr);
-          return newArr;
+          return {
+            id: item.id,
+            Name: item.firstName + " " + item.lastName,
+            Email: item.email,
+            Role: getRole(item.role),
+          };
         });
-
-        // console.log("res1", res1);
+        // getRole(item.role)
+        console.log("res1", res1, data.totalItems);
         // console.log("newArr", newArr);
-        setUserData(newArr);
+        setTotalRows(data.totalItems);
+        setUserData(res1);
         setLoading(false);
       })
 
@@ -88,11 +162,13 @@ const AllUsers = (props) => {
       });
   }
   useEffect(() => {
+    let pageLimit = 1;
+    // let itemsPerPage = 5;
     //check role n
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
     console.log("user role", userRole);
     if (userRole !== "user") {
-      getAllUsers();
+      getAllUsers(1, 10);
     } else {
       //redirect to dashboard
       props.history.push("/dashboard");
@@ -100,12 +176,13 @@ const AllUsers = (props) => {
   }, []);
 
   const deleteUserById = (id) => {
+    console.log("id to be deleted", id);
     axios
       .delete(`/users/${id}`)
       .then((data) => {
         //  console.log("data delete successfully");
 
-        getAllUsers(); //already handles loading
+        getAllUsers(1, perPage); //already handles loading
       })
       .catch((err) => {
         console.log("err occurred while delete data", err);
@@ -114,84 +191,115 @@ const AllUsers = (props) => {
       });
   };
 
+  const handlePageChange = (page) => {
+    console.log("handlePageChange", page);
+    getAllUsers(page, perPage);
+    setTotalRows(totalRows - perPage);
+  };
+  const handlePerRowsChange = async (newPerPage, page) => {
+    //let url = `/users?page=${page}&itemsPerPage=${newPerPage}`;
+    console.log(
+      `newPerPage=${newPerPage} page=${page} url=/users?page=${page}&itemsPerPage=${newPerPage}`
+    );
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `/users?page=${page}&itemsPerPage=${newPerPage}`,
+        {}
+      );
+      console.log("items:", response);
+      let res1 = response.items.map((item) => {
+        return {
+          id: item.id,
+          Name: item.firstName + " " + item.lastName,
+          Email: item.email,
+          Role: getRole(item.role),
+        };
+      });
+      setUserData(res1);
+      setPerPage(newPerPage);
+      setLoading(false);
+    } catch (error) {
+      console.log("Err", error);
+      setLoading(false);
+    }
+  };
+
+  const changeHandler = (event) => {
+    console.log("event.target.value", event.target.value);
+    setFilterText(event.target.value);
+  };
+  const debouncedChangeHandler = useMemo(
+    () => debounce(changeHandler, 300),
+    []
+  );
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              type="button"
-              color="info"
-              //  disabled={userData.currentRole === "user"}
-              onClick={() => {
-                //  changePassword();
-                setmodal_RegistrationModal(true);
-
-                console.log("open register gui");
-              }}
-              style={{ marginLeft: "3px" }}
-            >
-              Register a user
-            </Button>{" "}
-          </div>
           {loading ? (
             <Loader />
           ) : (
             <>
-              <Grid
-                data={userData}
-                columns={[
-                  {
-                    name: "ID",
-                    formatter: (cell) =>
-                      _(<span className="fw-semibold">{cell}</span>),
-                  },
-                  "Name",
-                  {
-                    name: "Email",
-                    formatter: (cell) =>
-                      _(<a href={"mailto:" + cell}> {cell} </a>),
-                  },
-                  "Role",
+              <Row>
+                <Col>
+                  <InputGroup>
+                    <Input
+                      // value={filterText}
+                      type="text"
+                      placeholder="Search any field..."
+                      onChange={debouncedChangeHandler}
+                    />
+                    <Button
+                      onClick={() => {
+                        console.log("clear button clicked");
+                        setFilterText("");
+                        // getAllUsers(1)
+                      }}
+                    >
+                      Reset
+                    </Button>
+                  </InputGroup>
+                </Col>
+                <Col>
+                  <Button
+                    type="button"
+                    color="info"
+                    //  disabled={userData.currentRole === "user"}
+                    onClick={() => {
+                      //  changePassword();
+                      setmodal_RegistrationModal(true);
 
-                  {
-                    name: "Open",
-                    width: "120px",
-                    formatter: (cell, row) =>
-                      _(
-                        <a href={"/profile?profileID=" + row._cells[0].data}>
-                          Profile
-                        </a>
-                      ),
-                  },
-                  {
-                    name: "Delete",
-                    width: "120px",
-                    formatter: (cell, row) =>
-                      _(
-                        <Button
-                          color="danger"
-                          onClick={() => {
-                            console.log("delete row", row._cells[0].data);
-                            // console.log("cell", cell);
-                            deleteUserById(row._cells[0].data);
-                          }}
-                        >
-                          {" "}
-                          Delete
-                        </Button>
-                      ),
-                  },
-                ]}
-                search={true}
-                sort={true}
-                pagination={{ enabled: true, limit: 5 }}
+                      console.log("open register gui");
+                    }}
+                    style={{ marginLeft: "3px" }}
+                  >
+                    Register a user
+                  </Button>{" "}
+                </Col>
+              </Row>
+
+              <DataTable
+                title="List of Users"
+                columns={columns}
+                data={userData}
+                pagination
+                paginationServer
+                paginationTotalRows={totalRows}
+                onChangePage={handlePageChange}
+                onChangeRowsPerPage={handlePerRowsChange}
+                paginationRowsPerPageOptions={[10, 15, 25, 50]}
+                fixedHeader
+                //paginationTotalRows
+                //  paginationDefaultPage={perPage}
+                //fixedHeaderScrollHeight="500px"
+                //selectableRows
+                //persistTableHead
+                //subHeader
+                // subHeaderComponent={subHeaderComponentMemo}
               />
-              {/* Groups table: Add,update,delete */}
-              <Groups />
             </>
           )}
-
           <RegisterUserModal
             modalState={modal_RegistrationModal}
             closeRegModal={() => {

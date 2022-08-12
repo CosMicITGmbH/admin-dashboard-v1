@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, CardHeader, Col, Container, Row } from "reactstrap";
-import BreadCrumb from "../../../Components/Common/BreadCrumb";
+import { Col, Row } from "reactstrap";
+
 import Select from "react-select";
 import axios from "axios";
 const RoleOptions = (props) => {
   const [sortBy, setsortBy] = useState(null);
   const [role, setRole] = useState([]);
-  //   const [selectMulti, setselectMulti] = useState(null);
-  //   const [ajaxSelect, setajaxSelect] = useState(null);
-  //   const [temp, settemp] = useState(null);
-  //   const [selTemp, setselTemp] = useState(null);
-  //   const [dissortBy, setdissortBy] = useState(null);
-  //   const [disselectMulti, setdisselectMulti] = useState(null);
-
-  //   const [disable, setdisable] = useState(false);
-  //   const sortbyname = [
-  //     {
-  //       options: [
-  //         { label: "Admin", value: "1" },
-  //         { label: "Manager", value: "2" },
-  //         { label: "User", value: "3" },
-  //       ],
-  //     },
-  //   ];
 
   useEffect(() => {
     axios
@@ -54,7 +37,6 @@ const RoleOptions = (props) => {
               value={sortBy}
               onChange={(value) => {
                 setsortBy(value);
-                //      console.log("value on chanhge", value);
                 props.getRole(value);
               }}
               options={role}
@@ -64,7 +46,6 @@ const RoleOptions = (props) => {
             />
           </Col>
         </Row>
-        {/* <Container fluid></Container> */}
       </div>
     </React.Fragment>
   );
