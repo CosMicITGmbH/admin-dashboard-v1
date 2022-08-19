@@ -69,6 +69,11 @@ const ProfileDropdown = () => {
             <i className="mdi mdi-security-network text-muted fs-16 align-middle me-1"></i>
             <span className="align-middle">All Services</span>
           </DropdownItem>
+          <DropdownItem href="/all-groups">
+            <i className="mdi mdi-group text-muted fs-16 align-middle me-1"></i>
+            <span className="align-middle">All Groups</span>
+          </DropdownItem>
+
           <DropdownItem href="/apps-chat">
             <i className="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>{" "}
             <span className="align-middle">Messages</span>

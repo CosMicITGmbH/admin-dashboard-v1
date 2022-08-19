@@ -221,10 +221,13 @@ import AllUsers from "../pages/Pages/AllUsers/AllUsers.js";
 
 //All services
 import Services from "../pages/Pages/Services/Services";
+import Groups from "../pages/Pages/Groups/Groups";
+import GroupData from "../pages/Pages/Groups/GroupData";
 
 const authProtectedRoutes = [
   //services
   { path: "/all-services", component: Services },
+  { path: "/all-groups", component: Groups },
 
   //others
   { path: "/dashboard-analytics", component: DashboardAnalytics },
@@ -406,6 +409,7 @@ const authProtectedRoutes = [
   //User Profile
   { path: "/profile", component: UserProfile },
   { path: "/all-users", component: AllUsers },
+  { path: "/group", component: GroupData },
 
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name

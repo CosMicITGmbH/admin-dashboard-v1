@@ -260,7 +260,7 @@ const UserProfile = (props) => {
               {successMsg.error === true ? (
                 <Alert color="danger">{successMsg.msg}</Alert>
               ) : null}
-              {success ? (
+              {successMsg.success ? (
                 <Alert color="success">
                   Profile Data Updated for {userData.firstName}
                 </Alert>
