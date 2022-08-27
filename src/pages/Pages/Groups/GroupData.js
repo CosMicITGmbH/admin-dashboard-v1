@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Loader from "../../../Components/Common/Loader";
+import AsyncSelect from "react-select/async";
 //for url query params
 import { useLocation } from "react-router-dom";
+//import { debounce } from "lodash";
+import "./groupStyles.css";
 import {
   Container,
   Button,
   Card,
   CardBody,
-  InputGroup,
   Input,
   Row,
   Col,
   Alert,
   CardTitle,
+  Label,
 } from "reactstrap";
 import axios from "axios";
 import DataTable from "react-data-table-component";
@@ -53,6 +56,42 @@ const GroupData = (props) => {
       selector: (row) => row.role,
       sortable: true,
     },
+    {
+      name: <span className="font-weight-bold fs-13">Action</span>,
+      selector: (row) => row.id,
+      sortable: true,
+      cell: (row) => (
+        <Button
+          type="button"
+          color="danger"
+          onClick={() => {
+            console.log("deletable  id", row.id);
+            //remove user from a particular group
+            axios
+              .delete(`/users/profile/${row.id}/groups/${groupId}`)
+              .then((data) => {
+                console.log(data);
+                setSuccess({
+                  ...successMsg,
+                  success: true,
+                  msg: "User deleted successfully.",
+                });
+                fetchGroupData();
+              })
+              .catch((err) => {
+                console.log(err);
+                setSuccess({
+                  ...successMsg,
+                  error: true,
+                  msg: "Error ocurred while deleting user. " + err,
+                });
+              });
+          }}
+        >
+          Delete
+        </Button>
+      ),
+    },
   ];
   const machineColumns = [
     {
@@ -65,7 +104,24 @@ const GroupData = (props) => {
       selector: (row) => row.name,
       sortable: true,
     },
+    {
+      name: <span className="font-weight-bold fs-13">Action</span>,
+      selector: (row) => row.id,
+      sortable: true,
+      cell: (row) => (
+        <Button
+          type="button"
+          color="danger"
+          onClick={() => {
+            console.log("deletable  id", row.id);
+          }}
+        >
+          Delete
+        </Button>
+      ),
+    },
   ];
+
   const [loading, setLoading] = useState(false);
   const [groupData, setgroupData] = useState([]);
   const [machineData, setmachineData] = useState([]);
@@ -78,10 +134,31 @@ const GroupData = (props) => {
     // found: false
   });
 
+  const [userFilter, setUserFilter] = useState({});
   const search = useLocation().search;
   const groupId = new URLSearchParams(search).get("groupid");
   const groupname = new URLSearchParams(search).get("groupname");
 
+  const fetchGroupData = () => {
+    axios
+      .get(`/groups/${groupId}`)
+      .then((data) => {
+        console.log("group data", data);
+        makeGroupGridData(data);
+      })
+      .catch((err) => {
+        console.log("error while fethcing the data", err);
+        setSuccess({
+          ...successMsg,
+          error: true,
+          msg: "No Results found.",
+        });
+        if (err.split(" ").includes("401")) {
+          props.history.push("/login");
+        }
+        // console.log("error while fethcing the data", err);
+      });
+  };
   useEffect(() => {
     //check for role:if user then show error msg
     let role = JSON.parse(sessionStorage.getItem("authUser")).data.role;
@@ -92,59 +169,9 @@ const GroupData = (props) => {
         msg: "You are not authorized to access this page.",
       });
     }
-    let res = {
-      users: [
-        {
-          id: 1,
-          email: "admin@example.com",
-          firstName: "admin",
-          lastName: "example",
-          role: "admin",
-        },
-        {
-          id: 2,
-          email: "manager@example.com",
-          firstName: "manager",
-          lastName: "example",
-          role: "manager",
-        },
-      ],
-      groupId: 1,
-      name: "Test Group",
-      machines: [
-        {
-          key: "0dd27ca8-b303-4768-9185-f04bc7bde86a",
-          name: "Test Machine #1",
-          machine: {
-            id: 1,
-            connectedServices: [
-              {
-                key: "14b667f8-060b-4305-9fb9-d202066a0a1a",
-                name: "api.reporting",
-                endpoint: "https://report.csharpify.com/reporting/v1",
-                insertedAt: "2022-07-28T09:47:00.9948781",
-                updatedAt: "2022-07-28T09:47:00.9948781",
-              },
-            ],
-          },
-          endpoint: "1.1.1.1",
-          insertedAt: "2022-07-28T08:35:45.1665621",
-          updatedAt: "2022-07-28T08:35:45.1665621",
-        },
-        {
-          key: "90d6f37b-e31e-494f-9130-df19244e75c9",
-          name: "Test Machine #3",
-          machine: {
-            id: 3,
-          },
-          endpoint: "1.1.1.3",
-          insertedAt: "2022-07-28T08:35:54.2450391",
-          updatedAt: "2022-07-28T08:35:54.2450391",
-        },
-      ],
-    };
+
     if (groupId) {
-      makeGroupGridData(res);
+      fetchGroupData();
     }
     return () => {
       //  cleanup;
@@ -185,8 +212,8 @@ const GroupData = (props) => {
             msg: "Group deleted successfully. Redirecting to all groups.",
           });
           setTimeout(() => {
-            props.history.push("/groups");
-          }, 3000);
+            props.history.push("/all-groups");
+          }, 2000);
         })
         .catch((err) => {
           setLoading(false);
@@ -199,6 +226,67 @@ const GroupData = (props) => {
     setOpenGroupModal(false);
     setgroupData([]);
     setmachineData([]);
+    props.history.push(
+      `/group/?groupid=${response.groupId}&groupname=${response.name}`
+    );
+  };
+
+  const loadOptions = (inputValue, callback) => {
+    if (!inputValue) return;
+    setTimeout(() => {
+      axios
+        .post(`/users`, {
+          expression: `firstName.contains("${inputValue}") || lastName.contains("${inputValue}") || email.contains("${inputValue}")`,
+          sort: "Id ASC",
+        })
+        .then((data) => {
+          const tempArray = [];
+          console.log("data", data);
+          if (data) {
+            if (data.items.length) {
+              console.log("in if");
+              data.items.forEach((element) => {
+                tempArray.push({
+                  label: `${element.firstName} ${element.lastName}`,
+                  value: `${element.id}`,
+                });
+              });
+            }
+          }
+          console.log("tempArray", tempArray);
+          callback(tempArray);
+        })
+        .catch((error) => {
+          console.log(error, "catch the hoop");
+        });
+    }, 1000);
+  };
+
+  const onSearchChange = (selectedOption) => {
+    console.log("on srch change", selectedOption);
+    if (selectedOption) {
+      setUserFilter({ selectedOption });
+    }
+  };
+  const addUsertoGroup = (value) => {
+    setLoading(true);
+    axios
+      .put(`/users/profile/${value.value}/groups/${groupId}`)
+      .then((data) => {
+        setLoading(false);
+        setSuccess({
+          success: true,
+          msg: "User successfully added to the group.",
+        });
+        fetchGroupData();
+      })
+      .catch((e) => {
+        setLoading(false);
+        setSuccess({
+          error: true,
+          msg: "Error Ocurred while adding user to the group. " + e,
+        });
+      });
   };
   return (
     <React.Fragment>
@@ -214,7 +302,7 @@ const GroupData = (props) => {
                   {successMsg.error === true ? (
                     <Alert color="danger">{successMsg.msg}</Alert>
                   ) : successMsg.success === true ? (
-                    <Alert color="danger">{successMsg.msg}</Alert>
+                    <Alert color="success">{successMsg.msg}</Alert>
                   ) : null}
                 </Col>
               </Row>
@@ -226,7 +314,7 @@ const GroupData = (props) => {
                       <h4>{groupname}</h4>
                     </div>
 
-                    <div className="group-action-button">
+                    <div>
                       <Button
                         type="button"
                         color="success"
@@ -234,7 +322,7 @@ const GroupData = (props) => {
                           setOpenGroupModal(true);
                         }}
                       >
-                        Create a Group
+                        Create new Group
                       </Button>
 
                       <Button
@@ -252,43 +340,104 @@ const GroupData = (props) => {
                 </CardTitle>
                 <CardBody>
                   {/* for users table */}
+                  <div className="flexSearchBox">
+                    <div className="sss-3">
+                      <Label
+                        htmlFor="choices-single-no-search"
+                        className="form-label text-muted"
+                      >
+                        Search User
+                      </Label>
+                      <AsyncSelect
+                        // cacheOptions
+                        loadOptions={loadOptions}
+                        //   defaultOptions
+                        onInputChange={onSearchChange}
+                        value={userFilter.value}
+                        placeholder="Type to search user"
+                        onChange={(value) => {
+                          addUsertoGroup(value);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Button
+                        type="button"
+                        color="success"
+                        onClick={() => {
+                          console.log("clear state");
+                          setUserFilter({ value: "" });
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+
                   <DataTable
                     title="Users"
                     columns={userColumns}
                     data={groupData}
                     pagination
                     paginationServer
-                    selectableRows
+                    //selectableRows
                     // paginationTotalRows={totalRows}
                     // onChangePage={handlePageChange}
                     // onChangeRowsPerPage={handlePerRowsChange}
                     paginationRowsPerPageOptions={[10, 15, 25, 50]}
                     fixedHeader
                   />
-                  <input
-                    type="text"
-                    placeholder="use select and call api to filter user names"
-                  />
+
                   {/* for machine table */}
+                  {/* <div className="flexSearchBox">
+                    <div className="sss-3">
+                      <Label
+                        htmlFor="choices-single-no-search"
+                        className="form-label text-muted"
+                      >
+                        Search Machine
+                      </Label>
+                      <AsyncSelect
+                        // cacheOptions
+                        loadOptions={loadOptions}
+                        //   defaultOptions
+                        onInputChange={onSearchChange}
+                        value={userFilter.value}
+                        placeholder="Type to add machine"
+                        onChange={(value) => {
+                          addMachinetoGroup(value);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Button
+                        type="button"
+                        color="success"
+                        onClick={() => {
+                          console.log("clear state");
+                          setUserFilter({ value: "" });
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </div> */}
                   <DataTable
                     title="Machines"
                     columns={machineColumns}
                     data={machineData}
                     pagination
                     paginationServer
-                    selectableRows
+                    //selectableRows
                     // paginationTotalRows={totalRows}
                     // onChangePage={handlePageChange}
                     // onChangeRowsPerPage={handlePerRowsChange}
                     paginationRowsPerPageOptions={[10, 15, 25, 50]}
                     fixedHeader
                   />
-                  <input
-                    type="text"
-                    placeholder="use select and call api to filter  machine names"
-                  />
+
                   <ConfirmationModal
-                    title="Do you wish to delete this group?"
+                    title={`Do you wish to delete ${groupname} group?`}
                     getUserResponse={getUserResponse}
                     modalState={confirmModal}
                   />

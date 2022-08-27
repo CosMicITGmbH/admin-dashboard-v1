@@ -60,6 +60,7 @@ const Groups = (props) => {
   const [perPage, setPerPage] = useState(10);
   //id,name,Members,machines
   const getAllGroup = (pageNo, per_Page) => {
+    setLoading(true);
     axios
       .post(`/groups?page=${pageNo}&itemsPerPage=${per_Page}`, {})
       .then((res) => {
@@ -90,6 +91,7 @@ const Groups = (props) => {
     gridData[0].machines = a;
     console.log("final res", gridData, a);
     setgroupData(gridData);
+    setLoading(false);
   };
   useEffect(() => {
     getAllGroup(1, 10);

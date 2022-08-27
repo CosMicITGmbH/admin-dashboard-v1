@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 const SelectPage = (props) => {
   const { options, hanldePageSelect, currPage } = props;
+
   return (
     <React.Fragment>
       <select
