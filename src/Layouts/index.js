@@ -65,7 +65,7 @@ const Layout = (props) => {
             leftsidbarSizeType ||
             leftSidebarViewType ||
             leftSidebarImageType
-            ) {
+        ) {
             dispatch(changeLeftsidebarViewType(leftSidebarViewType));
             dispatch(changeLeftsidebarSizeType(leftsidbarSizeType));
             dispatch(changeSidebarTheme(leftSidebarType));
@@ -121,7 +121,7 @@ const Layout = (props) => {
                     <Footer />
                 </div>
             </div>
-            <RightSidebar />
+            {/*<RightSidebar />*/}
         </React.Fragment>
 
     );

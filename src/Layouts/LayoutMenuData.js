@@ -4,6 +4,10 @@ import { useHistory } from "react-router-dom";
 const Navdata = () => {
     const history = useHistory();
     //state data
+    const [isAdministration, setIsAdministration] = useState(false);
+
+
+
     const [isDashboard, setIsDashboard] = useState(false);
     const [isApps, setIsApps] = useState(false);
     const [isAuth, setIsAuth] = useState(false);
@@ -69,6 +73,9 @@ const Navdata = () => {
 
     useEffect(() => {
         document.body.classList.remove('twocolumn-panel');
+        if (iscurrentState !== 'Administration') {
+            setIsAdministration(false);
+        }
         if (iscurrentState !== 'Dashboard') {
             setIsDashboard(false);
         }
@@ -115,6 +122,7 @@ const Navdata = () => {
     }, [
         history,
         iscurrentState,
+        isAdministration,
         isDashboard,
         isApps,
         isAuth,
@@ -128,10 +136,56 @@ const Navdata = () => {
         isMaps,
         isMultiLevel
     ]);
-
+    let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
     const menuItems = [
         {
             label: "Menu",
+            isHeader: true,
+        },
+    ];
+
+    if (userRole == "admin" || userRole == "manager") {
+        menuItems.push(/*{
+            id: "administration",
+            label: "Administration",
+            icon: "mdi mdi-account-tie",
+            link: "/#",
+            stateVariables: isAdministration,
+            click: function (e) {
+                e.preventDefault();
+                setIsAdministration(!isAdministration);
+                setIscurrentState('Administration');
+                updateIconSidebar(e);
+            },
+            subItems: [
+
+            ]
+        },*/
+            {
+                id: "all-users",
+                label: "Users",
+                icon: "mdi mdi-account-multiple-plus",
+                link: "/all-users",
+                parentId: "administration",
+            },
+            {
+                id: "all-groups",
+                label: "Groups",
+                icon: "mdi mdi-group",
+                link: "/all-groups",
+                parentId: "administration",
+            },
+            {
+                id: "all-services",
+                label: "Services",
+                icon: "mdi mdi-security-network",
+                link: "/all-services",
+                parentId: "administration",
+            });
+    }
+    const exampleMenuItems = [
+        {
+            label: "Examples",
             isHeader: true,
         },
         {
@@ -182,8 +236,8 @@ const Navdata = () => {
                     label: "NFT",
                     link: "/dashboard-nft",
                     parentId: "dashboard",
-                    badgeName:"New",
-                    badgeColor:"danger",
+                    badgeName: "New",
+                    badgeColor: "danger",
                 },
             ],
         },
@@ -883,6 +937,6 @@ const Navdata = () => {
             ],
         },
     ];
-    return <React.Fragment>{menuItems}</React.Fragment>;
+    return <React.Fragment>{menuItems.concat(exampleMenuItems)}</React.Fragment>;
 };
 export default Navdata;
