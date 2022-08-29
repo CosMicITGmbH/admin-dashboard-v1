@@ -58,7 +58,7 @@ const Services = (props) => {
       ),
     },
     {
-      name: <span className="font-weight-bold fs-13">Machine-ID</span>,
+      name: <span className="font-weight-bold fs-13">Connected Service-ID</span>,
       database_name: "machineId",
       selector: (row) => row.machineId,
       sortable: false,
@@ -96,8 +96,8 @@ const Services = (props) => {
         endpoint: item.endpoint,
         insertedAt: item.insertedAt,
         updatedAt: item.updatedAt,
-        machineId: item?.machine?.connectedServices?.map(service => service.key).join("\r\n") || "",
-        machineKey: item?.machine?.connectedServices?.map(service => service.name).join("\r\n") || "",
+        machineId: item?.machine?.connectedServices?.map(service => service.key).join("<br />") || "",
+        machineKey: item?.machine?.connectedServices?.map(service => service.name).join("<br />") || "",
       };
     });
   };
@@ -110,7 +110,7 @@ const Services = (props) => {
     () => debounce(changeHandler, 300),
     []
   );
-  const getExpression = val => `Key.ToString().Contains("${val}") || Name.Contains("${val}") || identity.services.Any(x => x.key.ToString().Contains("${val}") || x.name.Contains("${val}"))`;
+  const getExpression = val => `Key.ToString().ToLower().Contains("${val}".ToLower()) || Name.ToLower().Contains("${val}".ToLower()) || identity.services.Any(x => x.key.ToString().ToLower().Contains("${val}".ToLower()) || x.name.ToLower().Contains("${val}".ToLower()))`;
   return (
     <React.Fragment>
       <div className="page-content">
