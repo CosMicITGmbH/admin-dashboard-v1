@@ -118,68 +118,47 @@ const Services = (props) => {
           <header className="card-title mb-4">
             <h4>List of services</h4>
           </header>
-          {loading ? (
-            <Loader />
-          ) : (
-            <>
-              <Row>
-                <Col>
-                  <InputGroup>
-                    <Input
-                      // value={filterText}
-                      type="text"
-                      placeholder="Search any field..."
-                      onChange={debouncedChangeHandler}
-                    />
-                    <Button
-                      onClick={() => {
-                        console.log("clear button clicked");
-                        //  setFilterText("");
-                        // getAllUsers(1)
-                      }}
-                    >
-                      Reset
-                    </Button>
-                  </InputGroup>
-                </Col>
-              </Row>
-              <Card>
-                <CardBody>
-                  <PaginatedTable
-                    title="List of Services"
-                    url="/services"
-                    columns={columns}
-                    mapResponse={setServiceArr}
-                    getExpression={getExpression}
-                    defaultSort="insertedAt ASC"
-                  />
-                  {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
-                  <div className="text-center my-4 mx-2">
-                    <Button
-                      type="button"
-                      color="info"
-                      onClick={() => {
-                        setmodalService(true);
-                      }}
-                    >
-                      Add Service
-                    </Button>
+          {loading ? <Loader /> : <></>}
 
-                    <Button
-                      type="button"
-                      color="success"
-                      onClick={() => {
-                        setmodalMachine(true);
-                      }}
-                      style={{ marginLeft: "3px" }}
-                    >
-                      Add Machine
-                    </Button>
-                  </div>
-                </CardBody>
-              </Card>
-            </>
-          )}
+          <div style={{ display: loading == false ? 'block' : 'hidden' }}>
+            <Card>
+              <CardBody>
+                <PaginatedTable
+                  title="List of Services"
+                  url="/services"
+                  columns={columns}
+                  mapResponse={setServiceArr}
+                  getExpression={getExpression}
+                  defaultSort="insertedAt ASC"
+                  setLoading={(state) => setLoading(state)}
+                />
+                {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
+                <div className="text-center my-4 mx-2">
+                  <Button
+                    type="button"
+                    color="info"
+                    onClick={() => {
+                      setmodalService(true);
+                    }}
+                  >
+                    Add Service
+                  </Button>
+
+                  <Button
+                    type="button"
+                    color="success"
+                    onClick={() => {
+                      setmodalMachine(true);
+                    }}
+                    style={{ marginLeft: "3px" }}
+                  >
+                    Add Machine
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
           <AddServiceModal
             modalState={modalService}
             closeServiceModal={() => {

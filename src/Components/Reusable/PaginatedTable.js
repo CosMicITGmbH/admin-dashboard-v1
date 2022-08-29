@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import axios from "axios";
+import {
+  Input,
+  InputGroup,
+  InputGroupText,
+  Button,
+  Row,
+  Col,
+} from "reactstrap";
 const PaginatedTable = (props) => {
-  const { title, url, columns, mapResponse, getExpression, defaultSort } = props;
+  const { title, url, columns, mapResponse, getExpression, defaultSort, setLoading } = props;
 
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [items, setItems] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState(defaultSort || "id ASC");
   const [search, setSearch] = useState("");
   const [expression, setExpression] = useState("");
@@ -18,15 +23,14 @@ const PaginatedTable = (props) => {
     fetchData(page, perPage, sort, expression);
   }, [page, perPage, sort, expression])
   const fetchData = async (page, per_page, sort, expression) => {
+    setLoading(true);
     axios
       .post(`${url}?page=${page || 1}&itemsPerPage=${per_page || 10}`, { "sort": sort, "expression": expression })
       .then((data) => {
-        setIsLoaded(true);
         if (page != data.page)
           setPage(data.page);
         setItems(mapResponse ? mapResponse(data.items) : data.items);
         setTotalRows(data.totalItems);
-        setLoading(false);
       })
 
       .catch((err) => {
@@ -34,7 +38,8 @@ const PaginatedTable = (props) => {
         if (err.split(" ").includes("401")) {
           props.history.push("/login");
         }
-        setIsLoaded(true);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }
@@ -47,9 +52,6 @@ const PaginatedTable = (props) => {
     setPerPage(newPerPage);
   }
 
-  columns.forEach(columnd => {
-
-  });
 
   const handleInputExpression = async (e) => {
     var val = e.target.value;
@@ -65,12 +67,22 @@ const PaginatedTable = (props) => {
   };
   return (
     <React.Fragment>
-      <div>
-        <input
-          type="text"
-          value={search}
-          onChange={handleInputExpression}
-        />
+      <Row>
+        <Col>
+          <InputGroup>
+            <Input
+              type="search"
+              placeholder="Search any field..."
+              value={search}
+              onChange={handleInputExpression}
+            />
+            <Button addon addonType="prepend">
+              <i className="las la-search" />
+            </Button>
+          </InputGroup>
+        </Col>
+      </Row>
+      <Row>
         <DataTable
           title={title}
           columns={columns}
@@ -85,8 +97,8 @@ const PaginatedTable = (props) => {
           sortServer
           onSort={handleSort}
         />
-      </div>
-    </React.Fragment>
+      </Row>
+    </React.Fragment >
   );
 };
 
