@@ -61,6 +61,7 @@ const Groups = (props) => {
   //id,name,Members,machines
   const getAllGroup = (pageNo, per_Page) => {
     setLoading(true);
+    console.log(`url is: /groups?page=${pageNo}&itemsPerPage=${per_Page}`);
     axios
       .post(`/groups?page=${pageNo}&itemsPerPage=${per_Page}`, {})
       .then((res) => {
@@ -68,11 +69,11 @@ const Groups = (props) => {
         setgridData(res.items);
       })
       .catch((err) => {
+        setLoading(false);
         console.log(err);
-        if (err.split(" ").includes("401")) {
+        if (err.includes("401")) {
           props.history.push("/login");
         }
-        setLoading(false);
       });
   };
 

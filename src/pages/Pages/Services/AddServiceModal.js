@@ -19,6 +19,8 @@ import { useFormik } from "formik";
 
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import CopyInput from "../../../Components/Reusable/CopyInput";
+import { registerTransform } from "echarts";
 const AddServiceModal = (props) => {
   const [service, setService] = useState({
     error: false,
@@ -43,7 +45,7 @@ const AddServiceModal = (props) => {
       endpoint: Yup.string().required("Please Enter Endpoint"),
       password: Yup.string().required("Please Enter password"),
     }),
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       // console.log("values on submit", values);
       // let newVal = { ...values };
 
@@ -57,11 +59,12 @@ const AddServiceModal = (props) => {
             setService({
               error: false,
               success: true,
-              msg: `${values.name} successfully registered. `,
+              msg: `${values.name} successfully registered. The Password and Secret data are only displayed once. Kindly copy them now.`,
               loading: false,
               disable: true,
             });
             setResponse(data);
+            resetForm({ values: "" });
           })
           .catch((err) => {
             //    console.log("post data", err);
@@ -136,6 +139,7 @@ const AddServiceModal = (props) => {
                   onSubmit={(e) => {
                     e.preventDefault();
                     validation.handleSubmit();
+
                     return false;
                   }}
                 >
@@ -231,30 +235,12 @@ const AddServiceModal = (props) => {
                 </Form>
                 {response && (
                   <div style={{ width: "100%", marginTop: "2rem" }}>
-                    <pre
-                      style={{
-                        backgroundColor: "#3B3B3B",
-                        color: "white",
-                        padding: "5px",
-                      }}
-                    >
-                      {JSON.stringify(response, null, 2)}
-                    </pre>
-                    <Button
-                      type="button"
-                      color="info"
-                      onClick={() => {
-                        navigator.clipboard.writeText(JSON.stringify(response));
-                        setService({
-                          ...service,
-                          success: true,
-                          msg: "Copied",
-                        });
-                      }}
-                      //  disabled={userData.role === "user"}
-                    >
-                      Copy
-                    </Button>
+                    <CopyInput title="Key" value={response.apiKey} />
+                    <CopyInput title="Secret" value={response.apiSecret} />
+                    <CopyInput
+                      title="Passphrase"
+                      value={response.apiPassphrase}
+                    />
                   </div>
                 )}
               </CardBody>

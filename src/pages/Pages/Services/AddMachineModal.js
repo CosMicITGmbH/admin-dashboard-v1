@@ -20,6 +20,7 @@ import { useFormik } from "formik";
 //import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import CopyInput from "../../../Components/Reusable/CopyInput";
 
 const AddMachineModal = (props) => {
   // const [loading, setLoading] = useState(false);
@@ -47,7 +48,7 @@ const AddMachineModal = (props) => {
       endpoint: Yup.string().required("Please Enter Endpoint"),
       password: Yup.string().required("Please Enter password"),
     }),
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       // console.log("values on submit", values);
       //  let newVal = { ...values };
 
@@ -61,11 +62,12 @@ const AddMachineModal = (props) => {
             setService({
               error: false,
               success: true,
-              msg: `${values.name} successfully registered. `,
+              msg: `${values.name} successfully registered. The Password and Secret data are only displayed once. Kindly copy them now.`,
               loading: false,
               disable: true,
             });
             setResponse(data);
+            resetForm({ values: "" });
           })
           .catch((err) => {
             //    console.log("post data", err);
@@ -261,29 +263,13 @@ const AddMachineModal = (props) => {
                 </Form>
                 {response && (
                   <div style={{ width: "100%", marginTop: "2rem" }}>
-                    <pre
-                      style={{
-                        backgroundColor: "#3B3B3B",
-                        color: "white",
-                        padding: "5px",
-                      }}
-                    >
-                      {JSON.stringify(response, null, 2)}
-                    </pre>
-                    <Button
-                      type="button"
-                      color="info"
-                      onClick={() => {
-                        navigator.clipboard.writeText(JSON.stringify(response));
-                        setService({
-                          ...service,
-                          success: true,
-                          msg: "Copied",
-                        });
-                      }}
-                    >
-                      Copy
-                    </Button>
+                    <CopyInput title="Name" value={response.api.name} />
+                    <CopyInput title="Key" value={response.api.apiKey} />
+                    <CopyInput title="Secret" value={response.api.apiSecret} />
+                    <CopyInput
+                      title="Passphrase"
+                      value={response.api.apiPassphrase}
+                    />
                   </div>
                 )}
               </CardBody>

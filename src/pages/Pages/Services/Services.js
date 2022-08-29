@@ -62,7 +62,7 @@ const Services = (props) => {
       sortable: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Machine-ID</span>,
+      name: <span className="font-weight-bold fs-13">Machine-Key</span>,
       selector: (row) => row.machineKey,
       sortable: true,
     },

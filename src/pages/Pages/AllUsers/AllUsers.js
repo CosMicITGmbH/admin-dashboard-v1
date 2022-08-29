@@ -10,46 +10,17 @@ import Loader from "../../../Components/Common/Loader";
 import Groups from "../Groups/Groups";
 import { debounce } from "lodash";
 import Select from "../../../Components/Reusable/SelectPage";
+import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 //let pages = [5, 10, 20, 30, 40, 50];
 
 const AllUsers = (props) => {
   const [userData, setUserData] = useState([]);
-  const [data, setData] = useState([
-    {
-      id: 1,
-      Name: "admin example",
-      Email: "admin@example.com",
-      Role: "admin",
-    },
-    {
-      id: 2,
-      Name: "manager example",
-      Email: "manager@example.com",
-      Role: "manager",
-    },
-    {
-      id: 3,
-      Name: "user example",
-      Email: "user@example.com",
-      Role: "user",
-    },
-    {
-      id: 4,
-      Name: "admin1 admin11",
-      Email: "admin1@example.com",
-      Role: "admin",
-    },
-    {
-      id: 5,
-      Name: "admin2 admin11",
-      Email: "admin2@example.com",
-      Role: "admin",
-    },
-  ]);
+  const [userToDelete, setUsertoDelete] = useState(null);
+
   // const [page, setPage] = useState(pages[0]);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
-
+  const [confirmModal, setConfirmModal] = useState(false);
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [filterText, setFilterText] = React.useState("");
@@ -107,7 +78,8 @@ const AllUsers = (props) => {
         <Button
           onClick={() => {
             console.log("button clicked", row.id);
-            deleteUserById(row.id);
+            setConfirmModal(true);
+            setUsertoDelete(row.id);
           }}
         >
           Delete
@@ -155,7 +127,7 @@ const AllUsers = (props) => {
 
       .catch((err) => {
         console.log(err);
-        if (err.split(" ").includes("401")) {
+        if (err.includes("401")) {
           props.history.push("/login");
         }
         setLoading(false);
@@ -233,6 +205,12 @@ const AllUsers = (props) => {
     () => debounce(changeHandler, 300),
     []
   );
+
+  const getUserResponse = (response) => {
+    if (response) {
+      deleteUserById(deleteUserById);
+    }
+  };
   return (
     <React.Fragment>
       <div className="page-content">
@@ -305,6 +283,11 @@ const AllUsers = (props) => {
             closeRegModal={() => {
               setmodal_RegistrationModal(!modal_RegistrationModal);
             }}
+          />
+          <ConfirmationModal
+            title={`Do you wish to delete this user?`}
+            getUserResponse={getUserResponse}
+            modalState={confirmModal}
           />
         </Container>
       </div>
