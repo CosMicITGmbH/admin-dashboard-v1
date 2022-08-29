@@ -17,26 +17,31 @@ import Moment from "react-moment";
 import axios from "axios";
 import AddServiceModal from "./AddServiceModal";
 import AddMachineModal from "./AddMachineModal";
+import PaginatedTable from "../../../Components/Reusable/PaginatedTable";
 
 const Services = (props) => {
   const columns = [
     {
       name: <span className="font-weight-bold fs-13">Key</span>,
+      database_name: "key",
       selector: (row) => row.key,
       sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Name</span>,
+      database_name: "name",
       selector: (row) => row.name,
       sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">EndPoint</span>,
+      database_name: "endpoint",
       selector: (row) => row.endpoint,
       sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">CreatedOn</span>,
+      database_name: "insertedAt",
       selector: (row) => row.insertedAt,
       sortable: true,
       cell: (row) => (
@@ -45,33 +50,27 @@ const Services = (props) => {
     },
     {
       name: <span className="font-weight-bold fs-13">Updated On</span>,
+      database_name: "updatedAt",
       selector: (row) => row.updatedAt,
       sortable: true,
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.updatedAt}</Moment>}</span>
       ),
     },
-    // {
-    //   name: <span className="font-weight-bold fs-13">Machine</span>,
-    //   selector: (row) => row.machine,
-    //   sortable: true,
-    // },
     {
       name: <span className="font-weight-bold fs-13">Machine-ID</span>,
+      database_name: "machineId",
       selector: (row) => row.machineId,
-      sortable: true,
+      sortable: false,
     },
     {
-      name: <span className="font-weight-bold fs-13">Machine-ID</span>,
+      name: <span className="font-weight-bold fs-13">Connected Service</span>,
       selector: (row) => row.machineKey,
-      sortable: true,
+      sortable: false,
     },
   ];
   // const [data, setData] = useState([]);
-  const [gridData, setGridData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
   const [modalService, setmodalService] = useState(false);
   const [modalMachine, setmodalMachine] = useState(false);
   document.title = "All Services | Velzon - React Admin & Dashboard Template";
@@ -82,7 +81,7 @@ const Services = (props) => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
     //  console.log("user role", userRole);
     if (userRole !== "user") {
-      getAllServices(1, 10);
+      //getAllServices(1, 10);
     } else {
       //redirect to dashboard
       props.history.push("/dashboard");
@@ -90,64 +89,17 @@ const Services = (props) => {
   }, []);
   const setServiceArr = (services) => {
     console.log("loading services");
-    //let newArr = [];
-    let res1 = services.map((item) => {
+    return services.map((item) => {
       return {
         key: item.key,
         name: item.name,
         endpoint: item.endpoint,
         insertedAt: item.insertedAt,
         updatedAt: item.updatedAt,
-        machineId: item?.machine?.connectedServices?.[0].key || "NA",
-        machineKey: item?.machine?.connectedServices?.[0].name || "NA",
+        machineId: item?.machine?.connectedServices?.map(service => service.key).join("\r\n") || "",
+        machineKey: item?.machine?.connectedServices?.map(service => service.name).join("\r\n") || "",
       };
     });
-    console.log("newArr services", res1);
-    setGridData(res1);
-  };
-  function getAllServices(pageNo, per_Page) {
-    setLoading(true);
-    console.log(`url=/services?page=${pageNo}&itemsPerPage=${per_Page}`);
-    axios
-      .post(`/services?page=${pageNo}&itemsPerPage=${per_Page}`, {})
-      .then((data) => {
-        console.log(data.items);
-
-        setLoading(false);
-        //setData(data.items)
-        setServiceArr(data.items);
-      })
-
-      .catch((err) => {
-        console.log(err);
-        if (err.split(" ").includes("401")) {
-          props.history.push("/login");
-        }
-        setLoading(false);
-      });
-  }
-  const handlePageChange = (page) => {
-    console.log("handlePageChange", page);
-    getAllServices(page, perPage);
-    //setTotalRows(totalRows - perPage);
-  };
-  const handlePerRowsChange = async (newPerPage, page) => {
-    //let url = `/users?page=${page}&itemsPerPage=${newPerPage}`;
-    console.log(
-      `newPerPage=${newPerPage} page=${page} url=/services?page=${page}&itemsPerPage=${newPerPage}`
-    );
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `/services?page=${page}&itemsPerPage=${newPerPage}`,
-        {}
-      );
-      setLoading(false);
-      setServiceArr(response.items);
-    } catch (error) {
-      console.log("Err", error);
-      setLoading(false);
-    }
   };
 
   const changeHandler = (event) => {
@@ -158,6 +110,7 @@ const Services = (props) => {
     () => debounce(changeHandler, 300),
     []
   );
+  const getExpression = val => `Key.ToString().Contains("${val}") || Name.Contains("${val}") || identity.services.Any(x => x.key.ToString().Contains("${val}") || x.name.Contains("${val}"))`;
   return (
     <React.Fragment>
       <div className="page-content">
@@ -192,28 +145,13 @@ const Services = (props) => {
               </Row>
               <Card>
                 <CardBody>
-                  <DataTable
+                  <PaginatedTable
                     title="List of Services"
+                    url="/services"
                     columns={columns}
-                    data={gridData}
-                    pagination
-                    paginationServer
-                    // paginationTotalRows={totalRows}
-                    onChangePage={handlePageChange}
-                    onChangeRowsPerPage={handlePerRowsChange}
-                    paginationRowsPerPageOptions={[10, 15, 25, 50]}
-                    fixedHeader
-                    style={{
-                      td: "80px",
-                      th: "80px",
-                    }}
-                    //paginationTotalRows
-                    //  paginationDefaultPage={perPage}
-                    //fixedHeaderScrollHeight="500px"
-                    //selectableRows
-                    //persistTableHead
-                    //subHeader
-                    // subHeaderComponent={subHeaderComponentMemo}
+                    mapResponse={setServiceArr}
+                    getExpression={getExpression}
+                    defaultSort="insertedAt ASC"
                   />
                   {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
                   <div className="text-center my-4 mx-2">
