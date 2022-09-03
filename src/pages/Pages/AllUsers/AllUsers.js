@@ -1,68 +1,51 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { isEmpty } from "lodash";
+import React, { useState, useEffect } from "react";
+
 import axios from "axios";
 import { Grid, _ } from "gridjs-react";
-import { Container, Button, InputGroup, Input, Row, Col } from "reactstrap";
+import {
+  Container,
+  Button,
+  InputGroup,
+  Input,
+  Row,
+  Col,
+  Alert,
+} from "reactstrap";
 import DataTable from "react-data-table-component";
-// import { Cell } from "gridjs";
 import RegisterUserModal from "./RegisterUserModal";
 import Loader from "../../../Components/Common/Loader";
-import Groups from "../Groups/Groups";
-import { debounce } from "lodash";
-import Select from "../../../Components/Reusable/SelectPage";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
-//let pages = [5, 10, 20, 30, 40, 50];
 
 const AllUsers = (props) => {
-  const [userData, setUserData] = useState([]);
-  const [userToDelete, setUsertoDelete] = useState(null);
-
-  // const [page, setPage] = useState(pages[0]);
-  const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [filterText, setFilterText] = React.useState("");
-  const [resetPaginationToggle, setResetPaginationToggle] =
-    React.useState(false);
-  function getRole(role) {
-    let newRole;
-    switch (role) {
-      case "1":
-        newRole = "admin";
-        break;
-      case "2":
-        newRole = "manager";
-        break;
-      case "3":
-        newRole = "user";
-        break;
-      default:
-        newRole = role;
-        break;
-    }
-    return newRole;
-  }
   const columns = [
     {
       name: <span className="font-weight-bold fs-13">ID</span>,
       selector: (row) => row.id,
       sortable: true,
+      database_name: "id",
     },
     {
-      name: <span className="font-weight-bold fs-13">Name</span>,
-      selector: (row) => row.Name,
+      name: <span className="font-weight-bold fs-13">First Name</span>,
+      selector: (row) => row.firstName,
+      database_name: "firstName",
+      sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Last Name</span>,
+      selector: (row) => row.lastName,
+      database_name: "lastName",
       sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Email</span>,
-      selector: (row) => row.Email,
+      selector: (row) => row.email,
+      database_name: "email",
       sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Role</span>,
-      selector: (row) => row.Role,
+      selector: (row) => row.role,
+      database_name: "role",
       sortable: true,
     },
     {
@@ -77,9 +60,9 @@ const AllUsers = (props) => {
       cell: (row, column) => (
         <Button
           onClick={() => {
-            console.log("button clicked", row.id);
-            setConfirmModal(true);
+            console.log("user to delete", row.id);
             setUsertoDelete(row.id);
+            setConfirmModal(true);
           }}
         >
           Delete
@@ -89,209 +72,214 @@ const AllUsers = (props) => {
       allowOverflow: true,
       button: true,
     },
-    {
-      name: <span className="font-weight-bold fs-13">Groups</span>,
-      columns: [
-        {
-          name: "ID",
-        },
-        {
-          name: "Name",
-        },
-      ],
-    },
   ];
-  function getAllUsers(pageNo, per_Page) {
-    setLoading(true);
-    console.log(`url=/users?page=${pageNo}&itemsPerPage=${per_Page}`);
-    axios
-      .post(`/users?page=${pageNo}&itemsPerPage=${per_Page}`, {})
-      .then((data) => {
-        console.log(data);
-        //  let newArr = [];
-        let res1 = data.items.map((item) => {
-          return {
-            id: item.id,
-            Name: item.firstName + " " + item.lastName,
-            Email: item.email,
-            Role: getRole(item.role),
-          };
-        });
-        // getRole(item.role)
-        console.log("res1", res1, data.totalItems);
-        // console.log("newArr", newArr);
-        setTotalRows(data.totalItems);
-        setUserData(res1);
-        setLoading(false);
-      })
-
-      .catch((err) => {
-        console.log(err);
-        if (err.includes("401")) {
-          props.history.push("/login");
-        }
-        setLoading(false);
-      });
-  }
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [successMsg, setSuccess] = useState({
+    success: false,
+    error: false,
+    msg: "",
+  });
+  const [items, setItems] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [sort, setSort] = useState("id ASC");
+  const [search, setSearch] = useState("");
+  const [expression, setExpression] = useState("");
+  const [userToDelete, setUsertoDelete] = useState(null);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
   useEffect(() => {
-    let pageLimit = 1;
-    // let itemsPerPage = 5;
-    //check role n
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
     console.log("user role", userRole);
     if (userRole !== "user") {
-      getAllUsers(1, 10);
+      //getAllUsers(1, 10);
+      fetchData(page, perPage, sort, expression);
     } else {
       //redirect to dashboard
       props.history.push("/dashboard");
     }
-  }, []);
+  }, [page, perPage, sort, expression]);
 
-  const deleteUserById = (id) => {
-    console.log("id to be deleted", id);
+  const fetchDataDefault = async () => {
+    fetchData(page, perPage, sort, expression);
+  };
+  const fetchData = async (page, per_page, sort, expression) => {
+    if (!page) {
+      setPage(1);
+    }
+    console.log({ page });
+    setLoading(true);
     axios
-      .delete(`/users/${id}`)
-      .then((data) => {
-        //  console.log("data delete successfully");
-
-        getAllUsers(1, perPage); //already handles loading
+      .post(`/users?page=${page}&itemsPerPage=${per_page}`, {
+        sort: sort,
+        expression: expression,
       })
-      .catch((err) => {
-        console.log("err occurred while delete data", err);
-        alert(err);
+      .then((data) => {
+        console.log("user data", data);
         setLoading(false);
+        if (page != data.page) setPage(data.page);
+        if (data?.items) {
+          setItems(data.items);
+        } else {
+          return setItems([]);
+        }
+        setIsLoaded(true);
+        setTotalRows(data.totalItems);
+      })
+
+      .catch((err) => {
+        console.log(err);
+        setIsLoaded(true);
+        setLoading(false);
+        setSuccess({
+          error: true,
+          success: false,
+          msg: `Error: ${err} Please try again later! `,
+        });
       });
   };
 
   const handlePageChange = (page) => {
-    console.log("handlePageChange", page);
-    getAllUsers(page, perPage);
-    setTotalRows(totalRows - perPage);
-  };
-  const handlePerRowsChange = async (newPerPage, page) => {
-    //let url = `/users?page=${page}&itemsPerPage=${newPerPage}`;
-    console.log(
-      `newPerPage=${newPerPage} page=${page} url=/users?page=${page}&itemsPerPage=${newPerPage}`
-    );
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `/users?page=${page}&itemsPerPage=${newPerPage}`,
-        {}
-      );
-      console.log("items:", response);
-      let res1 = response.items.map((item) => {
-        return {
-          id: item.id,
-          Name: item.firstName + " " + item.lastName,
-          Email: item.email,
-          Role: getRole(item.role),
-        };
-      });
-      setUserData(res1);
-      setPerPage(newPerPage);
-      setLoading(false);
-    } catch (error) {
-      console.log("Err", error);
-      setLoading(false);
-    }
+    setPage(page);
   };
 
-  const changeHandler = (event) => {
-    console.log("event.target.value", event.target.value);
-    setFilterText(event.target.value);
+  const handlePerRowsChange = async (newPerPage, page) => {
+    setPerPage(newPerPage);
   };
-  const debouncedChangeHandler = useMemo(
-    () => debounce(changeHandler, 300),
-    []
-  );
+
+  const handleInputExpression = async (e) => {
+    var val = e.target.value.toLowerCase();
+    setSearch(val);
+    if (val == "") setExpression("");
+    else
+      setExpression(
+        `firstname.Contains("${val}") || lastname.Contains("${val}") || email.Contains("${val}")`
+      );
+    // fetchData(page, perPage, sort, val);
+  };
+  const handleSort = async (column, sortDirection) => {
+    console.log({ column: column.database_name, sortDirection });
+    try {
+      console.log({ page });
+      let sort = column.database_name + " " + sortDirection;
+      // setSort(column.database_name + " " + sortDirection);
+      console.log({ page, perPage, sort, expression });
+      fetchData(page, perPage, sort, expression);
+    } catch (err) {
+      console.log(err);
+      setSuccess({
+        error: true,
+        success: false,
+        msg: `Error: ${err} Please try again later! `,
+      });
+    }
+  };
 
   const getUserResponse = (response) => {
+    console.log("user input close", response);
+    setConfirmModal(false);
     if (response) {
-      deleteUserById(deleteUserById);
+      deleteUserById(userToDelete);
     }
   };
+  const deleteUserById = (id) => {
+    console.log("id to be deleted", id, userToDelete);
+
+    axios
+      .delete(`/users/${id}`)
+      .then((data) => {
+        fetchDataDefault();
+        setSuccess({
+          success: true,
+          error: false,
+          msg: "User deleted successfully.",
+        });
+      })
+      .catch((err) => {
+        console.log("err occurred while delete data", err);
+        // alert(err);
+        setSuccess({
+          success: false,
+          error: true,
+          msg: err,
+        });
+        setLoading(false);
+      });
+  };
+
   return (
-    <React.Fragment>
-      <div className="page-content">
-        <Container fluid>
-          {loading ? (
-            <Loader />
-          ) : (
-            <>
-              <Row>
-                <Col>
-                  <InputGroup>
-                    <Input
-                      // value={filterText}
-                      type="text"
-                      placeholder="Search any field..."
-                      onChange={debouncedChangeHandler}
-                    />
-                    <Button
-                      onClick={() => {
-                        console.log("clear button clicked");
-                        setFilterText("");
-                        // getAllUsers(1)
-                      }}
-                    >
-                      Reset
-                    </Button>
-                  </InputGroup>
-                </Col>
-                <Col>
-                  <Button
-                    type="button"
-                    color="info"
-                    //  disabled={userData.currentRole === "user"}
-                    onClick={() => {
-                      //  changePassword();
-                      setmodal_RegistrationModal(true);
+    <div className="page-content">
+      <Container fluid>
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            <Row>
+              <Col lg="12">
+                {successMsg.error === true ? (
+                  <Alert color="danger">{successMsg.msg}</Alert>
+                ) : successMsg.success === true ? (
+                  <Alert color="success">{successMsg.msg}</Alert>
+                ) : null}
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <InputGroup>
+                  <Input
+                    type="text"
+                    placeholder="Search any field..."
+                    value={search}
+                    onChange={handleInputExpression}
+                  />
+                </InputGroup>
+              </Col>
+              <Col>
+                <Button
+                  type="button"
+                  color="info"
+                  //  disabled={userData.currentRole === "user"}
+                  onClick={() => {
+                    setmodal_RegistrationModal(true);
 
-                      console.log("open register gui");
-                    }}
-                    style={{ marginLeft: "3px" }}
-                  >
-                    Register a user
-                  </Button>{" "}
-                </Col>
-              </Row>
-
-              <DataTable
-                title="List of Users"
-                columns={columns}
-                data={userData}
-                pagination
-                paginationServer
-                paginationTotalRows={totalRows}
-                onChangePage={handlePageChange}
-                onChangeRowsPerPage={handlePerRowsChange}
-                paginationRowsPerPageOptions={[10, 15, 25, 50]}
-                fixedHeader
-                //paginationTotalRows
-                //  paginationDefaultPage={perPage}
-                //fixedHeaderScrollHeight="500px"
-                //selectableRows
-                //persistTableHead
-                //subHeader
-                // subHeaderComponent={subHeaderComponentMemo}
-              />
-            </>
-          )}
-          <RegisterUserModal
-            modalState={modal_RegistrationModal}
-            closeRegModal={() => {
-              setmodal_RegistrationModal(!modal_RegistrationModal);
-            }}
-          />
-          <ConfirmationModal
-            title={`Do you wish to delete this user?`}
-            getUserResponse={getUserResponse}
-            modalState={confirmModal}
-          />
-        </Container>
-      </div>
-    </React.Fragment>
+                    console.log("open register gui");
+                  }}
+                  style={{ marginLeft: "3px" }}
+                >
+                  Register a user
+                </Button>{" "}
+              </Col>
+            </Row>
+            <DataTable
+              title="LIST OF USERS"
+              columns={columns}
+              data={items}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationRowsPerPageOptions={[10, 25, 50]}
+              onChangePage={handlePageChange}
+              onChangeRowsPerPage={handlePerRowsChange}
+              // sortServer
+              onSort={handleSort}
+            />
+            <RegisterUserModal
+              modalState={modal_RegistrationModal}
+              closeRegModal={() => {
+                setmodal_RegistrationModal(!modal_RegistrationModal);
+              }}
+            />
+            <ConfirmationModal
+              title={`Do you wish to delete this user?`}
+              getUserResponse={getUserResponse}
+              modalState={confirmModal}
+            />
+          </>
+        )}
+      </Container>
+    </div>
   );
 };
 

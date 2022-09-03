@@ -24,16 +24,19 @@ const Services = (props) => {
       name: <span className="font-weight-bold fs-13">Key</span>,
       selector: (row) => row.key,
       sortable: true,
+      wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Name</span>,
       selector: (row) => row.name,
       sortable: true,
+      wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">EndPoint</span>,
       selector: (row) => row.endpoint,
       sortable: true,
+      wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">CreatedOn</span>,
@@ -60,11 +63,13 @@ const Services = (props) => {
       name: <span className="font-weight-bold fs-13">Machine-ID</span>,
       selector: (row) => row.machineId,
       sortable: true,
+      wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Machine-Key</span>,
       selector: (row) => row.machineKey,
       sortable: true,
+      wrap: true,
     },
   ];
   // const [data, setData] = useState([]);

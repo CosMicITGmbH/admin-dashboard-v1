@@ -10,6 +10,8 @@ import {
   Label,
   Form,
   FormFeedback,
+  Col,
+  Alert,
 } from "reactstrap";
 
 // Formik Validation
@@ -27,6 +29,12 @@ const RegisterUserModal = (props) => {
     success: false,
     msg: "",
     loading: false,
+  });
+  const [successMsg, setSuccess] = useState({
+    success: false,
+    error: false,
+    msg: "",
+    // found: false
   });
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
@@ -48,7 +56,7 @@ const RegisterUserModal = (props) => {
       ),
       email: Yup.string().required("Please Enter Your Email"),
     }),
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       // console.log("values on submit", values);
       let newVal = { ...values };
       if (
@@ -71,14 +79,23 @@ const RegisterUserModal = (props) => {
         axios
           .post("/auth/user/register", newVal)
           .then((data) => {
-            //   console.log("post data", data);
+            console.log("post data", data);
             let username = newVal.firstName || "user";
             setRegistration({
               error: false,
               success: true,
-              msg: `${username} || successfully registered. `,
+              msg: `${username} Successfully Registered. `,
               loading: false,
             });
+            console.log("post data after set");
+            setTimeout(() => {
+              props.closeRegModal();
+              setRegistration({
+                error: false,
+                success: false,
+              });
+            }, 2000);
+            resetForm();
           })
           .catch((err) => {
             //    console.log("post data", err);
@@ -132,6 +149,15 @@ const RegisterUserModal = (props) => {
                 <h5 className="text-primary text-center">
                   User Registation form
                 </h5>
+                <Row>
+                  <Col lg="12">
+                    {registration.error === true ? (
+                      <Alert color="danger">{registration.msg}</Alert>
+                    ) : registration.success === true ? (
+                      <Alert color="success">{registration.msg}</Alert>
+                    ) : null}
+                  </Col>
+                </Row>
 
                 <Form
                   className="form-horizontal"
