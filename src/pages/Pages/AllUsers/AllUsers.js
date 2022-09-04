@@ -41,6 +41,7 @@ const AllUsers = (props) => {
       selector: (row) => row.email,
       database_name: "email",
       sortable: true,
+      wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Role</span>,
@@ -90,6 +91,7 @@ const AllUsers = (props) => {
   const [userToDelete, setUsertoDelete] = useState(null);
   const [confirmModal, setConfirmModal] = useState(false);
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
+  document.title = "All Users";
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
     console.log("user role", userRole);

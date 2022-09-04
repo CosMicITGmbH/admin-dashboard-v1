@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { debounce } from "lodash";
 import {
   Container,
@@ -23,20 +23,23 @@ const Services = (props) => {
     {
       name: <span className="font-weight-bold fs-13">Key</span>,
       selector: (row) => row.key,
-      sortable: true,
+      // sortable: true,
       wrap: true,
+      database_name: "key",
     },
     {
       name: <span className="font-weight-bold fs-13">Name</span>,
       selector: (row) => row.name,
       sortable: true,
       wrap: true,
+      database_name: "name",
     },
     {
       name: <span className="font-weight-bold fs-13">EndPoint</span>,
       selector: (row) => row.endpoint,
       sortable: true,
       wrap: true,
+      database_name: "endpoint",
     },
     {
       name: <span className="font-weight-bold fs-13">CreatedOn</span>,
@@ -45,6 +48,7 @@ const Services = (props) => {
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.insertedAt}</Moment>}</span>
       ),
+      database_name: "insertedAt",
     },
     {
       name: <span className="font-weight-bold fs-13">Updated On</span>,
@@ -53,46 +57,54 @@ const Services = (props) => {
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.updatedAt}</Moment>}</span>
       ),
+      database_name: "updatedAt",
     },
-    // {
-    //   name: <span className="font-weight-bold fs-13">Machine</span>,
-    //   selector: (row) => row.machine,
-    //   sortable: true,
-    // },
+
     {
       name: <span className="font-weight-bold fs-13">Machine-ID</span>,
       selector: (row) => row.machineId,
-      sortable: true,
+      //sortable: true,
       wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Machine-Key</span>,
       selector: (row) => row.machineKey,
-      sortable: true,
+      // sortable: true,
       wrap: true,
     },
   ];
-  // const [data, setData] = useState([]);
-  const [gridData, setGridData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [successMsg, setSuccess] = useState({
+    success: false,
+    error: false,
+    msg: "",
+  });
+  const [items, setItems] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [sort, setSort] = useState("key ASC");
+  const [search, setSearch] = useState("");
+  const [expression, setExpression] = useState("");
+
   const [modalService, setmodalService] = useState(false);
   const [modalMachine, setmodalMachine] = useState(false);
-  document.title = "All Services | Velzon - React Admin & Dashboard Template";
+  document.title = "All Services";
   useEffect(() => {
-    let pageLimit = 1;
-    // let itemsPerPage = 5;
-    //check role n
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    //  console.log("user role", userRole);
+    console.log("user role", userRole);
     if (userRole !== "user") {
-      getAllServices(1, 10);
+      //getAllUsers(1, 10);
+      console.log("useEffect page", getSearchString());
+      setSearch(getSearchString());
+      fetchData(page, perPage, sort, expression);
     } else {
       //redirect to dashboard
       props.history.push("/dashboard");
     }
-  }, []);
+  }, [page, perPage, sort, expression]);
+
   const setServiceArr = (services) => {
     console.log("loading services");
     //let newArr = [];
@@ -108,59 +120,106 @@ const Services = (props) => {
       };
     });
     console.log("newArr services", res1);
-    setGridData(res1);
+    setItems(res1);
   };
-  function getAllServices(pageNo, per_Page) {
+  const fetchDataDefault = async () => {
+    fetchData(page, perPage, sort, expression);
+  };
+  const fetchData = async (page, per_page, sort, expression) => {
+    // if (!page || page == "undefined") {
+    //   setPage(1);
+    // }
+    console.log({ page });
     setLoading(true);
-    console.log(`url=/services?page=${pageNo}&itemsPerPage=${per_Page}`);
     axios
-      .post(`/services?page=${pageNo}&itemsPerPage=${per_Page}`, {})
-      .then((data) => {
-        console.log(data.items);
-
-        setLoading(false);
-        //setData(data.items)
-        setServiceArr(data.items);
+      .post(`/services?page=${page}&itemsPerPage=${per_page}`, {
+        sort: sort,
+        expression: expression,
       })
-
+      .then((data) => {
+        console.log("services data", {
+          data,
+          page,
+          "data.page": data.page,
+        });
+        setLoading(false);
+        if (page != data.page) setPage(data.page);
+        if (data?.items) {
+          setServiceArr(data.items);
+        } else {
+          return setItems([]);
+        }
+        // setItems(data.items);
+        setIsLoaded(true);
+        setTotalRows(data.totalItems);
+        setLoading(false);
+      })
       .catch((err) => {
         console.log(err);
-        if (err.split(" ").includes("401")) {
-          props.history.push("/login");
-        }
+        setIsLoaded(true);
         setLoading(false);
+        // setSuccess({
+        //   error: true,
+        //   success: false,
+        //   msg: `Error: ${err} Please try again later! `,
+        // });
       });
-  }
-  const handlePageChange = (page) => {
-    console.log("handlePageChange", page);
-    getAllServices(page, perPage);
-    //setTotalRows(totalRows - perPage);
-  };
-  const handlePerRowsChange = async (newPerPage, page) => {
-    //let url = `/users?page=${page}&itemsPerPage=${newPerPage}`;
-    console.log(
-      `newPerPage=${newPerPage} page=${page} url=/services?page=${page}&itemsPerPage=${newPerPage}`
-    );
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `/services?page=${page}&itemsPerPage=${newPerPage}`,
-        {}
-      );
-      setLoading(false);
-      setServiceArr(response.items);
-    } catch (error) {
-      console.log("Err", error);
-      setLoading(false);
-    }
   };
 
-  const changeHandler = (event) => {
-    console.log("event.target.value", event.target.value);
-    //setFilterText(event.target.value);
+  const handlePageChange = (page) => {
+    setPage(page);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    setPerPage(newPerPage);
+  };
+  const getSearchString = () => {
+    return localStorage.getItem("service_search");
+  };
+  const setSearchString = (val) => {
+    localStorage.setItem("service_search", val);
+  };
+  const removeSearchString = () => {
+    localStorage.removeItem("service_search");
+  };
+  const handleInputExpression = async (e) => {
+    var val = e.target.value.toLowerCase();
+    console.log("serched string", val);
+    // let inputStr = getSearchString().concat(val);
+    // console.log(inputStr);
+    // removeSearchString();
+    setSearchString(val);
+    // setSearch(val);
+    if (val == "") setExpression("");
+    else
+      setExpression(`name.Contains("${val}") || endpoint.Contains("${val}")`);
+    // fetchData(page, perPage, sort, val);
+  };
+  const handleSort = async (column, sortDirection) => {
+    console.log({ column: column.database_name, sortDirection });
+    try {
+      let sort = column.database_name + " " + sortDirection;
+      console.log({ sort });
+      setSort(column.database_name + " " + sortDirection);
+      // console.log({ page, perPage, sort, expression });
+      // fetchData(page, perPage, sort, expression);
+    } catch (err) {
+      console.log(err);
+      setSuccess({
+        error: true,
+        success: false,
+        msg: `Error: ${err} Please try again later! `,
+      });
+    }
   };
   const debouncedChangeHandler = useMemo(
-    () => debounce(changeHandler, 300),
+    () =>
+      debounce((e) => {
+        console.log(e.target);
+
+        handleInputExpression(e);
+        // setSearch(e.target.value.toLowerCase());
+      }, 300),
     []
   );
   return (
@@ -175,22 +234,24 @@ const Services = (props) => {
           ) : (
             <>
               <Row>
-                <Col>
+                <Col lg={4} md={4}>
                   <InputGroup>
                     <Input
-                      // value={filterText}
+                      value={getSearchString()}
+                      //ref={inputEl}
                       type="text"
+                      name="search-service"
                       placeholder="Search any field..."
                       onChange={debouncedChangeHandler}
                     />
                     <Button
                       onClick={() => {
-                        console.log("clear button clicked");
-                        //  setFilterText("");
-                        // getAllUsers(1)
+                        localStorage.removeItem("service_search");
+                        setExpression("");
+                        setPage(1);
                       }}
                     >
-                      Reset
+                      Clear
                     </Button>
                   </InputGroup>
                 </Col>
@@ -198,27 +259,17 @@ const Services = (props) => {
               <Card>
                 <CardBody>
                   <DataTable
-                    title="List of Services"
+                    title="LIST OF SERVICES"
                     columns={columns}
-                    data={gridData}
+                    data={items}
                     pagination
                     paginationServer
-                    // paginationTotalRows={totalRows}
+                    paginationTotalRows={totalRows}
+                    paginationRowsPerPageOptions={[10, 25, 50]}
                     onChangePage={handlePageChange}
                     onChangeRowsPerPage={handlePerRowsChange}
-                    paginationRowsPerPageOptions={[10, 15, 25, 50]}
-                    fixedHeader
-                    style={{
-                      td: "80px",
-                      th: "80px",
-                    }}
-                    //paginationTotalRows
-                    //  paginationDefaultPage={perPage}
-                    //fixedHeaderScrollHeight="500px"
-                    //selectableRows
-                    //persistTableHead
-                    //subHeader
-                    // subHeaderComponent={subHeaderComponentMemo}
+                    sortServer
+                    onSort={handleSort}
                   />
                   {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
                   <div className="text-center my-4 mx-2">

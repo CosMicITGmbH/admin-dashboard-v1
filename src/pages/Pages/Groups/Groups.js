@@ -78,6 +78,7 @@ const Groups = (props) => {
   const [userToDelete, setUsertoDelete] = useState(null);
   const [confirmModal, setConfirmModal] = useState(false);
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
+  document.title = "All Groups";
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
     console.log("user role", userRole);
@@ -202,7 +203,7 @@ const Groups = (props) => {
                 </Col>
               </Row>
               <Row>
-                <Col>
+                <Col lg={4} md={2}>
                   <InputGroup>
                     <Input
                       type="text"
