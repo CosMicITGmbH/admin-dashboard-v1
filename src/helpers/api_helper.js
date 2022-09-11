@@ -15,7 +15,6 @@ if (token) axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 // intercepting to capture errors
 axios.interceptors.response.use(
   function (response) {
-    // console.log("response from api helper", response);
     return response.data ? response.data : response;
   },
   function (error) {
@@ -83,14 +82,12 @@ class APIClient {
    * Updates data
    */
   update = (url, data) => {
-    // console.log("patch url", url, data);
     return axios.patch(url, data);
   };
   /**
    * Updates data with post method
    */
   updateWithPost = (url, data) => {
-    console.log("post update url", url, data);
     return axios.post(url, data);
   };
   /**

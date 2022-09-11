@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Loader from "../../../Components/Common/Loader";
-import { debounce } from "lodash";
+
 import {
   Container,
   Button,
@@ -11,9 +11,13 @@ import {
   Row,
   Col,
   Alert,
+  CardTitle,
 } from "reactstrap";
 import axios from "axios";
 import DataTable from "react-data-table-component";
+import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
+import CreateGroupModal from "./CreateGroupModal";
+
 const Groups = (props) => {
   const columns = [
     {
@@ -39,7 +43,7 @@ const Groups = (props) => {
       cell: (row) => (
         <span>
           {
-            <a href={`/group/?groupid=${row.groupId}&groupname=${row.name}`}>
+            <a href={`/group/?groupid=${row.id}&groupname=${row.name}`}>
               {row.name}
             </a>
           }
@@ -57,8 +61,27 @@ const Groups = (props) => {
       name: <span className="font-weight-bold fs-13">Machine</span>,
       selector: (row) => row.machines,
       // sortable: true,
-      cell: (row) => <span>{row.machines.join(", ")}</span>,
+      // cell: (row) => <span>{row.machines.join(", ")}</span>,
       database_name: "machines",
+      wrap: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Delete</span>,
+      cell: (row, column) => (
+        <Button
+          color="danger"
+          onClick={() => {
+            console.log("grup to delete", row.id);
+            setGrouptoDelete(row.id);
+            setConfirmModal(true);
+          }}
+        >
+          Delete
+        </Button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
     },
   ];
   const [isLoaded, setIsLoaded] = useState(false);
@@ -67,45 +90,94 @@ const Groups = (props) => {
     error: false,
     msg: "",
   });
+  const [groupToDelete, setGrouptoDelete] = useState(null);
+  const [OpenGroupModal, setOpenGroupModal] = useState(false);
   const [items, setItems] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [sort, setSort] = useState("id ASC");
+  const [sort, setSort] = useState("id asc");
   const [search, setSearch] = useState("");
   const [expression, setExpression] = useState("");
   const [userToDelete, setUsertoDelete] = useState(null);
   const [confirmModal, setConfirmModal] = useState(false);
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
+
   document.title = "All Groups";
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    console.log("user role", userRole);
+    // console.log("user role", userRole);
     if (userRole !== "user") {
       //getAllUsers(1, 10);
       console.log("useEffect page", page);
-      fetchData(1, perPage, sort, expression);
+      fetchData(page, perPage, sort, expression);
     } else {
       //redirect to dashboard
       props.history.push("/dashboard");
     }
   }, [page, perPage, sort, expression]);
 
+  const getUserResponse = (response) => {
+    console.log("group input close", response);
+    setConfirmModal(false);
+    if (response) {
+      deleteGroupById(groupToDelete);
+    }
+  };
+
+  const createGroupResponse = (response) => {
+    console.log("group created", response);
+    setOpenGroupModal(false);
+    props.history.push(
+      `/group/?groupid=${response.groupId}&groupname=${response.name}`
+    );
+  };
+
+  const deleteGroupById = (id) => {
+    console.log("id to be deleted", id, groupToDelete);
+    setLoading(true);
+    axios
+      .delete(`/groups/${id}`)
+      .then((data) => {
+        setLoading(true);
+        fetchDataDefault();
+        setSuccess({
+          success: true,
+          error: false,
+          msg: "Group deleted successfully.",
+        });
+      })
+      .catch((err) => {
+        console.log("err occurred while delete data", err);
+        // alert(err);
+        setSuccess({
+          success: false,
+          error: true,
+          msg: err,
+        });
+        setLoading(false);
+      });
+  };
   const setgridData = (data) => {
-    let a = [];
+    let machineNames = "";
     let gridData = data.map((item) => {
       return {
         id: item.groupId,
         name: item.name,
         member: item?.users.length || 0,
-        machines: item?.machines.map((machine) => {
-          return a.push(`${machine.name}`);
-        }),
+        machines:
+          item.machines.length > 0
+            ? item.machines
+                .map((machine) => {
+                  return machineNames.concat(machine.name);
+                })
+                .join(",")
+            : "NA",
       };
     });
-    gridData[0].machines = a;
-    // console.log("final res", gridData, a);
+
+    console.log("grid data", gridData);
     setItems(gridData);
   };
 
@@ -113,39 +185,29 @@ const Groups = (props) => {
     fetchData(page, perPage, sort, expression);
   };
   const fetchData = async (page, per_page, sort, expression) => {
-    if (!page || page == "undefined") {
-      setPage(1);
-    }
-    console.log({ page });
-    setLoading(true);
     axios
       .post(`/groups?page=${page}&itemsPerPage=${per_page}`, {
         sort: sort,
         expression: expression,
       })
       .then((data) => {
-        console.log("user data", data);
+        console.log("dta", data);
+        setIsLoaded(true);
         setLoading(false);
         if (page != data.page) setPage(data.page);
-        if (data?.items) {
-          setgridData(data.items);
-        } else {
+        if (data.items.length === 0) {
           return setItems([]);
         }
-        // setItems(data.items);
-        setIsLoaded(true);
+        setgridData(data.items);
+        //  setItems(data.totalItems);
         setTotalRows(data.totalItems);
-        setLoading(false);
       })
+
       .catch((err) => {
         console.log(err);
+        setItems([]);
         setIsLoaded(true);
         setLoading(false);
-        // setSuccess({
-        //   error: true,
-        //   success: false,
-        //   msg: `Error: ${err} Please try again later! `,
-        // });
       });
   };
 
@@ -158,33 +220,15 @@ const Groups = (props) => {
   };
 
   const handleInputExpression = async (e) => {
-    var val = e.target.value.toLowerCase();
+    var val = e.target.value;
     setSearch(val);
     if (val == "") setExpression("");
-    else setExpression(`groupId.Contains("${val}") || name.Contains("${val}")`);
+    else setExpression(`name.Contains("${val}")`);
     // fetchData(page, perPage, sort, val);
   };
   const handleSort = async (column, sortDirection) => {
-    console.log({ column: column.database_name, sortDirection });
-    try {
-      let sort = (column.database_name + " " + sortDirection).replace(
-        "groupId",
-        "id"
-      );
-      console.log({ sort });
-      setSort(column.database_name + " " + sortDirection);
-      // console.log({ page, perPage, sort, expression });
-      // fetchData(page, perPage, sort, expression);
-    } catch (err) {
-      console.log(err);
-      setSuccess({
-        error: true,
-        success: false,
-        msg: `Error: ${err} Please try again later! `,
-      });
-    }
+    setSort(column.database_name + " " + sortDirection);
   };
-
   return (
     <React.Fragment>
       <div className="page-content">
@@ -202,20 +246,30 @@ const Groups = (props) => {
                   ) : null}
                 </Col>
               </Row>
-              <Row>
-                <Col lg={4} md={2}>
-                  <InputGroup>
-                    <Input
-                      type="text"
-                      placeholder="Search any field..."
-                      value={search}
-                      onChange={handleInputExpression}
-                    />
-                  </InputGroup>
-                </Col>
-              </Row>
+
               <Card>
+                <CardTitle>
+                  <div className="group">
+                    <div>
+                      <Button
+                        type="button"
+                        color="success"
+                        onClick={() => {
+                          setOpenGroupModal(true);
+                        }}
+                      >
+                        CREATE NEW GROUP
+                      </Button>
+                    </div>
+                  </div>
+                </CardTitle>
                 <CardBody>
+                  <Input
+                    type="text"
+                    placeholder="Search group name ..."
+                    value={search}
+                    onChange={handleInputExpression}
+                  />
                   <DataTable
                     title="LIST OF GROUPS"
                     columns={columns}
@@ -232,6 +286,17 @@ const Groups = (props) => {
                   {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
                 </CardBody>
               </Card>
+              <ConfirmationModal
+                title={`Do you wish to delete this user?`}
+                getUserResponse={getUserResponse}
+                modalState={confirmModal}
+              />
+              <CreateGroupModal
+                title="Enter new group name"
+                closeCreategrpModal={() => setOpenGroupModal(!OpenGroupModal)}
+                modalState={OpenGroupModal}
+                groupResponse={createGroupResponse}
+              />
             </>
           )}
         </Container>

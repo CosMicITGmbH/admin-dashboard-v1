@@ -20,7 +20,7 @@ import { useFormik } from "formik";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import CopyInput from "../../../Components/Reusable/CopyInput";
-import { registerTransform } from "echarts";
+
 const AddServiceModal = (props) => {
   const [service, setService] = useState({
     error: false,
@@ -46,16 +46,11 @@ const AddServiceModal = (props) => {
       password: Yup.string().required("Please Enter password"),
     }),
     onSubmit: (values, { resetForm }) => {
-      // console.log("values on submit", values);
-      // let newVal = { ...values };
-
       try {
         setService({ ...service, loading: true });
         axios
           .post("/auth/service/register", values)
           .then((data) => {
-            //   console.log("post data", data);
-
             setService({
               error: false,
               success: true,
@@ -67,7 +62,6 @@ const AddServiceModal = (props) => {
             resetForm({ values: "" });
           })
           .catch((err) => {
-            //    console.log("post data", err);
             setService({
               error: true,
               success: false,
@@ -106,7 +100,6 @@ const AddServiceModal = (props) => {
         }}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
-          {/* <h6>Close</h6> */}
           <div>
             <Button
               type="button"
@@ -147,14 +140,12 @@ const AddServiceModal = (props) => {
                     <Label className="form-label">Name</Label>
                     <Input
                       name="name"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Name"
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
                       value={validation.values.name || ""}
-                      //disabled={userData.role === "user"}
                       invalid={
                         validation.touched.name && validation.errors.name
                           ? true
@@ -172,7 +163,6 @@ const AddServiceModal = (props) => {
                     <Label className="form-label">Endpoint</Label>
                     <Input
                       name="endpoint"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter end point"
                       type="text"
@@ -185,7 +175,6 @@ const AddServiceModal = (props) => {
                           ? true
                           : false
                       }
-                      //  disabled={userData.role === "user"}
                     />
                     {validation.touched.endpoint &&
                     validation.errors.endpoint ? (
@@ -200,7 +189,6 @@ const AddServiceModal = (props) => {
                     <Label className="form-label">Password</Label>
                     <Input
                       name="password"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Password"
                       type="text"
@@ -213,7 +201,6 @@ const AddServiceModal = (props) => {
                           ? true
                           : false
                       }
-                      // disabled={userData.role === "user"}
                     />
                     {validation.touched.password &&
                     validation.errors.password ? (

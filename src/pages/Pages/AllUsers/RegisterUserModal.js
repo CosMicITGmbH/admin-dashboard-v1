@@ -57,7 +57,6 @@ const RegisterUserModal = (props) => {
       email: Yup.string().required("Please Enter Your Email"),
     }),
     onSubmit: (values, { resetForm }) => {
-      // console.log("values on submit", values);
       let newVal = { ...values };
       if (
         typeof newVal.role === "string" &&
@@ -73,13 +72,12 @@ const RegisterUserModal = (props) => {
         //for normal user
         newVal.role = 3;
       }
-      // console.log("edited profile ", newVal);
+
       try {
         setRegistration({ ...registration, loading: true });
         axios
           .post("/auth/user/register", newVal)
           .then((data) => {
-            console.log("post data", data);
             let username = newVal.firstName || "user";
             setRegistration({
               error: false,
@@ -87,7 +85,7 @@ const RegisterUserModal = (props) => {
               msg: `${username} Successfully Registered. `,
               loading: false,
             });
-            console.log("post data after set");
+
             setTimeout(() => {
               props.closeRegModal();
               setRegistration({
@@ -98,7 +96,6 @@ const RegisterUserModal = (props) => {
             resetForm();
           })
           .catch((err) => {
-            //    console.log("post data", err);
             setRegistration({
               error: true,
               success: false,

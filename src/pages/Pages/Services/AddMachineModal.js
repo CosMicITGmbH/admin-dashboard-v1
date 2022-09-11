@@ -44,21 +44,16 @@ const AddMachineModal = (props) => {
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please Enter Machine Name"),
-      // nameService: Yup.string().required("Please Enter Service Name"),
+
       endpoint: Yup.string().required("Please Enter Endpoint"),
       password: Yup.string().required("Please Enter password"),
     }),
     onSubmit: (values, { resetForm }) => {
-      // console.log("values on submit", values);
-      //  let newVal = { ...values };
-
       try {
         setService({ ...service, loading: true });
         axios
           .post("/auth/machine/register", values)
           .then((data) => {
-            //   console.log("post data", data);
-
             setService({
               error: false,
               success: true,
@@ -70,7 +65,6 @@ const AddMachineModal = (props) => {
             resetForm({ values: "" });
           })
           .catch((err) => {
-            //    console.log("post data", err);
             setService({
               error: true,
               success: false,
@@ -108,7 +102,6 @@ const AddMachineModal = (props) => {
         }}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
-          {/* <h6>Close</h6> */}
           <div>
             <Button
               type="button"
@@ -149,14 +142,12 @@ const AddMachineModal = (props) => {
                     <Label className="form-label">Name</Label>
                     <Input
                       name="name"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Name"
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
                       value={validation.values.name || ""}
-                      //disabled={userData.role === "user"}
                       invalid={
                         validation.touched.name && validation.errors.name
                           ? true
@@ -169,32 +160,7 @@ const AddMachineModal = (props) => {
                       </FormFeedback>
                     ) : null}
                   </div>
-                  {/* <div className="form-group">
-                    <Label className="form-label">Service Name</Label>
-                    <Input
-                      name="name"
-                      // value={name}
-                      className="form-control"
-                      placeholder="Enter Name"
-                      type="text"
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      value={validation.values.nameService || ""}
-                      //disabled={userData.role === "user"}
-                      invalid={
-                        validation.touched.nameService &&
-                        validation.errors.nameService
-                          ? true
-                          : false
-                      }
-                    />
-                    {validation.touched.nameService &&
-                    validation.errors.nameService ? (
-                      <FormFeedback type="invalid">
-                        {validation.errors.nameService}
-                      </FormFeedback>
-                    ) : null}
-                  </div> */}
+
                   {/*last name */}
                   <div className="form-group">
                     <Label className="form-label">Endpoint</Label>
@@ -213,7 +179,6 @@ const AddMachineModal = (props) => {
                           ? true
                           : false
                       }
-                      //  disabled={userData.role === "user"}
                     />
                     {validation.touched.endpoint &&
                     validation.errors.endpoint ? (
@@ -228,7 +193,6 @@ const AddMachineModal = (props) => {
                     <Label className="form-label">Password</Label>
                     <Input
                       name="password"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Password"
                       type="text"
@@ -241,7 +205,6 @@ const AddMachineModal = (props) => {
                           ? true
                           : false
                       }
-                      // disabled={userData.role === "user"}
                     />
                     {validation.touched.password &&
                     validation.errors.password ? (

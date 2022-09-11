@@ -10,11 +10,11 @@ const BasicPasswCreate = (props) => {
 
   const changePassword = (e) => {
     //hit the url and save the pwd
-    //  console.log("event", e);
+
     e.preventDefault();
     const pwd = document.getElementById("password-input").value;
     const ConfirmPwd = document.getElementById("confirm-password-input").value;
-    //  console.log(pwd, ConfirmPwd);
+
     if (pwd.toLowerCase() === ConfirmPwd.toLowerCase()) {
       axios
         .post("/users/profile/1/password", {
@@ -23,7 +23,7 @@ const BasicPasswCreate = (props) => {
         .then((data) => {
           if (data.status === 200) {
             //redirect to login page with a message
-            //   console.log("pwd successfully changed");
+
             props.history.push("/login");
           }
         })

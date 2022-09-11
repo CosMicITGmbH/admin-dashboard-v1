@@ -48,7 +48,6 @@ const BasicSignUp = () => {
       email: Yup.string().required("Please Enter Your Email"),
     }),
     onSubmit: (values) => {
-      // console.log("values on submit", values);
       if (
         typeof values.role === "string" &&
         values.role.toLowerCase() === "admin"
@@ -63,12 +62,11 @@ const BasicSignUp = () => {
         //for normal user
         values.role = 3;
       }
-      // console.log("edited profile ", values);
+
       try {
         axios
           .post("/auth/user/register", values)
           .then((data) => {
-            //   console.log("post data", data);
             let username = values.firstName || "user";
             setRegistration({
               error: false,
@@ -77,7 +75,6 @@ const BasicSignUp = () => {
             });
           })
           .catch((err) => {
-            //    console.log("post data", err);
             setRegistration({
               error: true,
               success: false,
@@ -91,23 +88,6 @@ const BasicSignUp = () => {
           msg: `${values.firstName} successfully registered. `,
         });
       }
-
-      // if (
-      //   typeof values.role === "string" &&
-      //   values.role.toLowerCase() === "admin"
-      // ) {
-      //   values.role = 1;
-      // } else if (
-      //   typeof values.role === "string" &&
-      //   values.role.toLowerCase() === "manager"
-      // ) {
-      //   values.role = 2;
-      // } else {
-      //   //for normal user
-      //   values.role = 3;
-      // }
-      //   console.log("edited profile ", values);
-      // dispatch(editProfile(values));
     },
   });
 

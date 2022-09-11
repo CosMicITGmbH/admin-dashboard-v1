@@ -67,7 +67,6 @@ const Login = (props) => {
       password: Yup.string().required("Please Enter Your Password"),
     }),
     onSubmit: (values) => {
-      //console.log("login values", values);
       setLoading(true);
       dispatch(loginUser(values, props.history));
       setLoading(false);
@@ -77,9 +76,8 @@ const Login = (props) => {
   const { error } = useSelector((state) => ({
     error: state.Login.error,
   }));
-  // console.log("error fro login page", error);
+
   useEffect(() => {
-    // console.log("error fro login page use effect", error);
     setTimeout(() => {
       dispatch(resetLoginFlag());
       setLoading(false);

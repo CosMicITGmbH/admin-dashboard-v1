@@ -1,6 +1,7 @@
 .group {
   text-align: center;
   text-transform: capitalize;
+  margin-top: 1rem;
 }
 
 .flexSearchBox {
@@ -8,4 +9,14 @@
   flex-wrap: nowrap;
   gap: 10px;
   align-items: flex-end;
+}
+
+/* #react-select-3-listbox {
+  z-index: 10;
+  width: 290px;
+} */
+
+div[id^="react-select"] {
+  z-index: 10;
+  width: 290px;
 }

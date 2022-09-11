@@ -90,7 +90,6 @@ const AllUsers = (props) => {
       cell: (row, column) => (
         <Button
           onClick={() => {
-            console.log("user to delete", row.id);
             setUsertoDelete(row.id);
             setConfirmModal(true);
           }}
@@ -116,11 +115,10 @@ const AllUsers = (props) => {
   ];
   function getAllUsers(pageNo, per_Page) {
     setLoading(true);
-    console.log(`url=/users?page=${pageNo}&itemsPerPage=${per_Page}`);
+
     axios
       .post(`/users?page=${pageNo}&itemsPerPage=${per_Page}`, {})
       .then((data) => {
-        console.log(data);
         //  let newArr = [];
         let res1 = data.items.map((item) => {
           return {
@@ -131,15 +129,13 @@ const AllUsers = (props) => {
           };
         });
         // getRole(item.role)
-        console.log("res1", res1, data.totalItems);
-        // console.log("newArr", newArr);
+
         setTotalRows(data.totalItems);
         setUserData(res1);
         setLoading(false);
       })
 
       .catch((err) => {
-        console.log(err);
         if (err.includes("401")) {
           props.history.push("/login");
         }
@@ -151,7 +147,7 @@ const AllUsers = (props) => {
     // let itemsPerPage = 5;
     //check role n
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    console.log("user role", userRole);
+
     if (userRole !== "user") {
       getAllUsers(1, 10);
     } else {
@@ -161,13 +157,9 @@ const AllUsers = (props) => {
   }, []);
 
   const deleteUserById = (id) => {
-    console.log("id to be deleted", id, userToDelete);
-
     axios
       .delete(`/users/${id}`)
       .then((data) => {
-        //  console.log("data delete successfully");
-
         getAllUsers(1, perPage); //already handles loading
         setSuccess({
           success: true,
@@ -176,7 +168,6 @@ const AllUsers = (props) => {
         });
       })
       .catch((err) => {
-        console.log("err occurred while delete data", err);
         // alert(err);
         setSuccess({
           success: false,
@@ -188,22 +179,19 @@ const AllUsers = (props) => {
   };
 
   const handlePageChange = (page) => {
-    console.log("handlePageChange", page);
     getAllUsers(page, perPage);
     setTotalRows(totalRows - perPage);
   };
   const handlePerRowsChange = async (newPerPage, page) => {
     //let url = `/users?page=${page}&itemsPerPage=${newPerPage}`;
-    console.log(
-      `newPerPage=${newPerPage} page=${page} url=/users?page=${page}&itemsPerPage=${newPerPage}`
-    );
+
     try {
       setLoading(true);
       const response = await axios.post(
         `/users?page=${page}&itemsPerPage=${newPerPage}`,
         {}
       );
-      console.log("items:", response);
+
       let res1 = response.items.map((item) => {
         return {
           id: item.id,
@@ -216,13 +204,11 @@ const AllUsers = (props) => {
       setPerPage(newPerPage);
       setLoading(false);
     } catch (error) {
-      console.log("Err", error);
       setLoading(false);
     }
   };
 
   const changeHandler = (event) => {
-    console.log("event.target.value", event.target.value);
     setFilterText(event.target.value);
   };
   const debouncedChangeHandler = useMemo(
@@ -231,7 +217,6 @@ const AllUsers = (props) => {
   );
 
   const getUserResponse = (response) => {
-    console.log("user input close", response);
     setConfirmModal(false);
     if (response) {
       deleteUserById(userToDelete);
@@ -265,7 +250,6 @@ const AllUsers = (props) => {
                     />
                     <Button
                       onClick={() => {
-                        console.log("clear button clicked");
                         setFilterText("");
                         // getAllUsers(1)
                       }}
@@ -278,12 +262,8 @@ const AllUsers = (props) => {
                   <Button
                     type="button"
                     color="info"
-                    //  disabled={userData.currentRole === "user"}
                     onClick={() => {
-                      //  changePassword();
                       setmodal_RegistrationModal(true);
-
-                      console.log("open register gui");
                     }}
                     style={{ marginLeft: "3px" }}
                   >
@@ -303,13 +283,6 @@ const AllUsers = (props) => {
                 onChangeRowsPerPage={handlePerRowsChange}
                 paginationRowsPerPageOptions={[10, 15, 25, 50]}
                 fixedHeader
-                //paginationTotalRows
-                //  paginationDefaultPage={perPage}
-                //fixedHeaderScrollHeight="500px"
-                //selectableRows
-                //persistTableHead
-                //subHeader
-                // subHeaderComponent={subHeaderComponentMemo}
               />
             </>
           )}

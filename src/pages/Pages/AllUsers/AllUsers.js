@@ -60,8 +60,8 @@ const AllUsers = (props) => {
       name: <span className="font-weight-bold fs-13">Delete</span>,
       cell: (row, column) => (
         <Button
+          color="danger"
           onClick={() => {
-            console.log("user to delete", row.id);
             setUsertoDelete(row.id);
             setConfirmModal(true);
           }}
@@ -94,7 +94,7 @@ const AllUsers = (props) => {
   document.title = "All Users";
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    console.log("user role", userRole);
+
     if (userRole !== "user") {
       //getAllUsers(1, 10);
       fetchData(page, perPage, sort, expression);
@@ -108,38 +108,23 @@ const AllUsers = (props) => {
     fetchData(page, perPage, sort, expression);
   };
   const fetchData = async (page, per_page, sort, expression) => {
-    if (!page) {
-      setPage(1);
-    }
-    console.log({ page });
-    setLoading(true);
     axios
       .post(`/users?page=${page}&itemsPerPage=${per_page}`, {
         sort: sort,
         expression: expression,
       })
       .then((data) => {
-        console.log("user data", data);
-        setLoading(false);
-        if (page != data.page) setPage(data.page);
-        if (data?.items) {
-          setItems(data.items);
-        } else {
-          return setItems([]);
-        }
         setIsLoaded(true);
+        if (page != data.page) setPage(data.page);
+        setItems(data.items);
         setTotalRows(data.totalItems);
+        setLoading(false);
       })
 
       .catch((err) => {
         console.log(err);
         setIsLoaded(true);
         setLoading(false);
-        setSuccess({
-          error: true,
-          success: false,
-          msg: `Error: ${err} Please try again later! `,
-        });
       });
   };
 
@@ -152,7 +137,7 @@ const AllUsers = (props) => {
   };
 
   const handleInputExpression = async (e) => {
-    var val = e.target.value.toLowerCase();
+    var val = e.target.value;
     setSearch(val);
     if (val == "") setExpression("");
     else
@@ -162,33 +147,16 @@ const AllUsers = (props) => {
     // fetchData(page, perPage, sort, val);
   };
   const handleSort = async (column, sortDirection) => {
-    console.log({ column: column.database_name, sortDirection });
-    try {
-      console.log({ page });
-      let sort = column.database_name + " " + sortDirection;
-      // setSort(column.database_name + " " + sortDirection);
-      console.log({ page, perPage, sort, expression });
-      fetchData(page, perPage, sort, expression);
-    } catch (err) {
-      console.log(err);
-      setSuccess({
-        error: true,
-        success: false,
-        msg: `Error: ${err} Please try again later! `,
-      });
-    }
+    setSort(column.database_name + " " + sortDirection);
   };
 
   const getUserResponse = (response) => {
-    console.log("user input close", response);
     setConfirmModal(false);
     if (response) {
       deleteUserById(userToDelete);
     }
   };
   const deleteUserById = (id) => {
-    console.log("id to be deleted", id, userToDelete);
-
     axios
       .delete(`/users/${id}`)
       .then((data) => {
@@ -200,8 +168,6 @@ const AllUsers = (props) => {
         });
       })
       .catch((err) => {
-        console.log("err occurred while delete data", err);
-        // alert(err);
         setSuccess({
           success: false,
           error: true,
@@ -227,35 +193,13 @@ const AllUsers = (props) => {
                 ) : null}
               </Col>
             </Row>
-            <Row>
-              <Col>
-                <InputGroup>
-                  <Input
-                    type="text"
-                    placeholder="Search any field..."
-                    value={search}
-                    onChange={handleInputExpression}
-                  />
-                </InputGroup>
-              </Col>
-              <Col>
-                <Button
-                  type="button"
-                  color="info"
-                  //  disabled={userData.currentRole === "user"}
-                  onClick={() => {
-                    setmodal_RegistrationModal(true);
-
-                    console.log("open register gui");
-                  }}
-                  style={{ marginLeft: "3px" }}
-                >
-                  Register a user
-                </Button>{" "}
-              </Col>
-            </Row>
+            <Input
+              type="text"
+              placeholder="search user..."
+              value={search}
+              onChange={handleInputExpression}
+            />
             <DataTable
-              title="LIST OF USERS"
               columns={columns}
               data={items}
               pagination
@@ -264,7 +208,7 @@ const AllUsers = (props) => {
               paginationRowsPerPageOptions={[10, 25, 50]}
               onChangePage={handlePageChange}
               onChangeRowsPerPage={handlePerRowsChange}
-              // sortServer
+              sortServer
               onSort={handleSort}
             />
             <RegisterUserModal

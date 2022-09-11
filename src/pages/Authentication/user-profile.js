@@ -58,7 +58,6 @@ const UserProfile = (props) => {
   }
   const [modal_role, setmodal_role] = useState(false);
   function getRole(value) {
-    // console.log("value from progile", value);
     setUserData({ ...userData, role: value.label });
   }
   function tog_roleModal() {
@@ -72,14 +71,8 @@ const UserProfile = (props) => {
   const search = useLocation().search;
   const profid = new URLSearchParams(search).get("profileID");
 
-  //console.log("profileid query param", profid);
-
   useEffect(() => {
-    //let profid = searchParams.get("profileID");
-    //  console.log("useffect query param", profid);
-
     if (profid) {
-      // console.log("in if");
       axios
         .get(`/users/profile/${profid}`)
         .then((data) => {
@@ -98,7 +91,6 @@ const UserProfile = (props) => {
           setGroupArr(data.groups);
         })
         .catch((err) => {
-          //console.log("error while fethcing the data", err);
           setSuccess({
             ...successMsg,
             error: true,
@@ -107,13 +99,11 @@ const UserProfile = (props) => {
           if (err.split(" ").includes("401")) {
             props.history.push("/login");
           }
-          // console.log("error while fethcing the data", err);
         });
     } else {
-      // console.log("in else");
       if (sessionStorage.getItem("authUser")) {
         const obj = JSON.parse(sessionStorage.getItem("authUser"));
-        //  console.log("obj", obj, "user obj", user);
+
         if (!isEmpty(user)) {
           obj.data.firstName = user.firstName;
           sessionStorage.removeItem("authUser");
@@ -143,7 +133,6 @@ const UserProfile = (props) => {
   }, [dispatch, user, profid]);
 
   const setGroupArr = (groups) => {
-    console.log("sett6ing groups");
     let newArr = [];
     let res1 = groups.map((item) => {
       let n1 = [];
@@ -151,14 +140,13 @@ const UserProfile = (props) => {
       newArr.push(n1);
       return newArr;
     });
-    console.log("newArr groups", newArr);
+
     setUserGroup(newArr);
   };
 
   const deleteUserGroupId = (id) => {
-    console.log("delete id", id, userData);
     let newGroup = userData.groups.filter((item) => item.groupId !== id);
-    console.log("new group", newGroup);
+
     setUserData({ ...userData, groups: newGroup });
     setGroupArr(newGroup);
   };
@@ -179,15 +167,12 @@ const UserProfile = (props) => {
     }),
     onSubmit: (values) => {
       let url = `/users/profile/${validation.initialValues.idx}/password`;
-      // console.log(url, values.password);
+
       axios
         .post(url, {
           password: values.password,
         })
         .then((data) => {
-          // console.log("reset response", data);
-          //user data is returned in response
-          //  console.log("pwd successfully changed");
           setSuccess({
             success: true,
             error: false,
@@ -195,12 +180,10 @@ const UserProfile = (props) => {
           });
 
           setTimeout(() => {
-            //  console.log("close modal");
             setmodal_grid(false);
           }, 3000);
         })
         .catch((err) => {
-          //console.log("error while resetting pwd", err);
           setSuccess({
             success: false,
             error: true,
@@ -229,7 +212,6 @@ const UserProfile = (props) => {
       email: Yup.string().required("Please Enter Your email"),
     }),
     onSubmit: (values) => {
-      // console.log("values on submit", values);
       if (
         typeof values.role === "string" &&
         values.role.toLowerCase() === "admin"
@@ -244,7 +226,7 @@ const UserProfile = (props) => {
         //for normal user
         values.role = 3;
       }
-      //  console.log("edited profile ", values);
+
       dispatch(editProfile(values));
     },
   });
@@ -438,7 +420,7 @@ const UserProfile = (props) => {
                     </Button>{" "}
                   </Col>
                 </div>
-                {/*groups*/}
+                {/*groups group/?groupid=15&groupname=ewew */}
 
                 {userGroup.length > 0 && (
                   <div
@@ -451,10 +433,28 @@ const UserProfile = (props) => {
                       columns={[
                         {
                           name: "ID",
-                          formatter: (cell) =>
-                            _(<span className="fw-semibold">{cell}</span>),
+                          formatter: (cell, row) =>
+                            _(
+                              <a
+                                className="fw-semibold"
+                                href={`group/?groupid=${row._cells[0].data}&groupname=${row._cells[1].data}`}
+                              >
+                                {cell}
+                              </a>
+                            ),
                         },
-                        "Name",
+                        {
+                          name: "Name",
+                          formatter: (cell, row) =>
+                            _(
+                              <a
+                                className="fw-semibold"
+                                href={`group/?groupid=${row._cells[0].data}&groupname=${row._cells[1].data}`}
+                              >
+                                {cell}
+                              </a>
+                            ),
+                        },
 
                         // {
                         //   name: "Delete",

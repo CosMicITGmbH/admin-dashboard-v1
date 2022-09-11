@@ -12,7 +12,7 @@ import {
   Alert,
 } from "reactstrap";
 import axios from "axios";
-//import { ToastContainer, toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 
 const CreateGroupModal = (props) => {
@@ -29,13 +29,11 @@ const CreateGroupModal = (props) => {
       <Modal
         isOpen={props.modalState}
         toggle={() => {
-          console.log("togle modle fired");
           setGroupName("");
           props.closeCreategrpModal();
         }}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
-          {/* <h6>Close</h6> */}
           <div>
             <Button
               type="button"
@@ -62,10 +60,7 @@ const CreateGroupModal = (props) => {
           <CardBody>
             <h5 className="text-primary text-center">{props.title}</h5>
             <div className="my-4 mx-2">
-              <Col xxl={3} md={6}>
-                {/* <Label htmlFor="placeholderInput" className="form-label">
-                   Enter New group Name
-                  </Label> */}
+              <Col md={6}>
                 <Input
                   type="text"
                   className="form-control"
@@ -91,9 +86,7 @@ const CreateGroupModal = (props) => {
                         props.groupResponse(data);
                         setGroupName("");
                       })
-                      .catch((err) => {
-                        console.log("Error while creating new group", err);
-                      });
+                      .catch((err) => {});
                   }}
                 >
                   Create
@@ -101,7 +94,6 @@ const CreateGroupModal = (props) => {
               </div>
             </div>
           </CardBody>
-          {/* </Row> */}
         </ModalBody>
       </Modal>
     </React.Fragment>

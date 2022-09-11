@@ -18,10 +18,9 @@ const ProfileDropdown = () => {
   const [userName, setUserName] = useState("Admin");
 
   useEffect(() => {
-    // console.log("user from profiledd", user);
     if (sessionStorage.getItem("authUser")) {
       const obj = JSON.parse(sessionStorage.getItem("authUser"));
-      // console.log("obj from profiledd", obj);
+
       setUserName(user?.first_name || obj.data.firstName || "User");
     }
   }, [userName, user]);
