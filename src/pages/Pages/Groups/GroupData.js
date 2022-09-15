@@ -127,7 +127,6 @@ const GroupData = (props) => {
       }
 
       if (groupId) {
-        // fetchGroupData();
         fetchData();
       }
     },
@@ -244,20 +243,20 @@ const GroupData = (props) => {
           setItems([]);
         }
 
-        if (data?.machines) {
-          let machineData = data?.machines.map((machine) => {
-            return {
-              id: machine.key,
-              name: machine.name,
-            };
-          });
-          setMachieItems(data.machines);
-        } else {
-          setMachieItems([]);
-        }
-
+        // if (data?.machines) {
+        //   let machineData = data?.machines.map((machine) => {
+        //     return {
+        //       id: machine.key,
+        //       name: machine.name,
+        //     };
+        //   });
+        //   setMachieItems(data.machines);
+        // } else {
+        //   setMachieItems([]);
+        // }
+        setMachieItems(data);
+        // setTotalRowsMachine(data);
         setTotalRowsUser(data.users.length);
-        setTotalRowsMachine(data.machines.length);
       })
       .catch((err) => {
         setLoading(false);
@@ -365,7 +364,10 @@ const GroupData = (props) => {
                   />
 
                   {/* FOR MACHINES */}
-                  <MachineGroupdata machineList={itemMachine} />
+                  <MachineGroupdata
+                    machineData={itemMachine}
+                    groupId={groupId}
+                  />
                   <ConfirmationModal
                     title={`Do you wish to delete ${groupname} group?`}
                     getUserResponse={getUserResponse}

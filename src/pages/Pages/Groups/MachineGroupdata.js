@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Label } from "reactstrap";
-import AsyncSelect from "react-select/async";
 import DataTable from "react-data-table-component";
 import axios from "axios";
-//import { without } from "lodash";
+import MachineSearch from "./MachineSearch";
+import MsgToast from "../../../Components/Common/MsgToast";
+
 const MachineGroupdata = (props) => {
   const machineColumns = [
     {
@@ -34,62 +35,100 @@ const MachineGroupdata = (props) => {
       ),
     },
   ];
-  const { machineList } = props;
-  const [machineFilter, setmachineFilter] = useState({});
-
-  // useEffect(() => {
-  //   console.log({ props });
-  // }, []);
-  /**For Async select starts */
-  const loadOptions = (inputValue, callback) => {
-    if (!inputValue) return;
-    setTimeout(() => {
-      axios
-        .post(`/services`, {
-          expression: `name.contains("${inputValue}")`,
-          sort: "key asc",
-        })
-        .then((data) => {
-          const tempArray = [];
-          console.log("data", data);
-          if (data) {
-            if (data.items.length) {
-              let machineArr = data.items.filter((item) => {
-                // eslint-disable-next-line no-prototype-builtins
-                return item.hasOwnProperty("machine");
-                //return item
-              });
-
-              console.log("in if");
-              machineArr.forEach((element) => {
-                tempArray.push({
-                  label: `${element.name}`,
-                  value: `${element.key}`,
-                });
-              });
-            }
-          }
-          console.log("tempArray", tempArray);
-          callback(tempArray);
-        })
-        .catch((error) => {
-          console.log(error, "catch the hoop");
+  //  const { machineData } = props;
+  //console.log("machineData", machineData);
+  const [machineItem, setMachieItems] = useState([]);
+  const [totalRowsMachine, setTotalRowsMachine] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [showMsg, setShowMsg] = useState({
+    show: false,
+    msg: "",
+    color: "",
+  });
+  useEffect(
+    () => {
+      //check for role:if user then show error msg
+      let role = JSON.parse(sessionStorage.getItem("authUser")).data.role;
+      if (role.toLowerCase() === "user") {
+        return props.history.push("/dashboard");
+      }
+      fetchData();
+    },
+    []
+    // [groupId, page, perPage, sort, expression]
+  );
+  const addMachineToGroup = (val) => {
+    console.log("from 41", val);
+    axios
+      .put(`/groups/${props.groupId}/machines/${val.id}`, {})
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          fetchData();
+          setShowMsg({
+            show: true,
+            msg: "Machine added successfully !",
+            color: "success",
+          });
+          setTimeout(() => {
+            setShowMsg({
+              show: false,
+              msg: "",
+              color: "",
+            });
+          }, 5000);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setShowMsg({
+          show: true,
+          msg: "Machine already added !",
+          color: "danger",
         });
-    }, 500);
+        setTimeout(() => {
+          setShowMsg({
+            show: false,
+            msg: "",
+            color: "",
+          });
+        }, 5000);
+      });
   };
 
-  const onSearchChange = (selectedOption) => {
-    console.log("on srch change", selectedOption);
+  const fetchData = async () => {
+    setLoading(true);
+    axios
+      .get(`/groups/${props.groupId}`)
+      .then((data) => {
+        setLoading(false);
 
-    if (selectedOption) {
-      setmachineFilter({ selectedOption });
-    } else {
-      setmachineFilter({ label: "" });
-    }
+        if (data?.machines) {
+          let machineData = data?.machines.map((machine) => {
+            return {
+              id: machine.key,
+              name: machine.name,
+            };
+          });
+          setMachieItems(data.machines);
+        } else {
+          setMachieItems([]);
+        }
+
+        setTotalRowsMachine(data.machines.length);
+      })
+      .catch((err) => {
+        setLoading(false);
+        // setSuccess({
+        //   error: true,
+        //   success: false,
+        //   msg: `Error: ${err} Please try again later! `,
+        // });
+      });
   };
-  /**For Async select ends */
   return (
     <>
+      {showMsg.show && <MsgToast color={showMsg.color} msg={showMsg.msg} />}
       <div className="flexSearchBox">
         <div>
           <Label
@@ -98,31 +137,15 @@ const MachineGroupdata = (props) => {
           >
             Search Machines
           </Label>
-          <AsyncSelect
-            loadOptions={loadOptions}
-            onInputChange={onSearchChange}
-            value={machineFilter.label}
-            placeholder="Type to search machine and add..."
-            onChange={(value) => {
-              console.log(value);
-              setmachineFilter({ value });
-              //  addToGroup("machine", value);
-            }}
-          />
+          <MachineSearch selectedMachine={addMachineToGroup} />
         </div>
       </div>
       <DataTable
         title="Machines"
         columns={machineColumns}
-        data={machineList}
+        data={machineItem}
         pagination
-        // paginationServer
-        //  paginationTotalRows={totalRowsUser}
-        //  paginationRowsPerPageOptions={[5, 10, 25, 50]}
-        // onChangePage={handlePageChange}
-        //onChangeRowsPerPage={handlePerRowsChange}
-        // sortServer
-        //  onSort={handleSort}
+        paginationTotalRows={totalRowsMachine}
       />
     </>
   );
