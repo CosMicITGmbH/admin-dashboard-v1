@@ -13,7 +13,6 @@ import { Container } from "reactstrap";
 import HorizontalLayout from "./HorizontalLayout";
 
 const Sidebar = ({ layoutType }) => {
-
   useEffect(() => {
     var verticalOverlay = document.getElementsByClassName("vertical-overlay");
     if (verticalOverlay) {
@@ -25,13 +24,21 @@ const Sidebar = ({ layoutType }) => {
 
   const addEventListenerOnSmHoverMenu = () => {
     // add listener Sidebar Hover icon on change layout from setting
-      if (document.documentElement.getAttribute('data-sidebar-size') === 'sm-hover') {
-        document.documentElement.setAttribute('data-sidebar-size', 'sm-hover-active');
-      } else if (document.documentElement.getAttribute('data-sidebar-size') === 'sm-hover-active') {
-        document.documentElement.setAttribute('data-sidebar-size', 'sm-hover');
-      } else {
-        document.documentElement.setAttribute('data-sidebar-size', 'sm-hover');
-      }
+    if (
+      document.documentElement.getAttribute("data-sidebar-size") === "sm-hover"
+    ) {
+      document.documentElement.setAttribute(
+        "data-sidebar-size",
+        "sm-hover-active"
+      );
+    } else if (
+      document.documentElement.getAttribute("data-sidebar-size") ===
+      "sm-hover-active"
+    ) {
+      document.documentElement.setAttribute("data-sidebar-size", "sm-hover");
+    } else {
+      document.documentElement.setAttribute("data-sidebar-size", "sm-hover");
+    }
   };
   return (
     <React.Fragment>
@@ -72,7 +79,7 @@ const Sidebar = ({ layoutType }) => {
               </ul>
             </Container>
           </div>
-        ) : layoutType === 'twocolumn' ? (
+        ) : layoutType === "twocolumn" ? (
           <TwoColumnLayout layoutType={layoutType} />
         ) : (
           <SimpleBar id="scrollbar" className="h-100">
@@ -84,7 +91,7 @@ const Sidebar = ({ layoutType }) => {
             </Container>
           </SimpleBar>
         )}
-      <div className="sidebar-background"></div>
+        <div className="sidebar-background"></div>
       </div>
       <div className="vertical-overlay"></div>
     </React.Fragment>

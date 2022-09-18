@@ -51,20 +51,18 @@ const MachineSearch = (props) => {
     }
   };
   return (
-    <>
-      <AsyncSelect
-        loadOptions={loadOptions}
-        onInputChange={onSearchChange}
-        value={machineFilter.label}
-        placeholder="Type to search machine and add..."
-        onChange={(value) => {
-          console.log(value);
-          setmachineFilter({ value });
-          props.selectedMachine(value);
-          //  addToGroup("machine", value);
-        }}
-      />
-    </>
+    <AsyncSelect
+      loadOptions={loadOptions}
+      onInputChange={onSearchChange}
+      value={machineFilter.label}
+      placeholder="Search Machine..."
+      onChange={(value) => {
+        console.log(value);
+        setmachineFilter({ value });
+        props.selectedMachine(value);
+        //  addToGroup("machine", value);
+      }}
+    />
   );
 };
 

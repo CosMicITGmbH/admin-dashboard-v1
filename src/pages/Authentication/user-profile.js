@@ -260,7 +260,7 @@ const UserProfile = (props) => {
                     </div>
                     <div className="flex-grow-1 align-self-center">
                       <div className="text-muted">
-                        <h5>{userData.firstName || "Admin"}</h5>
+                        <h5>{userData.firstName}</h5>
                         <p className="mb-1">Email Id : {userData.email}</p>
                         <p className="mb-0">Id No : #{userData.idx}</p>
                       </div>
