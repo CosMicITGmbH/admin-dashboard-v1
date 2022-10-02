@@ -64,12 +64,12 @@ const GroupData = (props) => {
           type="button"
           color="danger"
           onClick={() => {
-            console.log("deletable  id", row.id);
+            //console.log("deletable  id", row.id);
             //remove user from a particular group
             axios
               .delete(`/users/profile/${row.id}/groups/${groupId}`)
               .then((data) => {
-                console.log(data);
+                // console.log(data);
                 setSuccess({
                   ...successMsg,
                   success: true,
@@ -112,7 +112,7 @@ const GroupData = (props) => {
           type="button"
           color="danger"
           onClick={() => {
-            console.log("deletable  id", row.id);
+            //   console.log("deletable  id", row.id);
           }}
         >
           Delete
@@ -167,7 +167,7 @@ const GroupData = (props) => {
   useEffect(() => {
     //check for role:if user then show error msg
     let role = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    console.log("role", role);
+    // console.log("role", role);
     if (role.toLowerCase() === "user") {
       return setSuccess({
         error: true,
@@ -207,7 +207,7 @@ const GroupData = (props) => {
     setTotalRowsMachine(data.machines.length);
   };
   const getUserResponse = (response) => {
-    console.log("user response", response);
+    // console.log("user response", response);
     if (response) {
       setLoading(true);
       axios
@@ -229,7 +229,7 @@ const GroupData = (props) => {
     setConfirmModal(false);
   };
   const createGroupResponse = (response) => {
-    console.log("group created", response);
+    //  console.log("group created", response);
     setOpenGroupModal(false);
     setgroupData([]);
     setmachineData([]);

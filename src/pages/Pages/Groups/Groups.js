@@ -110,7 +110,7 @@ const Groups = (props) => {
     // console.log("user role", userRole);
     if (userRole !== "user") {
       //getAllUsers(1, 10);
-      console.log("useEffect page", page);
+      //   console.log("useEffect page", page);
       fetchData(page, perPage, sort, expression);
     } else {
       //redirect to dashboard
@@ -119,7 +119,7 @@ const Groups = (props) => {
   }, [page, perPage, sort, expression]);
 
   const getUserResponse = (response) => {
-    console.log("group input close", response);
+    // console.log("group input close", response);
     setConfirmModal(false);
     if (response) {
       deleteGroupById(groupToDelete);
@@ -127,7 +127,7 @@ const Groups = (props) => {
   };
 
   const createGroupResponse = (response) => {
-    console.log("group created", response);
+    //  console.log("group created", response);
     setOpenGroupModal(false);
     props.history.push(
       `/group/?groupid=${response.groupId}&groupname=${response.name}`
@@ -135,7 +135,7 @@ const Groups = (props) => {
   };
 
   const deleteGroupById = (id) => {
-    console.log("id to be deleted", id, groupToDelete);
+    // console.log("id to be deleted", id, groupToDelete);
     setLoading(true);
     axios
       .delete(`/groups/${id}`)
@@ -149,7 +149,7 @@ const Groups = (props) => {
         });
       })
       .catch((err) => {
-        console.log("err occurred while delete data", err);
+        // console.log("err occurred while delete data", err);
         // alert(err);
         setSuccess({
           success: false,
@@ -191,7 +191,7 @@ const Groups = (props) => {
         expression: expression,
       })
       .then((data) => {
-        console.log("dta", data);
+        // console.log("dta", data);
         setIsLoaded(true);
         setLoading(false);
         if (page != data.page) setPage(data.page);
@@ -204,7 +204,7 @@ const Groups = (props) => {
       })
 
       .catch((err) => {
-        console.log(err);
+        //  console.log(err);
         setItems([]);
         setIsLoaded(true);
         setLoading(false);

@@ -10,6 +10,9 @@ import DashboardCrypto from "../pages/DashboardCrypto";
 import DashboardProject from "../pages/DashboardProject";
 import DashboardNFT from "../pages/DashboardNFT";
 
+//Jobs menu sections
+import Customers from "../pages/Jobs/Customers";
+
 //Calendar
 // Email box
 import MailInbox from "../pages/EmailInbox";
@@ -223,6 +226,8 @@ import AllUsers from "../pages/Pages/AllUsers/AllUsers.js";
 import Services from "../pages/Pages/Services/Services";
 import Groups from "../pages/Pages/Groups/Groups";
 import GroupData from "../pages/Pages/Groups/GroupData";
+import CustomerProduct from "../pages/Jobs/CustomerProduct";
+import ProductOrder from "../pages/Jobs/ProductOrder";
 
 const authProtectedRoutes = [
   //services
@@ -406,10 +411,16 @@ const authProtectedRoutes = [
   { path: "/pages-sitemap", component: SiteMap },
   { path: "/pages-search-results", component: SearchResults },
 
-  //User Profile
+  //User Profile acess to admin and managers
   { path: "/profile", component: UserProfile },
   { path: "/all-users", component: AllUsers },
   { path: "/group", component: GroupData },
+
+  { path: "/jobs-customer", component: Customers },
+  { path: "/customer-product", component: CustomerProduct },
+  { path: "/product-order", component: ProductOrder },
+  // { path: "/all-users", component: AllUsers },
+  // { path: "/group", component: GroupData },
 
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name

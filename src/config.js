@@ -10,5 +10,6 @@ module.exports = {
   api: {
     //API_URL: "https://85.215.218.183:50000",
     API_URL: "https://auth.csharpify.com",
+    REPORT_JOBS_URL: "https://report.csharpify.com/reporting/v1/jobs",
   },
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Col, Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
 
@@ -21,11 +21,19 @@ import MachineSearch from "../pages/Pages/Groups/MachineSearch";
 const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const [search, setSearch] = useState(false);
   const [machineName, setMachineName] = useState("");
+  useEffect(() => {
+    let getMachineName = sessionStorage.getItem("selectedMachine") || "";
+    if (getMachineName) setMachineName(getMachineName);
+  }, []);
+
   const toogleSearch = () => {
     setSearch(!search);
   };
+
   const getSelectedMachine = (selectedMachine) => {
     setMachineName(selectedMachine.label.toUpperCase());
+    sessionStorage.setItem("selectedMachine", selectedMachine.label);
+    sessionStorage.setItem("endPoint", selectedMachine.endpoint);
     console.log({ machineName });
   };
   const toogleMenuBtn = () => {
@@ -66,6 +74,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
         : document.body.classList.add("twocolumn-panel");
     }
   };
+
   return (
     <React.Fragment>
       <header id="page-topbar" className={headerClass}>

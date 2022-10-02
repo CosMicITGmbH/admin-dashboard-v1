@@ -11,63 +11,73 @@ import {
   Alert,
 } from "reactstrap";
 import DataTable from "react-data-table-component";
-import RegisterUserModal from "./RegisterUserModal";
-import Loader from "../../../Components/Common/Loader";
-import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
-
-const AllUsers = (props) => {
+import ReportConfig from "./ReportConfig";
+import Loader from "../../Components/Common/Loader";
+import { APIClient } from "../../helpers/api_helper";
+import { reportingAxios } from "../../Axios/axiosConfig";
+import * as url from "../../helpers/url_helper";
+import Moment from "react-moment";
+const api = new APIClient();
+const Customers = (props) => {
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">ID</span>,
-      selector: (row) => row.id,
+      name: <span className="font-weight-bold fs-13">Date</span>,
+      selector: (row) => row.date,
+      cell: (row) => (
+        <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
+      ),
       sortable: true,
-      database_name: "id",
+      database_name: "insertedAt",
     },
     {
-      name: <span className="font-weight-bold fs-13">First Name</span>,
-      selector: (row) => row.firstName,
-      database_name: "firstName",
-      sortable: true,
-    },
-    {
-      name: <span className="font-weight-bold fs-13">Last Name</span>,
-      selector: (row) => row.lastName,
-      database_name: "lastName",
-      sortable: true,
-    },
-    {
-      name: <span className="font-weight-bold fs-13">Email</span>,
-      selector: (row) => row.email,
-      database_name: "email",
-      sortable: true,
-      wrap: true,
-    },
-    {
-      name: <span className="font-weight-bold fs-13">Role</span>,
-      selector: (row) => row.role,
-      database_name: "role",
+      name: <span className="font-weight-bold fs-13">Customer</span>,
+      selector: (row) => row.customer,
+      cell: (row) => (
+        <a href={`/customer-product?cid=${row.id}`}>{row.customer}</a>
+      ),
+      database_name: "name",
       sortable: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Open</span>,
-      cell: (row) => <a href={"/profile?profileID=" + row.id}>Profile</a>,
-      ignoreRowClick: true,
-      allowOverflow: true,
+      name: <span className="font-weight-bold fs-13">Total Sheets</span>,
+      selector: (row) => row.totalSheets,
+      //   database_name: "lastName",
+      //   sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Good Sheets</span>,
+      selector: (row) => row.goodSheets,
+      //   database_name: "email",
+      //   sortable: true,
+      //   wrap: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Bad Sheets</span>,
+      selector: (row) => row.badSheets,
+      //   database_name: "role",
+      //   sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Ejected sheets</span>,
+      selector: (row) => row.ejectedSheets,
+      // cell: (row) => <a href={"/profile?profileID=" + row.id}>Ejected</a>,
+      // ignoreRowClick: true,
+      // allowOverflow: true,
       button: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Delete</span>,
+      name: <span className="font-weight-bold fs-13">View</span>,
       cell: (row, column) => (
         <Button
           color="danger"
           onClick={() => {
-            setUsertoDelete(row.id);
-            setConfirmModal(true);
+            props.history.push(`/customer-product?cid=${row.id}`);
           }}
         >
-          Delete
+          Details
         </Button>
       ),
+      //  cell: (row) => <a href={`/customer-product?cid=${row.id}`}>Details</a>,
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -88,14 +98,15 @@ const AllUsers = (props) => {
   const [search, setSearch] = useState("");
   const [expression, setExpression] = useState("");
   const [userToDelete, setUsertoDelete] = useState(null);
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
-  document.title = "All Users";
+  const [url, setUrl] = useState(null);
+  document.title = "Customers";
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
 
     if (userRole !== "user") {
-      //getAllUsers(1, 10);
+      let endpoint = sessionStorage.getItem("endPoint");
+      // console.log("endpoint", endpoint);
+      setUrl(endpoint);
       fetchData(page, perPage, sort, expression);
     } else {
       //redirect to dashboard
@@ -103,23 +114,56 @@ const AllUsers = (props) => {
     }
   }, [page, perPage, sort, expression]);
 
+  async function makeDataItems(dataSet) {
+    let customerObj = await Promise.all(
+      dataSet.map(async (data) => {
+        const res = await api.get(
+          `${url}/jobs/customers/${data.id}/performance`
+        );
+        // const res = await resp.json();
+        //console.log("res", res);
+        let finalres = {
+          id: data.id,
+          date: data.insertedAt,
+          customer: data.name,
+          totalSheets: res.totalResults,
+          goodSheets: `${((res.goodResults / res.totalResults) * 100).toFixed(
+            2
+          )}% (${res.goodResults})`,
+          badSheets: `${((res.badResults / res.totalResults) * 100).toFixed(
+            2
+          )}% (${res.badResults})`,
+          ejectedSheets: res.ejectedTotalResults,
+        };
+        //console.log("finalres", finalres);
+        return finalres;
+      })
+    );
+    setItems(customerObj);
+  }
   const fetchDataDefault = async () => {
     fetchData(page, perPage, sort, expression);
   };
   const fetchData = async (page, per_page, sort, expression) => {
-    axios
-      .post(`/users?page=${page}&itemsPerPage=${per_page}`, {
-        sort: sort,
-        expression: expression,
-      })
+    setLoading(true);
+
+    api
+      .create(
+        `${ReportConfig.reportJobsApi}/customers?page=${page}&itemsPerPage=${per_page}`,
+        {
+          sort: sort,
+          expression: expression,
+        }
+      )
       .then((data) => {
+        //   console.log("1st data", data);
         setIsLoaded(true);
         if (page != data.page) setPage(data.page);
-        setItems(data.items);
+        // setItems(data.items);
+        makeDataItems(data.items);
         setTotalRows(data.totalItems);
         setLoading(false);
       })
-
       .catch((err) => {
         console.log(err);
         setIsLoaded(true);
@@ -137,43 +181,14 @@ const AllUsers = (props) => {
 
   const handleInputExpression = async (e) => {
     var val = e.target.value;
+    //console.log("aval", val);
     setSearch(val);
     if (val == "") setExpression("");
-    else
-      setExpression(
-        `firstname.Contains("${val}") || lastname.Contains("${val}") || email.Contains("${val}")`
-      );
+    else setExpression(`name.ToLower().Contains("${val}")`);
     // fetchData(page, perPage, sort, val);
   };
   const handleSort = async (column, sortDirection) => {
     setSort(column.database_name + " " + sortDirection);
-  };
-
-  const getUserResponse = (response) => {
-    setConfirmModal(false);
-    if (response) {
-      deleteUserById(userToDelete);
-    }
-  };
-  const deleteUserById = (id) => {
-    axios
-      .delete(`/users/${id}`)
-      .then((data) => {
-        fetchDataDefault();
-        setSuccess({
-          success: true,
-          error: false,
-          msg: "User deleted successfully.",
-        });
-      })
-      .catch((err) => {
-        setSuccess({
-          success: false,
-          error: true,
-          msg: err,
-        });
-        setLoading(false);
-      });
   };
 
   return (
@@ -192,9 +207,10 @@ const AllUsers = (props) => {
                 ) : null}
               </Col>
             </Row>
+            <h4>{`Customers`}</h4>
             <Input
               type="text"
-              placeholder="search user..."
+              placeholder="search by name..."
               value={search}
               onChange={handleInputExpression}
             />
@@ -210,17 +226,6 @@ const AllUsers = (props) => {
               sortServer
               onSort={handleSort}
             />
-            <RegisterUserModal
-              modalState={modal_RegistrationModal}
-              closeRegModal={() => {
-                setmodal_RegistrationModal(!modal_RegistrationModal);
-              }}
-            />
-            <ConfirmationModal
-              title={`Do you wish to delete this user?`}
-              getUserResponse={getUserResponse}
-              modalState={confirmModal}
-            />
           </>
         )}
       </Container>
@@ -228,4 +233,4 @@ const AllUsers = (props) => {
   );
 };
 
-export default AllUsers;
+export default Customers;

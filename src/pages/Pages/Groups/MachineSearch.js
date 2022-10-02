@@ -9,12 +9,12 @@ const MachineSearch = (props) => {
     setTimeout(() => {
       axios
         .post(`/services`, {
-          expression: `name.contains("${inputValue}")`,
+          expression: `name.ToLower().contains("${inputValue}") && machine != null && identity.services.Any(x => x.Name == "api.reporting")`,
           sort: "key asc",
         })
         .then((data) => {
           const tempArray = [];
-          console.log("data", data);
+          // console.log("data", data);
           if (data) {
             if (data.items.length) {
               let machineArr = data.items.filter((item) => {
@@ -23,17 +23,18 @@ const MachineSearch = (props) => {
                 //return item
               });
 
-              console.log("in if");
+              // console.log("in if");
               machineArr.forEach((element) => {
                 tempArray.push({
                   label: `${element.name}`,
                   value: `${element.key}`,
                   id: `${element.machine.id}`,
+                  endpoint: `${element.machine.connectedServices[0].endpoint}`,
                 });
               });
             }
           }
-          console.log("tempArray", tempArray);
+          // console.log("tempArray", tempArray);
           callback(tempArray);
         })
         .catch((error) => {
@@ -42,7 +43,7 @@ const MachineSearch = (props) => {
     }, 500);
   };
   const onSearchChange = (selectedOption) => {
-    console.log("on srch change", selectedOption);
+    //  console.log("on srch change", selectedOption);
 
     if (selectedOption) {
       setmachineFilter({ selectedOption });
@@ -57,7 +58,7 @@ const MachineSearch = (props) => {
       value={machineFilter.label}
       placeholder="Search Machine..."
       onChange={(value) => {
-        console.log(value);
+        //  console.log(value);
         setmachineFilter({ value });
         props.selectedMachine(value);
         //  addToGroup("machine", value);
