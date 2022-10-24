@@ -228,6 +228,7 @@ import Groups from "../pages/Pages/Groups/Groups";
 import GroupData from "../pages/Pages/Groups/GroupData";
 import CustomerProduct from "../pages/Jobs/CustomerProduct";
 import ProductOrder from "../pages/Jobs/ProductOrder";
+import LatestJobs from "../pages/Jobs/latest jobs/LatestJobs";
 
 const authProtectedRoutes = [
   //services
@@ -419,6 +420,7 @@ const authProtectedRoutes = [
   { path: "/jobs-customer", component: Customers },
   { path: "/customer-product", component: CustomerProduct },
   { path: "/product-order", component: ProductOrder },
+  { path: "/jobs-latest", component: LatestJobs },
   // { path: "/all-users", component: AllUsers },
   // { path: "/group", component: GroupData },
 

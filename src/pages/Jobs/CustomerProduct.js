@@ -14,7 +14,7 @@ import DataTable from "react-data-table-component";
 import ReportConfig from "./ReportConfig";
 import Loader from "../../Components/Common/Loader";
 import { APIClient } from "../../helpers/api_helper";
-import { reportingAxios } from "../../Axios/axiosConfig";
+import customAxios, { reportingAxios } from "../../Axios/axiosConfig";
 import * as url from "../../helpers/url_helper";
 import Moment from "react-moment";
 import { useLocation } from "react-router-dom";
@@ -33,9 +33,11 @@ const CustomerProduct = (props) => {
     },
     {
       name: <span className="font-weight-bold fs-13">Product</span>,
-      selector: (row) => row.products,
+      selector: (row) => row.productName,
       cell: (row) => (
-        <a href={`/product-order?pid=${row.id}`}>{row.products}</a>
+        <a href={`/product-order?pid=${row.id}&pname=${row.productName}`}>
+          {row.productName}
+        </a>
       ),
       database_name: "name",
       sortable: true,
@@ -63,7 +65,9 @@ const CustomerProduct = (props) => {
         <Button
           color="danger"
           onClick={() => {
-            props.history.push(`/product-order?pid=${row.id}`);
+            props.history.push(
+              `/product-order?pid=${row.id}&pname=${row.productName}`
+            );
           }}
         >
           Details
@@ -91,19 +95,21 @@ const CustomerProduct = (props) => {
   const [expression, setExpression] = useState("");
   const [userToDelete, setUsertoDelete] = useState(null);
   const [url, setUrl] = useState(null);
-  document.title = "Customer Details";
 
   const searchParam = useLocation().search;
   const custid = new URLSearchParams(searchParam).get("cid");
+  const custName = new URLSearchParams(searchParam).get("cname");
 
+  document.title = "Customer Details";
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
 
     if (userRole !== "user") {
       //getAllUsers(1, 10);
-      let endpoint = sessionStorage.getItem("endPoint");
-      setUrl(endpoint);
-      fetchData(page, perPage, sort, expression);
+      let endpoint = JSON.parse(
+        sessionStorage.getItem("selectedMachine")
+      )?.endPoint;
+      fetchData(page, perPage, sort, expression, endpoint);
     } else {
       //redirect to dashboard
       props.history.push("/dashboard");
@@ -122,7 +128,7 @@ const CustomerProduct = (props) => {
         let finalres = {
           id: data.id,
           date: data.insertedAt,
-          products: data.name,
+          productName: data.name,
           totalResults: res.totalResults,
           goodResults: `${((res.goodResults / res.totalResults) * 100).toFixed(
             2
@@ -142,19 +148,20 @@ const CustomerProduct = (props) => {
   const fetchDataDefault = async () => {
     fetchData(page, perPage, sort, expression);
   };
-  const fetchData = async (page, per_page, sort, expression) => {
+  const fetchData = async (page, per_page, sort, expression, endpoint) => {
     setLoading(true);
-
-    api
-      .create(
-        `${ReportConfig.reportJobsApi}/customers/${custid}/products?page=${page}&itemsPerPage=${per_page}`,
+    let baseURL = customAxios(endpoint);
+    baseURL
+      .post(
+        `jobs/customers/${custid}/products?page=${page}&itemsPerPage=${per_page}`,
         {
           sort: sort,
           expression: expression,
         }
       )
-      .then((data) => {
+      .then((res) => {
         // console.log("1st data", data);
+        const { data } = res;
         setIsLoaded(true);
         if (page != data.page) setPage(data.page);
         // setItems(data.items);
@@ -205,8 +212,9 @@ const CustomerProduct = (props) => {
                 ) : null}
               </Col>
             </Row>
-            <h4>{`Customer ${custid}`}</h4>
+            <h4>{`${custName}`}</h4>
             <Input
+              autoFocus
               type="text"
               placeholder="search by product name..."
               value={search}

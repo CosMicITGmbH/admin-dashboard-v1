@@ -158,7 +158,7 @@ const Navdata = () => {
       label: "Jobs",
       icon: "mdi mdi-view-grid-plus-outline",
       link: "/#",
-      forUser: true,
+      forUser: false,
       click: function (e) {
         e.preventDefault();
         setIsJobs(!isJobs);

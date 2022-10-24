@@ -11,16 +11,21 @@ import { withTranslation } from "react-i18next";
 const VerticalLayout = (props) => {
   const navData = navdata().props.children;
   const [isAdmin, setIsAdmin] = useState(false);
+  const [jobsvisible, setjobsvisible] = useState(false);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     let currentRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    console.log("role vertical menui", currentRole);
+    // console.log("role vertical menui", currentRole);
     if (
       currentRole.toLowerCase() === "admin" ||
       currentRole.toLowerCase() === "manager"
     ) {
       setIsAdmin(true);
     }
+    let selectedMachine = sessionStorage.getItem("selectedMachine") || "";
+    console.log("selectedMachine", selectedMachine);
+    selectedMachine ? setjobsvisible(true) : setjobsvisible(false);
+
     const initMenu = () => {
       const pathName = process.env.PUBLIC_URL + props.location.pathname;
       const ul = document.getElementById("navbar-nav");
@@ -106,9 +111,10 @@ const VerticalLayout = (props) => {
                 className="nav-item"
                 style={{
                   display:
-                    item.forAdmin && isAdmin
+                    (item.forAdmin && isAdmin) ||
+                    (props.t(item.label).toLowerCase() == "jobs" && jobsvisible)
                       ? "block"
-                      : item?.forUser
+                      : item?.forUser === true
                       ? "block"
                       : "none",
                 }}
@@ -120,7 +126,8 @@ const VerticalLayout = (props) => {
                   data-bs-toggle="collapse"
                 >
                   <i className={item.icon}></i>{" "}
-                  <span data-key="t-apps">{props.t(item.label)}</span>
+                  <span data-key="t-apps">{props.t(item.label)}</span>{" "}
+                  {/*jobs and admin label */}
                 </Link>
                 <Collapse
                   className="menu-dropdown"
@@ -139,6 +146,7 @@ const VerticalLayout = (props) => {
                                 className="nav-link"
                               >
                                 {props.t(subItem.label)}
+                                {/*submenu items of jobs and admin label */}
                                 {subItem.badgeName ? (
                                   <span
                                     className={

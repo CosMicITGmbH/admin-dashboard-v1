@@ -11,15 +11,15 @@ import {
   Alert,
 } from "reactstrap";
 import DataTable from "react-data-table-component";
-import ReportConfig from "./ReportConfig";
-import Loader from "../../Components/Common/Loader";
-import { APIClient } from "../../helpers/api_helper";
+//import ReportConfig from "./ReportConfig";
+import Loader from "../../../Components/Common/Loader";
+import { APIClient } from "../../../helpers/api_helper";
 //import { reportingAxios } from "../../Axios/axiosConfig";
-import customAxios from "../../Axios/axiosConfig";
-import * as url from "../../helpers/url_helper";
+import customAxios from "../../../Axios/axiosConfig";
+import * as url from "../../../helpers/url_helper";
 import Moment from "react-moment";
 const api = new APIClient();
-const Customers = (props) => {
+const LatestJobs = (props) => {
   const columns = [
     {
       name: <span className="font-weight-bold fs-13">Date</span>,
@@ -38,55 +38,65 @@ const Customers = (props) => {
           {row.customer}
         </a>
       ),
-      database_name: "name",
-      sortable: true,
+      // database_name: "name",
+      // sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Product</span>,
+      selector: (row) => row.product,
+      cell: (row) => (
+        <a href={`/product-order?pid=${row.id}&pname=${row.customer}`}>
+          {row.customer}
+        </a>
+      ),
+      // database_name: "name",
+      // sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Order</span>,
+      selector: (row) => row.order,
+      cell: (row) => (
+        <a href={`/customer-product?cid=${row.id}&cname=${row.customer}`}>
+          {row.customer}
+        </a>
+      ),
     },
     {
       name: <span className="font-weight-bold fs-13">Total Sheets</span>,
       selector: (row) => row.totalSheets,
-      //   database_name: "lastName",
-      //   sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Good Sheets</span>,
       selector: (row) => row.goodSheets,
-      //   database_name: "email",
-      //   sortable: true,
-      //   wrap: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Bad Sheets</span>,
       selector: (row) => row.badSheets,
-      //   database_name: "role",
-      //   sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Ejected sheets</span>,
       selector: (row) => row.ejectedSheets,
-      // cell: (row) => <a href={"/profile?profileID=" + row.id}>Ejected</a>,
-      // ignoreRowClick: true,
-      // allowOverflow: true,
       button: true,
     },
-    {
-      name: <span className="font-weight-bold fs-13">View</span>,
-      cell: (row, column) => (
-        <Button
-          color="danger"
-          onClick={() => {
-            props.history.push(
-              `/customer-product?cid=${row.id}&cname=${row.customer}`
-            );
-          }}
-        >
-          Details
-        </Button>
-      ),
-      //  cell: (row) => <a href={`/customer-product?cid=${row.id}`}>Details</a>,
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
+    // {
+    //   name: <span className="font-weight-bold fs-13">View</span>,
+    //   cell: (row, column) => (
+    //     <Button
+    //       color="danger"
+    //       onClick={() => {
+    //         props.history.push(
+    //           `/customer-product?cid=${row.id}&cname=${row.customer}`
+    //         );
+    //       }}
+    //     >
+    //       Details
+    //     </Button>
+    //   ),
+    //   //  cell: (row) => <a href={`/customer-product?cid=${row.id}`}>Details</a>,
+    //   ignoreRowClick: true,
+    //   allowOverflow: true,
+    //   button: true,
+    // },
   ];
   const [isLoaded, setIsLoaded] = useState(false);
   const [successMsg, setSuccess] = useState({
@@ -105,7 +115,7 @@ const Customers = (props) => {
   const [userToDelete, setUsertoDelete] = useState(null);
   // const [url, setUrl] = useState(null || sessionStorage.getItem("endPoint"));
   // const inputTxt = useRef(null);
-  document.title = "Customers";
+  document.title = "Latest Jobs";
   //window.location.reload();
   useEffect(() => {
     // window.location.reload();
@@ -138,13 +148,15 @@ const Customers = (props) => {
     let baseURL = customAxios(endpoint);
     let customerObj = await Promise.all(
       dataSet.map(async (data) => {
-        const res = await baseURL.get(`/jobs/customers/${data.id}/performance`);
+        const res = await baseURL.get(`/jobs/orders/${data.id}/performance`);
         //  const res = await resp.json();
-        console.log("/jobs/customers data> ", res);
+        console.log("/jobs/orders prrformance> ", res);
         let finalres = {
           id: data.id,
           date: data.insertedAt,
           customer: data.name,
+          product: data.productId,
+          order: data.id,
           totalSheets: res.data.totalResults,
           goodSheets: `${(
             (res.data.goodResults / res.data.totalResults) *
@@ -180,19 +192,20 @@ const Customers = (props) => {
       .post(
         `${
           JSON.parse(sessionStorage.getItem("selectedMachine")).endPoint
-        }/jobs/customers?page=${page}&itemsPerPage=${per_page}`,
+        }/jobs/search/orders/latest?page=${page}&itemsPerPage=${per_page}`,
         {
           sort: sort,
           expression: expression,
         }
       )
-      .then((data) => {
-        console.log("1st data", data.data.items, page);
+      .then((res) => {
+        const { data } = res;
+
         setIsLoaded(true);
         if (page != data.page) setPage(data.page);
-        // setItems(data.items);
-        makeDataItems(data.data.items, endpoint);
-        setTotalRows(data.data.totalItems);
+        console.log("1st data", data.items, page, data.page);
+        makeDataItems(data.items, endpoint);
+        setTotalRows(data.totalItems);
         setLoading(false);
       })
       .catch((err) => {
@@ -266,4 +279,4 @@ const Customers = (props) => {
   );
 };
 
-export default Customers;
+export default LatestJobs;

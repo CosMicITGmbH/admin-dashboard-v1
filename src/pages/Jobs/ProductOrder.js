@@ -89,10 +89,11 @@ const ProductOrder = (props) => {
   const [expression, setExpression] = useState("");
   const [userToDelete, setUsertoDelete] = useState(null);
   const [url, setUrl] = useState(null);
-  document.title = "Customer Details";
+  document.title = "Product Details";
 
   const searchParam = useLocation().search;
   const productId = new URLSearchParams(searchParam).get("pid");
+  const productName = new URLSearchParams(searchParam).get("pname");
 
   useEffect(() => {
     let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
@@ -151,7 +152,7 @@ const ProductOrder = (props) => {
         }
       )
       .then((data) => {
-        // console.log("1st data", data);
+        console.log("1st data prod order", data);
         setIsLoaded(true);
         if (page != data.page) setPage(data.page);
         // setItems(data.items);
@@ -202,12 +203,13 @@ const ProductOrder = (props) => {
                 ) : null}
               </Col>
             </Row>
-            <h4>{`Product ${productId}`}</h4>
+            <h4>{`${productName}`}</h4>
             <Input
               type="text"
               placeholder="search by product name..."
               value={search}
               onChange={handleInputExpression}
+              autoFocus
             />
             <DataTable
               columns={columns}

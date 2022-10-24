@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Col, Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
 
 //import images
@@ -21,9 +21,13 @@ import MachineSearch from "../pages/Pages/Groups/MachineSearch";
 const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const [search, setSearch] = useState(false);
   const [machineName, setMachineName] = useState("");
+  const [redirect, setRedirect] = useState(false);
+
   useEffect(() => {
     let getMachineName = sessionStorage.getItem("selectedMachine") || "";
-    if (getMachineName) setMachineName(getMachineName);
+    //   console.log("getMachineName", getMachineName, JSON.parse(getMachineName));
+    if (getMachineName) setMachineName(JSON.parse(getMachineName).name);
+    if (redirect) <Redirect to="/jobs-customer" />;
   }, []);
 
   const toogleSearch = () => {
@@ -32,9 +36,20 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
 
   const getSelectedMachine = (selectedMachine) => {
     setMachineName(selectedMachine.label.toUpperCase());
-    sessionStorage.setItem("selectedMachine", selectedMachine.label);
-    sessionStorage.setItem("endPoint", selectedMachine.endpoint);
-    console.log({ machineName });
+
+    sessionStorage.setItem(
+      "selectedMachine",
+      JSON.stringify({
+        name: selectedMachine.label,
+        endPoint: selectedMachine.endpoint,
+      })
+    );
+    setRedirect(true);
+    // window.location.reload();
+    // sessionStorage.setItem("endPoint", selectedMachine.endpoint);
+    // console.log({ machineName });
+    //  <Redirect to="/jobs-customer" />;
+    //
   };
   const toogleMenuBtn = () => {
     var windowSize = document.documentElement.clientWidth;
@@ -77,103 +92,207 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
 
   return (
     <React.Fragment>
-      <header id="page-topbar" className={headerClass}>
-        <div className="layout-width">
-          <div className="navbar-header">
-            <div className="d-flex" style={{ alignItems: "center" }}>
-              <div className="navbar-brand-box horizontal-logo">
-                <Link to="/" className="logo logo-dark">
-                  <span className="logo-sm">
-                    <img src={logoSm} alt="" height="22" />
-                  </span>
-                  <span className="logo-lg">
-                    <img src={logoDark} alt="" height="17" />
-                  </span>
-                </Link>
+      {redirect ? (
+        <>
+          {" "}
+          <Redirect to="/jobs-customer" />
+          <header id="page-topbar" className={headerClass}>
+            <div className="layout-width">
+              <div className="navbar-header">
+                <div className="d-flex" style={{ alignItems: "center" }}>
+                  <div className="navbar-brand-box horizontal-logo">
+                    <Link to="/" className="logo logo-dark">
+                      <span className="logo-sm">
+                        <img src={logoSm} alt="" height="22" />
+                      </span>
+                      <span className="logo-lg">
+                        <img src={logoDark} alt="" height="17" />
+                      </span>
+                    </Link>
 
-                <Link to="/" className="logo logo-light">
-                  <span className="logo-sm">
-                    <img src={logoSm} alt="" height="22" />
-                  </span>
-                  <span className="logo-lg">
-                    <img src={logoLight} alt="" height="17" />
-                  </span>
-                </Link>
-              </div>
+                    <Link to="/" className="logo logo-light">
+                      <span className="logo-sm">
+                        <img src={logoSm} alt="" height="22" />
+                      </span>
+                      <span className="logo-lg">
+                        <img src={logoLight} alt="" height="17" />
+                      </span>
+                    </Link>
+                  </div>
 
-              <button
-                onClick={toogleMenuBtn}
-                type="button"
-                className="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger shadow-none"
-                id="topnav-hamburger-icon"
-              >
-                <span className="hamburger-icon">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-              </button>
+                  <button
+                    onClick={toogleMenuBtn}
+                    type="button"
+                    className="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger shadow-none"
+                    id="topnav-hamburger-icon"
+                  >
+                    <span className="hamburger-icon">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </span>
+                  </button>
 
-              {/* Add machine search here with text  <SearchOption />  */}
-              <div
-                className="d-flex align-items-center"
-                style={{ gap: "2rem" }}
-              >
-                <MachineSearch selectedMachine={getSelectedMachine} />
-                <h4>{machineName}</h4>
+                  {/* Add machine search here with text  <SearchOption />  */}
+                  <div
+                    className="d-flex align-items-center"
+                    style={{ gap: "2rem" }}
+                  >
+                    <MachineSearch selectedMachine={getSelectedMachine} />
+                    <h4>{machineName}</h4>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-center">
+                  <Dropdown
+                    isOpen={search}
+                    toggle={toogleSearch}
+                    className="d-md-none topbar-head-dropdown header-item"
+                  >
+                    <DropdownToggle
+                      type="button"
+                      tag="button"
+                      className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                    >
+                      <i className="bx bx-search fs-22"></i>
+                    </DropdownToggle>
+                    <DropdownMenu className="dropdown-menu-lg dropdown-menu-end p-0">
+                      <Form className="p-3">
+                        <div className="form-group m-0">
+                          <div className="input-group">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Search ..."
+                              aria-label="Recipient's username"
+                            />
+                            <button className="btn btn-primary" type="submit">
+                              <i className="mdi mdi-magnify"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </Form>
+                    </DropdownMenu>
+                  </Dropdown>
+
+                  {/* FullScreenDropdown */}
+                  <FullScreenDropdown />
+
+                  {/* Dark/Light Mode set */}
+                  <LightDark
+                    layoutMode={layoutModeType}
+                    onChangeLayoutMode={onChangeLayoutMode}
+                  />
+
+                  {/* NotificationDropdown */}
+                  <NotificationDropdown />
+
+                  {/* ProfileDropdown */}
+                  <ProfileDropdown />
+                </div>
               </div>
             </div>
+          </header>
+        </>
+      ) : (
+        <header id="page-topbar" className={headerClass}>
+          <div className="layout-width">
+            <div className="navbar-header">
+              <div className="d-flex" style={{ alignItems: "center" }}>
+                <div className="navbar-brand-box horizontal-logo">
+                  <Link to="/" className="logo logo-dark">
+                    <span className="logo-sm">
+                      <img src={logoSm} alt="" height="22" />
+                    </span>
+                    <span className="logo-lg">
+                      <img src={logoDark} alt="" height="17" />
+                    </span>
+                  </Link>
 
-            <div className="d-flex align-items-center">
-              <Dropdown
-                isOpen={search}
-                toggle={toogleSearch}
-                className="d-md-none topbar-head-dropdown header-item"
-              >
-                <DropdownToggle
+                  <Link to="/" className="logo logo-light">
+                    <span className="logo-sm">
+                      <img src={logoSm} alt="" height="22" />
+                    </span>
+                    <span className="logo-lg">
+                      <img src={logoLight} alt="" height="17" />
+                    </span>
+                  </Link>
+                </div>
+
+                <button
+                  onClick={toogleMenuBtn}
                   type="button"
-                  tag="button"
-                  className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                  className="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger shadow-none"
+                  id="topnav-hamburger-icon"
                 >
-                  <i className="bx bx-search fs-22"></i>
-                </DropdownToggle>
-                <DropdownMenu className="dropdown-menu-lg dropdown-menu-end p-0">
-                  <Form className="p-3">
-                    <div className="form-group m-0">
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Search ..."
-                          aria-label="Recipient's username"
-                        />
-                        <button className="btn btn-primary" type="submit">
-                          <i className="mdi mdi-magnify"></i>
-                        </button>
+                  <span className="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                </button>
+
+                {/* Add machine search here with text  <SearchOption />  */}
+                <div
+                  className="d-flex align-items-center"
+                  style={{ gap: "2rem" }}
+                >
+                  <MachineSearch selectedMachine={getSelectedMachine} />
+                  <h4>{machineName}</h4>
+                </div>
+              </div>
+
+              <div className="d-flex align-items-center">
+                <Dropdown
+                  isOpen={search}
+                  toggle={toogleSearch}
+                  className="d-md-none topbar-head-dropdown header-item"
+                >
+                  <DropdownToggle
+                    type="button"
+                    tag="button"
+                    className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                  >
+                    <i className="bx bx-search fs-22"></i>
+                  </DropdownToggle>
+                  <DropdownMenu className="dropdown-menu-lg dropdown-menu-end p-0">
+                    <Form className="p-3">
+                      <div className="form-group m-0">
+                        <div className="input-group">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Search ..."
+                            aria-label="Recipient's username"
+                          />
+                          <button className="btn btn-primary" type="submit">
+                            <i className="mdi mdi-magnify"></i>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </Form>
-                </DropdownMenu>
-              </Dropdown>
+                    </Form>
+                  </DropdownMenu>
+                </Dropdown>
 
-              {/* FullScreenDropdown */}
-              <FullScreenDropdown />
+                {/* FullScreenDropdown */}
+                <FullScreenDropdown />
 
-              {/* Dark/Light Mode set */}
-              <LightDark
-                layoutMode={layoutModeType}
-                onChangeLayoutMode={onChangeLayoutMode}
-              />
+                {/* Dark/Light Mode set */}
+                <LightDark
+                  layoutMode={layoutModeType}
+                  onChangeLayoutMode={onChangeLayoutMode}
+                />
 
-              {/* NotificationDropdown */}
-              <NotificationDropdown />
+                {/* NotificationDropdown */}
+                <NotificationDropdown />
 
-              {/* ProfileDropdown */}
-              <ProfileDropdown />
+                {/* ProfileDropdown */}
+                <ProfileDropdown />
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
     </React.Fragment>
   );
 };
