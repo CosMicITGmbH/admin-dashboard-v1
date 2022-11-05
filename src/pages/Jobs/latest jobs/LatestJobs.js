@@ -34,19 +34,25 @@ const LatestJobs = (props) => {
       name: <span className="font-weight-bold fs-13">Customer</span>,
       selector: (row) => row.customer,
       cell: (row) => (
-        <a href={`/customer-product?cid=${row.id}&cname=${row.customer}`}>
+        <a
+          href={`/customer-product?cid=${row.customer.split(" #")[1]}&cname=${
+            row.customer.split(" #")[0]
+          }`}
+        >
           {row.customer}
         </a>
       ),
-      // database_name: "name",
-      // sortable: true,
     },
     {
       name: <span className="font-weight-bold fs-13">Product</span>,
       selector: (row) => row.product,
       cell: (row) => (
-        <a href={`/product-order?pid=${row.id}&pname=${row.customer}`}>
-          {row.customer}
+        <a
+          href={`/product-order?pid=${row.product.split(" #")[1]}&pname=${
+            row.product.split(" #")[0]
+          }`}
+        >
+          {row.product}
         </a>
       ),
       // database_name: "name",
@@ -56,8 +62,12 @@ const LatestJobs = (props) => {
       name: <span className="font-weight-bold fs-13">Order</span>,
       selector: (row) => row.order,
       cell: (row) => (
-        <a href={`/customer-product?cid=${row.id}&cname=${row.customer}`}>
-          {row.customer}
+        <a
+          href={`/customer-product?cid=${row.order.split(" #")[1]}&cname=${
+            row.order.split(" #")[0]
+          }`}
+        >
+          {row.order}
         </a>
       ),
     },
@@ -78,25 +88,6 @@ const LatestJobs = (props) => {
       selector: (row) => row.ejectedSheets,
       button: true,
     },
-    // {
-    //   name: <span className="font-weight-bold fs-13">View</span>,
-    //   cell: (row, column) => (
-    //     <Button
-    //       color="danger"
-    //       onClick={() => {
-    //         props.history.push(
-    //           `/customer-product?cid=${row.id}&cname=${row.customer}`
-    //         );
-    //       }}
-    //     >
-    //       Details
-    //     </Button>
-    //   ),
-    //   //  cell: (row) => <a href={`/customer-product?cid=${row.id}`}>Details</a>,
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // },
   ];
   const [isLoaded, setIsLoaded] = useState(false);
   const [successMsg, setSuccess] = useState({
@@ -146,17 +137,17 @@ const LatestJobs = (props) => {
   async function makeDataItems(dataSet, endpoint) {
     //console.log("dataSet", dataSet);
     let baseURL = customAxios(endpoint);
+
     let customerObj = await Promise.all(
       dataSet.map(async (data) => {
         const res = await baseURL.get(`/jobs/orders/${data.id}/performance`);
-        //  const res = await resp.json();
-        console.log("/jobs/orders prrformance> ", res);
+        let { customer, product } = data;
         let finalres = {
           id: data.id,
           date: data.insertedAt,
-          customer: data.name,
-          product: data.productId,
-          order: data.id,
+          customer: `${customer.name} #${customer.id}`,
+          product: `${product.name} #${product.id}`,
+          order: `${data.name} #${data.id}`,
           totalSheets: res.data.totalResults,
           goodSheets: `${(
             (res.data.goodResults / res.data.totalResults) *
