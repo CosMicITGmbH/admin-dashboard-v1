@@ -18,6 +18,7 @@ import { APIClient } from "../../helpers/api_helper";
 import customAxios from "../../Axios/axiosConfig";
 import * as url from "../../helpers/url_helper";
 import Moment from "react-moment";
+import { PieCharFunc } from "./PieChart";
 const api = new APIClient();
 const Customers = (props) => {
   const columns = [
@@ -102,7 +103,7 @@ const Customers = (props) => {
   const [sort, setSort] = useState("id ASC");
   const [search, setSearch] = useState("");
   const [expression, setExpression] = useState("");
-  const [userToDelete, setUsertoDelete] = useState(null);
+  const [chartData, setChartData] = useState([]);
   // const [url, setUrl] = useState(null || sessionStorage.getItem("endPoint"));
   // const inputTxt = useRef(null);
   document.title = "Customers";
@@ -240,6 +241,23 @@ const Customers = (props) => {
               </Col>
             </Row>
             <h4>{`Customers`}</h4>
+            <div
+              style={{
+                width: "50%",
+                height: "50%",
+                margin: "10px auto",
+                textAlign: "center",
+              }}
+            >
+              <PieCharFunc
+                configuration={{
+                  labels: ["Good", "Bad", "Ejected"],
+                  title: "Performance for customer",
+                  data: [10, 50, 0],
+                  color: ["#7acc29", "#db184f", "#0bcbe0"],
+                }}
+              />
+            </div>
             <Input
               autoFocus
               type="text"
@@ -258,6 +276,7 @@ const Customers = (props) => {
               onChangeRowsPerPage={handlePerRowsChange}
               sortServer
               onSort={handleSort}
+              highlightOnHover
             />
           </>
         )}

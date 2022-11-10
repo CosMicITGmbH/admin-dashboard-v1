@@ -263,10 +263,10 @@ const Navdata = () => {
     },
 
     //Pages section
-    {
-      label: "Pages",
-      isHeader: true,
-    },
+    // {
+    //   label: "Pages",
+    //   isHeader: true,
+    // },
     {
       id: "authentication",
       label: "Authentication",
@@ -547,10 +547,10 @@ const Navdata = () => {
         },
       ],
     },
-    {
-      label: "Components",
-      isHeader: true,
-    },
+    // {
+    //   label: "Components",
+    //   isHeader: true,
+    // },
     {
       id: "baseUi",
       label: "Base UI",
