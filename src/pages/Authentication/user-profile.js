@@ -1,33 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { isEmpty } from "lodash";
 import axios from "axios";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Alert,
-  CardBody,
-  Button,
-  Label,
-  Input,
-  FormFeedback,
-  Form,
-  Modal,
-  ModalHeader,
-  ModalBody,
-} from "reactstrap";
 import { Grid, _ } from "gridjs-react";
+import { isEmpty } from "lodash";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Col,
+  Container,
+  Form,
+  FormFeedback,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
+} from "reactstrap";
 // Formik Validation
-import * as Yup from "yup";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
 //redux
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 //for url query params
 import { useLocation } from "react-router-dom";
 
-import avatar from "../../assets/images/users/avatar-1.jpg";
 // actions
 import { editProfile, resetProfileFlag } from "../../store/actions";
 import RoleOptions from "../Forms/Select2/RoleOptions";
@@ -251,13 +250,13 @@ const UserProfile = (props) => {
               <Card>
                 <CardBody>
                   <div className="d-flex">
-                    <div className="mx-3">
+                    {/* <div className="mx-3">
                       <img
                         src={avatar}
                         alt=""
                         className="avatar-md rounded-circle img-thumbnail"
                       />
-                    </div>
+                    </div> */}
                     <div className="flex-grow-1 align-self-center">
                       <div className="text-muted">
                         <h5>{userData.firstName}</h5>

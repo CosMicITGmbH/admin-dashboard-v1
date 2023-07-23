@@ -8,7 +8,7 @@ import {
 } from "reactstrap";
 
 //import images
-import avatar1 from "../../assets/images/users/avatar-1.jpg";
+import avatar1 from "../../assets/images/utils/icon-menu-png-24.png";
 
 const ProfileDropdown = () => {
   const { user } = useSelector((state) => ({

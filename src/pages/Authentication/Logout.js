@@ -19,6 +19,7 @@ const Logout = (props) => {
   }, [dispatch]);
 
   if (isUserLogout) {
+    sessionStorage.removeItem("selectedMachine");
     return <Redirect to="/login" />;
   }
 

@@ -10,17 +10,18 @@ import SalesByLocations from "./SalesByLocations";
 import Section from "./Section";
 import StoreVisits from "./StoreVisits";
 import TopSellers from "./TopSellers";
-
+import ComingSoon from "../Pages/ComingSoon/ComingSoon";
 
 const DashboardEcommerce = () => {
-  document.title ="Dashboard | Velzon - React Admin & Dashboard Template";
+  document.title = "Dashboard | Velzon - React Admin & Dashboard Template";
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
           <BreadCrumb title="Dashboard" pageTitle="Dashboards" />
           <Row>
-            <Col>
+            <ComingSoon />
+            {/* <Col>
               <div className="h-100">
                 <Section />
                 <Row>
@@ -41,7 +42,7 @@ const DashboardEcommerce = () => {
                   <RecentOrders />
                 </Row>
               </div>
-            </Col>
+            </Col> */}
             <RecentActivity />
           </Row>
         </Container>
