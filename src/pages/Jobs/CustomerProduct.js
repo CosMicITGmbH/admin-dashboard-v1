@@ -23,7 +23,7 @@ const api = new APIClient();
 const CustomerProduct = (props) => {
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">Date</span>,
+      name: <span className="font-weight-bold fs-13">Date69</span>,
       selector: (row) => row.date,
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>

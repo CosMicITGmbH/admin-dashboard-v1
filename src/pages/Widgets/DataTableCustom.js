@@ -6,11 +6,20 @@ import DataTable from "react-data-table-component";
 import { Input } from "reactstrap";
 import customAxios from "../../Axios/axiosConfig";
 import {
+  authUser,
+  customerJobTag,
   groupTag,
   latestJobsTag,
   servicesTag,
+  userRole,
   userTag,
 } from "../../helpers/appContants";
+import { PieCharFunc } from "../Jobs/PieChart";
+import {
+  getJobItemResponse,
+  getReportingUrl,
+} from "../Jobs/latest jobs/JobData";
+import { getCustomerJobResponse, getGraphdata } from "../Jobs/CustomersData";
 
 const DataTableCustom = ({
   columns,
@@ -18,6 +27,7 @@ const DataTableCustom = ({
   expressions,
   tag,
   isreportingApi,
+  isPieChartVisible,
 }) => {
   const history = useHistory();
   const [items, setItems] = useState([]);
@@ -27,6 +37,10 @@ const DataTableCustom = ({
   const [sort, setSort] = useState("id ASC");
   const [search, setSearch] = useState("");
   const [expression, setExpression] = useState("");
+  const [graphData, setGraphData] = useState({
+    show: false,
+    data: [0, 0, 0],
+  });
 
   useEffect(() => {
     const authUser = sessionStorage.getItem("authUser");
@@ -39,7 +53,7 @@ const DataTableCustom = ({
       const {
         data: { role },
       } = JSON.parse(authUser);
-      if (role !== "user") {
+      if (role !== userRole) {
         fetchDataDefault();
       } else {
         history.push("/dashboard");
@@ -88,18 +102,6 @@ const DataTableCustom = ({
     setItems(gridData);
   };
 
-  const getReportingUrl = () => {
-    let baseUrlReporting = "";
-    try {
-      baseUrlReporting = JSON.parse(
-        sessionStorage.getItem("selectedMachine")
-      )?.endPoint;
-      return baseUrlReporting;
-    } catch (error) {
-      console.log("Error fetching report Url:", error);
-    }
-  };
-
   const fetchData = async (page, per_page, sort, expression) => {
     try {
       let resp,
@@ -118,7 +120,9 @@ const DataTableCustom = ({
             expression: expression,
           }
         );
-
+        if (resp.status === 401) {
+          history.push("/login");
+        }
         items = resp.data.items;
         totalItems = resp.data.totalItems;
       } else {
@@ -129,6 +133,9 @@ const DataTableCustom = ({
             expression: expression,
           }
         );
+        if (resp.status === 401) {
+          history.push("/login");
+        }
         items = resp.items;
         totalItems = resp.totalItems;
       }
@@ -146,14 +153,26 @@ const DataTableCustom = ({
           case userTag:
             setItems(items);
             break;
-          case latestJobsTag:
-            setLatestJobitems(items);
+          case latestJobsTag: {
+            let resp = await getJobItemResponse(items);
+            setItems(resp);
             break;
+          }
+          case customerJobTag: {
+            let resp = await getCustomerJobResponse(items);
+            setItems(resp);
+            const graphDataResp = await getGraphdata(resp);
+            console.log("graphDataResp", graphDataResp);
+            setGraphData({
+              show: true,
+              data: Object.values(graphDataResp),
+            });
+            break;
+          }
           default:
             console.log("No tags matching:", tag);
             break;
         }
-
         setTotalRows(totalItems);
       } else {
         setItems(items ?? []);
@@ -163,54 +182,6 @@ const DataTableCustom = ({
       console.log(`Error from ${url}:`, error);
     }
   };
-
-  async function setLatestJobitems(dataSet) {
-    let reportingUrl = getReportingUrl();
-    let axiosInstReporting = customAxios(reportingUrl);
-
-    const calculatePercent = (value, total) => {
-      return `${((value / total) * 100).toFixed(2)}% (${value})`;
-    };
-
-    let customerObj = await Promise.all(
-      dataSet.map(async (data) => {
-        const perfData = await axiosInstReporting.get(
-          `/jobs/orders/${data.id}/performance`
-        );
-        let { customer, product } = data;
-        let {
-          totalResults = 0,
-          goodResults = 0,
-          badResults = 0,
-          unknownResults = 0,
-          ejectedTotalResults = 0,
-          ejectedGoodResults = 0,
-          ejectedBadResults = 0,
-          ejectedUnknownResults = 0,
-        } = perfData.data;
-
-        let finalres = {
-          id: data.id,
-          date: data.insertedAt,
-          customer: `${customer.name} #${customer.id}`,
-          product: `${product.name} #${product.id}`,
-          order: `${data.name} #${data.id}`,
-          totalSheets: totalResults,
-          goodSheets:
-            totalResults === 0
-              ? "0.00% (0)"
-              : calculatePercent(goodResults, totalResults),
-          badSheets:
-            totalResults === 0
-              ? "0.00% (0)"
-              : calculatePercent(badResults, totalResults),
-          ejectedSheets: ejectedTotalResults,
-        };
-        return finalres;
-      })
-    );
-    setItems(customerObj);
-  }
 
   const handlePageChange = (page) => {
     setPage(page);
@@ -245,12 +216,33 @@ const DataTableCustom = ({
 
   return (
     <>
+      {graphData.show && (
+        <div
+          style={{
+            width: "50%",
+            height: "50%",
+            margin: "10px auto",
+            textAlign: "center",
+          }}
+        >
+          <PieCharFunc
+            configuration={{
+              labels: ["Good", "Bad", "Ejected"],
+              title: "Performance for customer",
+              data: graphData.data,
+              color: ["#7acc29", "#db184f", "#0bcbe0"],
+            }}
+          />
+        </div>
+      )}
+
       <Input
         type="text"
         placeholder="type to search..."
         value={search}
         onChange={handleChange}
       />
+
       <DataTable
         columns={columns}
         data={items}

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Moment from "react-moment";
 import { Container } from "reactstrap";
-import { APIClient } from "../../../helpers/api_helper";
 import { latestJobsTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 
@@ -91,6 +90,7 @@ const LatestJobs = () => {
           expressions={["name"]}
           tag={latestJobsTag}
           isreportingApi={true}
+          performanceUrl={"orders"}
         />
       </Container>
     </div>
