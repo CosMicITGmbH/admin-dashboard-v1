@@ -31,3 +31,5 @@ export * from "./mailbox/action";
 export * from "./machines/action";
 //services
 export * from "./services/action";
+//common
+export * from "./shared/action";

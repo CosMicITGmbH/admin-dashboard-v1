@@ -27,7 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 
 // actions
-import { UPDATE_PROFILE } from "../../helpers/appContants";
+import { UPDATE_PROFILE_API } from "../../helpers/appContants";
 import { resetProfileFlag } from "../../store/actions";
 import RoleOptions from "../Forms/Select2/RoleOptions";
 
@@ -266,7 +266,10 @@ const UserProfile = (props) => {
       //make network call to update the user profile
       try {
         clearReload();
-        const resp = await axios.post(`${UPDATE_PROFILE}/${profid}`, values);
+        const resp = await axios.post(
+          `${UPDATE_PROFILE_API}/${profid}`,
+          values
+        );
         succesStopReload();
       } catch (error) {
         errorStopReload(error);

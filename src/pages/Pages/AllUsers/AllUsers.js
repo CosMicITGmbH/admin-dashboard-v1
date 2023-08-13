@@ -1,10 +1,11 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import axios from "axios";
 import { Alert, Button, Col, Container, Row } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
-import { PROFILE_ID, userTag } from "../../../helpers/appContants";
+import { PROFILE_ID_API, userTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import RegisterUserModal from "./RegisterUserModal";
 const AllUsers = (props) => {
@@ -79,7 +80,7 @@ const AllUsers = (props) => {
   const history = useHistory();
 
   const openProfilePage = (profid) => {
-    const profileUrl = `${PROFILE_ID}${profid}`;
+    const profileUrl = `${PROFILE_ID_API}${profid}`;
     history.push(profileUrl);
   };
   const [successMsg, setSuccess] = useState({

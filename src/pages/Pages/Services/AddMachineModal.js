@@ -19,7 +19,10 @@ import * as Yup from "yup";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import CopyInput from "../../../Components/Reusable/CopyInput";
-import { REGISTER_MACHINE } from "../../../helpers/appContants";
+import {
+  REGISTER_MACHINE,
+  REGISTER_MACHINE_API,
+} from "../../../helpers/appContants";
 
 const AddMachineModal = (props) => {
   // const [loading, setLoading] = useState(false);
@@ -47,7 +50,7 @@ const AddMachineModal = (props) => {
     onSubmit: async (values, { resetForm }) => {
       try {
         setService({ ...service, loading: true });
-        const resp = await axios.post(REGISTER_MACHINE, values);
+        const resp = await axios.post(REGISTER_MACHINE_API, values);
 
         setService({
           error: false,

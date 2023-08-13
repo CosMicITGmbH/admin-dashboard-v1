@@ -32,14 +32,18 @@ import Machine from "./machines/reducer";
 
 //service
 import Services from "./services/reducer";
+//common
+import Shared from "./shared/reducer";
 
 const rootReducer = combineReducers({
-  // public
   Layout,
   Login,
   Account,
   ForgetPassword,
   Profile,
+  Shared,
+  Machine,
+  Services,
   // Calendar,
   // chat,
   // Projects,
@@ -51,8 +55,7 @@ const rootReducer = combineReducers({
   // Crm,
   // Invoice,
   // Mailbox,
-  Machine,
-  Services,
+  // public
 });
 
 export default rootReducer;

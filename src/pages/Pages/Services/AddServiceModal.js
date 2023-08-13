@@ -19,7 +19,10 @@ import * as Yup from "yup";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import CopyInput from "../../../Components/Reusable/CopyInput";
-import { REGISTER_SERVICE } from "../../../helpers/appContants";
+import {
+  REGISTER_SERVICE,
+  REGISTER_SERVICE_API,
+} from "../../../helpers/appContants";
 
 const AddServiceModal = (props) => {
   const [service, setService] = useState({
@@ -48,7 +51,7 @@ const AddServiceModal = (props) => {
     onSubmit: async (values, { resetForm }) => {
       try {
         setService({ ...service, loading: true });
-        const resp = await axios.post(REGISTER_SERVICE, values);
+        const resp = await axios.post(REGISTER_SERVICE_API, values);
         setService({
           error: false,
           success: true,

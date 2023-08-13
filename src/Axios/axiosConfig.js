@@ -21,22 +21,22 @@ const customAxios = (dynamicBaseURL) => {
   return axiosInstance;
 };
 
-customAxios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response.status === 401) {
-      window.location = "/login";
-    }
-  }
-);
+// customAxios.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.status === 401) {
+//       window.location = "/login";
+//     }
+//   }
+// );
 
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response.status === 401) {
-      window.location = "/login";
-    }
-  }
-);
+// instance.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.status === 401) {
+//       window.location = "/login";
+//     }
+//   }
+// );
 
 export { customAxios, instance };

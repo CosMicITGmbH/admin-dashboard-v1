@@ -14,17 +14,18 @@ export const userRole = "user";
 export const adminRole = "admin";
 export const managerRole = "manager";
 
-//urls: auth charpify
-export const REGISTER_MACHINE = "/auth/machine/register";
-export const REGISTER_SERVICE = "/auth/service/register";
+/*****************  URLS *************/
+export const REGISTER_MACHINE_API = "/auth/machine/register";
+export const REGISTER_SERVICE_API = "/auth/service/register";
 
 //PROFILES
-export const PROFILE_ID = "/profile?profileID=";
-export const UPDATE_PROFILE = "/users/profile";
+export const PROFILE_ID_API = "/profile?profileID=";
+export const UPDATE_PROFILE_API = "/users/profile";
 
 //machines
-export const ALL_MACHINES = "machines?page=1&itemsPerPage=1000000";
-export const CONNECT_MACHINE_SERVICE = "/services/connet/id";
+export const ALL_MACHINES_API = "machines?page=1&itemsPerPage=1000000";
+export const CONNECT_MACHINE_SERVICE_API = "/services/connect/id";
 
 //services
-export const ALL_SERVICES = "/services";
+export const ALL_SERVICES_API = "/services";
+export const GET_CONNECTED_SERVICE_API = "/services/machines/id";

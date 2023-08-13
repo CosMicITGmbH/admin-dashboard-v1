@@ -1,11 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-prototype-builtins */
 import axios from "axios";
 import { debounce, isNil } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Input } from "reactstrap";
 import { customAxios } from "../../Axios/axiosConfig";
+import Loader from "../../Components/Common/Loader";
 import {
   customerJobTag,
   groupTag,
@@ -28,8 +31,10 @@ const DataTableCustom = ({
   tag,
   isreportingApi,
   isPieChartVisible,
-  // reload,
 }) => {
+  const dispatch = useDispatch();
+
+  const machineName = useSelector((state) => state.Machine.machineName);
   const history = useHistory();
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
@@ -42,12 +47,13 @@ const DataTableCustom = ({
     show: false,
     data: [0, 0, 0],
   });
-
-  const machineName = useSelector((state) => state.Machine.machineName);
+  const [newloading, setNewLoading] = useState(true);
 
   useEffect(() => {
     if (machineName.endPoint) {
+      setNewLoading(true);
       setPage(1);
+      setNewLoading(false);
     }
   }, [machineName]);
 
@@ -73,7 +79,9 @@ const DataTableCustom = ({
   }, [expression, sort, perPage, page]);
 
   const fetchDataDefault = async () => {
+    setNewLoading(true);
     await fetchData(page, perPage, sort, expression);
+    setNewLoading(false);
   };
 
   const setGroupData = (data) => {
@@ -116,6 +124,7 @@ const DataTableCustom = ({
       let resp,
         totalItems = 0,
         items = [];
+      setNewLoading(true);
       if (isreportingApi) {
         let reportingUrl = machineName.endPoint || getReportingUrl();
         let finalUrl = `${reportingUrl}/${url}`;
@@ -128,7 +137,8 @@ const DataTableCustom = ({
             expression: expression,
           }
         );
-        if (resp.status === 401) {
+
+        if (resp.statusCode === 401) {
           history.push("/login");
         }
         items = resp.data.items;
@@ -142,7 +152,8 @@ const DataTableCustom = ({
             expression: expression,
           }
         );
-        if (resp.status === 401) {
+
+        if (resp.statusCode === 401) {
           history.push("/login");
         }
         console.log("::resps", resp);
@@ -186,8 +197,12 @@ const DataTableCustom = ({
         setItems(items ?? []);
         setTotalRows(totalItems ?? 0);
       }
+      setNewLoading(false);
     } catch (error) {
-      console.log(`Error from ${url}:`, error);
+      console.log(`Error from ${url}:`, error.response);
+      if (error?.response?.status === 401) {
+        history.push("/login");
+      }
     }
   };
 
@@ -262,6 +277,8 @@ const DataTableCustom = ({
         onChangeRowsPerPage={handlePerRowsChange}
         sortServer
         onSort={handleSort}
+        progressPending={newloading}
+        progressComponent={<Loader />}
       />
     </>
   );

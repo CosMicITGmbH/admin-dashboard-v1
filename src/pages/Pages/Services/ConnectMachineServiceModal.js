@@ -17,9 +17,10 @@ import Select from "react-select";
 import "react-toastify/dist/ReactToastify.css";
 import { customAxios } from "../../../Axios/axiosConfig";
 import {
-  ALL_MACHINES,
-  ALL_SERVICES,
-  CONNECT_MACHINE_SERVICE,
+  ALL_MACHINES_API,
+  ALL_SERVICES_API,
+  CONNECT_MACHINE_SERVICE_API,
+  GET_CONNECTED_SERVICE_API,
   REACT_APP_API_REPORTING_URL,
 } from "../../../helpers/appContants";
 import {
@@ -33,8 +34,8 @@ const ConnectMachineServiceModal = (props) => {
   const dispatch = useDispatch();
 
   const [machines, setMachines] = useState([]);
-  const [selectedMachine, setSelectedMachine] = useState();
-  const [selectedservice, setSelectedservice] = useState();
+  const [selectedMachine, setSelectedMachine] = useState(null);
+  const [selectedservice, setSelectedservice] = useState(null);
   const [filteredServices, setFilteredServices] = useState([]);
 
   const [errors, setErrors] = useState({
@@ -50,7 +51,7 @@ const ConnectMachineServiceModal = (props) => {
       let reportInstance = customAxios(
         process.env.REACT_APP_API_REPORTING_URL || REACT_APP_API_REPORTING_URL
       );
-      const response = await reportInstance.post(`/${ALL_MACHINES}`, {
+      const response = await reportInstance.post(`/${ALL_MACHINES_API}`, {
         sort: "Id ASC",
         expression: "",
       });
@@ -72,25 +73,8 @@ const ConnectMachineServiceModal = (props) => {
     }
   };
 
-  const fetchServices = async () => {
-    try {
-      dispatch(setServiceLoading());
-      const serviceResp = await axios.post(
-        `${ALL_SERVICES}?page=1&itemsPerPage=10000`,
-        {}
-      );
-      const { items } = serviceResp;
-      console.log("service all:", serviceResp);
-      dispatch(setServiceSuccess(items));
-    } catch (error) {
-      console.log("errorasdasd", error);
-      dispatch(serviceFetchFailed(error));
-    }
-  };
-
   useEffect(() => {
     fetchMachines();
-    fetchServices();
   }, []);
 
   const { loading, services, error, msg, success } = useSelector(
@@ -104,43 +88,48 @@ const ConnectMachineServiceModal = (props) => {
    * notes: once the machine is selected we need to fetch all the services and then filter those which are not connected to this machine
    */
   const fetchUnConnectedService = async (machine) => {
-    //get all service
-
     try {
-      let unconnectServices = [];
-      for (const item of services) {
-        if (item.key !== machine.label) {
-          unconnectServices.push(item);
-        }
-      }
-      //console.log("unconnect service:", unconnectServices);
-      if (unconnectServices.length) {
-        const options = unconnectServices.map((item) => ({
+      const unConnectedServiceResp = await axios.post(
+        `${GET_CONNECTED_SERVICE_API}/${machine.value}/notconnected`,
+        {}
+      );
+
+      if (unConnectedServiceResp.items.length) {
+        const options = unConnectedServiceResp.items.map((item) => ({
           label: `${item.name}`,
           value: item.key,
         }));
         setFilteredServices([{ options }]);
       }
     } catch (error) {
-      console.log("error from connected machcine", error);
+      console.log("error from GET_CONNECTED_SERVICE_API", error);
     }
   };
 
   const closeModal = () => {
+    dispatch(serviceFetchFailed(""));
+    setSelectedservice(null);
+    setSelectedMachine(null);
+    setFilteredServices(null);
     props.closeConnectModal();
   };
 
   const handleSubmit = async (e) => {
     console.log("submitting form:", selectedservice, selectedMachine);
     if (!selectedservice || !selectedMachine) {
-      dispatch(serviceFetchFailed("Please select Machine and Service"));
+      return dispatch(serviceFetchFailed("Please select Machine and Service"));
     }
+
     try {
       const submitResp = await axios.post(
-        `${CONNECT_MACHINE_SERVICE}/${selectedservice.value}/${selectedMachine.value}`
+        `${CONNECT_MACHINE_SERVICE_API}/${selectedservice.value}/${selectedMachine.value}`
       );
       console.log("submit resp", submitResp);
-      dispatch(setConnectSuccess("Connection successful"));
+      dispatch(
+        setConnectSuccess(
+          `${selectedservice.label} successfully connected to ${selectedMachine.label} !!`
+        )
+      );
     } catch (error) {
       console.log("Error saving response:", error);
       dispatch(serviceFetchFailed(error));
@@ -219,7 +208,10 @@ const ConnectMachineServiceModal = (props) => {
                     </div>
 
                     {/* SERVICES DROPDOWN */}
-                    <div className="form-group mb-1">
+                    <div
+                      className="form-group mb-1"
+                      styles={{ width: "300px" }}
+                    >
                       <Label className="form-label">Select Service</Label>
                       <Select
                         value={selectedservice}
@@ -229,14 +221,20 @@ const ConnectMachineServiceModal = (props) => {
                         }}
                         options={filteredServices}
                         id="choices-single-default"
+                        styles={{ width: "300px !important" }}
                         className="role-select"
                         name="service"
+                        isDisabled={!selectedMachine}
                       />
                     </div>
                   </div>
 
                   <div className="text-center mt-4 mx-2">
-                    <Button type="submit" color="success">
+                    <Button
+                      type="submit"
+                      color="success"
+                      disabled={!selectedservice}
+                    >
                       Connect
                     </Button>
                   </div>
