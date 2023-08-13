@@ -20,7 +20,7 @@ export const postFakeRegister = (data) =>
   api.create(url.POST_FAKE_REGISTER, data);
 
 // Login Method
-export const postFakeLogin = (data) => api.create(url.POST_FAKE_LOGIN, data);
+export const appLogin = (data) => api.create(url.APP_LOGIN_API, data);
 
 // postForgetPwd
 export const postFakeForgetPwd = (data) =>

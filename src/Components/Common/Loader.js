@@ -7,10 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 const Loader = (props) => {
   return (
     <React.Fragment>
-      <div className="d-flex justify-content-center mx-2 my-lg-4">
+      <div className="d-flex justify-content-center mx-2 my-4">
         <Spinner color="primary" size="lg">
-          {" "}
-          Loading...{" "}
+          Loading...
         </Spinner>
       </div>
       {toast.error(props.error, {

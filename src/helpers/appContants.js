@@ -15,6 +15,7 @@ export const adminRole = "admin";
 export const managerRole = "manager";
 
 /*****************  URLS *************/
+export const LOGIN_API = "/auth/user/login";
 export const REGISTER_MACHINE_API = "/auth/machine/register";
 export const REGISTER_SERVICE_API = "/auth/service/register";
 

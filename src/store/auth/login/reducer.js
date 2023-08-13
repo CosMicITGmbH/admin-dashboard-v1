@@ -1,5 +1,6 @@
 import {
   LOGIN_USER,
+  START_LOADING,
   LOGIN_SUCCESS,
   LOGOUT_USER,
   LOGOUT_USER_SUCCESS,
@@ -12,8 +13,13 @@ const initialState = {
   loading: false,
 };
 
-const login = (state = initialState, action) => {
+const Login = (state = initialState, action) => {
   switch (action.type) {
+    case START_LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
     case LOGIN_USER:
       state = {
         ...state,
@@ -24,6 +30,7 @@ const login = (state = initialState, action) => {
       state = {
         ...state,
         loading: false,
+        user: action.payload,
       };
       break;
     case LOGOUT_USER:
@@ -54,4 +61,4 @@ const login = (state = initialState, action) => {
   return state;
 };
 
-export default login;
+export default Login;

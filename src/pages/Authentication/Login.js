@@ -28,7 +28,7 @@ import { useFormik } from "formik";
 // import TwitterLogin from "react-twitter-auth"
 // import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
 // actions
-import { loginUser, socialLogin, resetLoginFlag } from "../../store/actions";
+import { loginUser, resetLoginFlag } from "../../store/actions";
 
 import logoLight from "../../assets/images/logo-light.png";
 import Loader from "../../Components/Common/Loader";
@@ -41,9 +41,9 @@ const Login = (props) => {
   const { user } = useSelector((state) => ({
     user: state.Account.user,
   }));
-
+  const { loading } = useSelector((state) => state.Login);
   const [userLogin, setUserLogin] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user && user) {
@@ -67,9 +67,9 @@ const Login = (props) => {
       password: Yup.string().required("Please Enter Your Password"),
     }),
     onSubmit: (values) => {
-      setLoading(true);
+      //setLoading(true);
       dispatch(loginUser(values, props.history));
-      setLoading(false);
+      // setLoading(false);
     },
   });
 
@@ -80,7 +80,7 @@ const Login = (props) => {
   useEffect(() => {
     setTimeout(() => {
       dispatch(resetLoginFlag());
-      setLoading(false);
+      // setLoading(false);
     }, 3000);
   }, [dispatch, error]);
 
@@ -204,6 +204,7 @@ const Login = (props) => {
                               color="success"
                               className="btn btn-success w-100"
                               type="submit"
+                              disabled={loading}
                             >
                               Sign In
                             </Button>

@@ -1,4 +1,5 @@
 import {
+  START_LOADING,
   LOGIN_USER,
   LOGIN_SUCCESS,
   LOGOUT_USER,
@@ -8,6 +9,11 @@ import {
   RESET_LOGIN_FLAG,
 } from "./actionTypes";
 
+export const startLoading = () => {
+  return {
+    type: START_LOADING,
+  };
+};
 export const loginUser = (user, history) => {
   return {
     type: LOGIN_USER,

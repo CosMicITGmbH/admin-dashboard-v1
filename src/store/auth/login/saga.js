@@ -1,46 +1,39 @@
 import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
-
 // Login Redux States
 import { LOGIN_USER, LOGOUT_USER, SOCIAL_LOGIN } from "./actionTypes";
-import { apiError, loginSuccess, logoutUserSuccess } from "./actions";
+import {
+  apiError,
+  loginSuccess,
+  logoutUserSuccess,
+  startLoading,
+} from "./actions";
 
 //Include Both Helper File with needed methods
 import { getFirebaseBackend } from "../../../helpers/firebase_helper";
-import {
-  postFakeLogin,
-  postJwtLogin,
-  postSocialLogin,
-} from "../../../helpers/fakebackend_helper";
-
-//impor the base url from axios config
-// import api from "../../../Axios/axiosConfig";
+import { appLogin, postSocialLogin } from "../../../helpers/fakebackend_helper";
 
 const fireBaseBackend = getFirebaseBackend();
 
 function* loginUser({ payload: { user, history } }) {
   try {
     if (process.env.REACT_APP_API_URL) {
-      // console.log("calling api from saga");
-      const response = yield call(postFakeLogin, {
+      yield put(startLoading());
+      const response = yield call(appLogin, {
         email: user.email,
         password: user.password,
       });
 
-      //console.log("response from saga", response);
       if (response.token) {
         response.data = response.user;
         delete response.user;
-        //  console.log("response from saga with data", response);
         sessionStorage.setItem("authUser", JSON.stringify(response));
         yield put(loginSuccess(response));
         history.push("/dashboard");
       } else {
-        //  console.log("error", response);
         yield put(apiError(response));
       }
     }
   } catch (error) {
-    //  console.log("error from catch", error);
     yield put(apiError(error));
   }
 }
