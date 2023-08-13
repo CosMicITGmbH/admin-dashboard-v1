@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import {
-  Row,
+  Alert,
   Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
   CardBody,
-  Input,
-  Label,
+  Col,
   Form,
   FormFeedback,
-  Col,
-  Alert,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
 } from "reactstrap";
 
 // Formik Validation
-import * as Yup from "yup";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
 //import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../../Components/Common/Loader";
 
 const RegisterUserModal = (props) => {
@@ -122,6 +122,7 @@ const RegisterUserModal = (props) => {
         toggle={() => {
           props.closeRegModal();
         }}
+        unmountOnClose={true}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
           {/* <h6>Close</h6> */}

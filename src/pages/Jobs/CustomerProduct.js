@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from "react";
-
-import axios from "axios";
-import {
-  Container,
-  Button,
-  InputGroup,
-  Input,
-  Row,
-  Col,
-  Alert,
-} from "reactstrap";
+import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import ReportConfig from "./ReportConfig";
-import Loader from "../../Components/Common/Loader";
-import { APIClient } from "../../helpers/api_helper";
-import customAxios, { reportingAxios } from "../../Axios/axiosConfig";
-import * as url from "../../helpers/url_helper";
 import Moment from "react-moment";
 import { useLocation } from "react-router-dom";
+import { Alert, Button, Col, Container, Input, Row } from "reactstrap";
+import { customAxios } from "../../Axios/axiosConfig";
+import Loader from "../../Components/Common/Loader";
+import { APIClient } from "../../helpers/api_helper";
+import ReportConfig from "./ReportConfig";
 const api = new APIClient();
 
 const CustomerProduct = (props) => {

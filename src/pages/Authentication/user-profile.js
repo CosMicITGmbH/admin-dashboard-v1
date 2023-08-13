@@ -15,7 +15,6 @@ import {
   Label,
   Modal,
   ModalBody,
-  ModalHeader,
   Row,
 } from "reactstrap";
 // Formik Validation
@@ -25,15 +24,18 @@ import * as Yup from "yup";
 //redux
 import { useDispatch, useSelector } from "react-redux";
 //for url query params
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 // actions
-import { editProfile, resetProfileFlag } from "../../store/actions";
+import { UPDATE_PROFILE } from "../../helpers/appContants";
+import { resetProfileFlag } from "../../store/actions";
 import RoleOptions from "../Forms/Select2/RoleOptions";
 
 const UserProfile = (props) => {
   const dispatch = useDispatch();
+  const history = useHistory();
   //const [searchParams, setSearchParams] = useSearchParams();
+  const [loading, setLoading] = useState(false);
   const [successMsg, setSuccess] = useState({
     success: false,
     error: false,
@@ -56,9 +58,12 @@ const UserProfile = (props) => {
     setmodal_grid(!modal_grid);
   }
   const [modal_role, setmodal_role] = useState(false);
+
   function getRole(value) {
     setUserData({ ...userData, role: value.label });
+    setmodal_role(false);
   }
+
   function tog_roleModal() {
     setmodal_role(!modal_role);
   }
@@ -75,6 +80,7 @@ const UserProfile = (props) => {
       axios
         .get(`/users/profile/${profid}`)
         .then((data) => {
+          console.log("profile resp", data);
           setUserData({
             ...userData,
             idx: data.id,
@@ -82,7 +88,6 @@ const UserProfile = (props) => {
             lastName: data.lastName,
             email: data.email,
             role: data.role,
-
             currentRole: JSON.parse(sessionStorage.getItem("authUser")).data
               .role,
             groups: data.groups,
@@ -132,14 +137,8 @@ const UserProfile = (props) => {
   }, [dispatch, user, profid]);
 
   const setGroupArr = (groups) => {
-    let newArr = [];
-    let res1 = groups.map((item) => {
-      let n1 = [];
-      n1.push(item.groupId, item.name);
-      newArr.push(n1);
-      return newArr;
-    });
-
+    const newArr = groups.map((item) => [item.groupId, item.name]);
+    console.log("new ARrof grp", newArr);
     setUserGroup(newArr);
   };
 
@@ -149,6 +148,7 @@ const UserProfile = (props) => {
     setUserData({ ...userData, groups: newGroup });
     setGroupArr(newGroup);
   };
+
   const resetPwdValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -194,6 +194,55 @@ const UserProfile = (props) => {
         });
     },
   });
+
+  const getRoleId = (values) => {
+    if (
+      typeof values.role === "string" &&
+      values.role.toLowerCase() === "admin"
+    ) {
+      return 1;
+    } else if (
+      typeof values.role === "string" &&
+      values.role.toLowerCase() === "manager"
+    ) {
+      return 2;
+    } else {
+      //for normal user
+      return 3;
+    }
+  };
+
+  const clearReload = () => {
+    setLoading(true);
+    setSuccess({
+      ...successMsg,
+      error: false,
+      msg: "",
+    });
+  };
+
+  const succesStopReload = () => {
+    setLoading(false);
+    setSuccess({
+      success: true,
+      error: false,
+      msg: "Profile saved successfully",
+    });
+  };
+
+  const errorStopReload = (err) => {
+    setLoading(false);
+    setSuccess({
+      success: false,
+      error: true,
+      msg: `Error: ${err}`,
+    });
+  };
+
+  const openGroupPage = (groupId, groupName) => {
+    history.push(`group/?groupid=${groupId}&groupname=${groupName}`);
+  };
+
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
@@ -210,23 +259,19 @@ const UserProfile = (props) => {
       lastName: Yup.string().required("Please Enter Your Last Name"),
       email: Yup.string().required("Please Enter Your email"),
     }),
-    onSubmit: (values) => {
-      if (
-        typeof values.role === "string" &&
-        values.role.toLowerCase() === "admin"
-      ) {
-        values.role = 1;
-      } else if (
-        typeof values.role === "string" &&
-        values.role.toLowerCase() === "manager"
-      ) {
-        values.role = 2;
-      } else {
-        //for normal user
-        values.role = 3;
+    onSubmit: async (values) => {
+      console.log(" profile submitr values:", values);
+      const parsedRoleid = getRoleId(values);
+      values.role = parsedRoleid;
+      //make network call to update the user profile
+      try {
+        clearReload();
+        const resp = await axios.post(`${UPDATE_PROFILE}/${profid}`, values);
+        succesStopReload();
+      } catch (error) {
+        errorStopReload(error);
+        console.log("Error from Update user profile", error);
       }
-
-      dispatch(editProfile(values));
     },
   });
 
@@ -242,9 +287,7 @@ const UserProfile = (props) => {
                 <Alert color="danger">{successMsg.msg}</Alert>
               ) : null}
               {successMsg.success ? (
-                <Alert color="success">
-                  Profile Data Updated for {userData.firstName}
-                </Alert>
+                <Alert color="success">Profile updated successfully !</Alert>
               ) : null}
 
               <Card>
@@ -259,8 +302,12 @@ const UserProfile = (props) => {
                     </div> */}
                     <div className="flex-grow-1 align-self-center">
                       <div className="text-muted">
-                        <h5>{userData.firstName}</h5>
-                        <p className="mb-1">Email Id : {userData.email}</p>
+                        <h5>
+                          {validation.values.firstName || userData.firstName}
+                        </h5>
+                        <p className="mb-1">
+                          Email Id : {validation.values.email || userData.email}
+                        </p>
                         <p className="mb-0">Id No : #{userData.idx}</p>
                       </div>
                     </div>
@@ -436,7 +483,15 @@ const UserProfile = (props) => {
                             _(
                               <a
                                 className="fw-semibold"
-                                href={`group/?groupid=${row._cells[0].data}&groupname=${row._cells[1].data}`}
+                                href="#"
+                                rel="noreferrer"
+                                onClick={(ev) => {
+                                  ev.preventDefault();
+                                  openGroupPage(
+                                    row._cells[0].data,
+                                    row._cells[1].data
+                                  );
+                                }}
                               >
                                 {cell}
                               </a>
@@ -492,7 +547,10 @@ const UserProfile = (props) => {
                     color="info"
                     disabled={userData.currentRole === "user"}
                     onClick={() => {
-                      //  changePassword();
+                      setSuccess({
+                        success: false,
+                        error: false,
+                      });
                       setmodal_grid(true);
                     }}
                     style={{ marginLeft: "3px" }}
@@ -503,6 +561,7 @@ const UserProfile = (props) => {
               </Form>
             </CardBody>
           </Card>
+
           {/* modal to change password */}
           <Modal
             isOpen={modal_grid}
@@ -510,7 +569,16 @@ const UserProfile = (props) => {
               tog_grid();
             }}
           >
-            <ModalHeader style={{ marginLeft: "auto" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "15px",
+              }}
+            >
+              <div>
+                <h5 className="text-primary">Reset Password</h5>
+              </div>
               <div>
                 <Button
                   type="button"
@@ -521,7 +589,7 @@ const UserProfile = (props) => {
                   aria-label="Close"
                 ></Button>
               </div>
-            </ModalHeader>
+            </div>
             <ModalBody>
               <Row className="justify-content-center">
                 <div className="mt-2">
@@ -534,7 +602,6 @@ const UserProfile = (props) => {
                       <Alert color="success">{successMsg.msg}</Alert>
                     ) : null}
                     <div className="text-center mt-2">
-                      <h5 className="text-primary">Reset Password</h5>
                       <p className="text-muted">
                         Your new password must be different from previous used
                         password.
@@ -626,6 +693,7 @@ const UserProfile = (props) => {
               </Row>
             </ModalBody>
           </Modal>
+
           {/* modal to change role */}
           <Modal
             isOpen={modal_role}
@@ -633,8 +701,14 @@ const UserProfile = (props) => {
               tog_roleModal();
             }}
           >
-            <ModalHeader style={{ marginLeft: "auto" }}>
-              {/* <h6>Close</h6> */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "15px",
+              }}
+            >
+              <h5 className="card-title mb-3">Choose a role to change</h5>
               <div>
                 <Button
                   type="button"
@@ -645,7 +719,7 @@ const UserProfile = (props) => {
                   aria-label="Close"
                 ></Button>
               </div>
-            </ModalHeader>
+            </div>
             <ModalBody>
               <Row className="justify-content-center">
                 <div className="mt-2">

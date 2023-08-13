@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
-import {
-  Row,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  CardBody,
-  Label,
-  Input,
-  Col,
-  Alert,
-} from "reactstrap";
 import axios from "axios";
+import React, { useState } from "react";
+import {
+  Alert,
+  Button,
+  CardBody,
+  Col,
+  Input,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
+} from "reactstrap";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -32,6 +31,7 @@ const CreateGroupModal = (props) => {
           setGroupName("");
           props.closeCreategrpModal();
         }}
+        unmountOnClose={true}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
           <div>

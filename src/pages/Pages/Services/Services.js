@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Moment from "react-moment";
 import { Button, Card, CardBody, Container } from "reactstrap";
+import { servicesTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import AddMachineModal from "./AddMachineModal";
 import AddServiceModal from "./AddServiceModal";
-import { servicesTag } from "../../../helpers/appContants";
+import ConnectMachineServiceModal from "./ConnectMachineServiceModal";
 
 const Services = () => {
   const columns = [
@@ -64,7 +65,7 @@ const Services = () => {
 
   const [modalService, setmodalService] = useState(false);
   const [modalMachine, setmodalMachine] = useState(false);
-
+  const [modalConnectBoth, setModalConnectBoth] = useState(false);
   document.title = "All Services";
 
   return (
@@ -102,6 +103,16 @@ const Services = () => {
                 >
                   Add Machine
                 </Button>
+                <Button
+                  type="button"
+                  color="success"
+                  onClick={() => {
+                    setModalConnectBoth(true);
+                  }}
+                  style={{ marginLeft: "3px" }}
+                >
+                  Connect Machine - Service
+                </Button>
               </div>
             </CardBody>
           </Card>
@@ -115,6 +126,12 @@ const Services = () => {
             modalState={modalMachine}
             closeMachineModal={() => {
               setmodalMachine(!modalMachine);
+            }}
+          />
+          <ConnectMachineServiceModal
+            modalState={modalConnectBoth}
+            closeConnectModal={() => {
+              setModalConnectBoth(!modalConnectBoth);
             }}
           />
         </Container>

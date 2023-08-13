@@ -1,56 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Redirect } from "react-router-dom";
-import { Col, Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
+import { Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
 
 //import images
-import logoSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
 import logoLight from "../assets/images/logo-light.png";
+import logoSm from "../assets/images/logo-sm.png";
 
 //import Components
-import SearchOption from "../Components/Common/SearchOption";
-import LanguageDropdown from "../Components/Common/LanguageDropdown";
-import WebAppsDropdown from "../Components/Common/WebAppsDropdown";
-import MyCartDropdown from "../Components/Common/MyCartDropdown";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import FullScreenDropdown from "../Components/Common/FullScreenDropdown";
+import LightDark from "../Components/Common/LightDark";
 import NotificationDropdown from "../Components/Common/NotificationDropdown";
 import ProfileDropdown from "../Components/Common/ProfileDropdown";
-import LightDark from "../Components/Common/LightDark";
 import MachineSearch from "../pages/Pages/Groups/MachineSearch";
+
+import { useDispatch, useSelector } from "react-redux";
+import { setMachine } from "./../store/actions";
 
 const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const [search, setSearch] = useState(false);
-  const [machineName, setMachineName] = useState("");
+  const [newMachine, setNewMachine] = useState("");
   const [redirect, setRedirect] = useState(false);
+  const history = useHistory();
 
+  const machineName = useSelector((state) => state.Machine.machineName);
+  //whenever the page is refreshed/reloaded state will lose the machine value so retrive from session storage
   useEffect(() => {
-    let getMachineName = sessionStorage.getItem("selectedMachine") || "";
-    //   console.log("getMachineName", getMachineName, JSON.parse(getMachineName));
-    if (getMachineName) setMachineName(JSON.parse(getMachineName).name);
-    if (redirect) <Redirect to="/jobs-customer" />;
+    const getMachineName =
+      JSON.parse(sessionStorage.getItem("selectedMachine"))?.name ||
+      machineName.name;
+    setNewMachine(getMachineName);
   }, []);
+
+  const dispatch = useDispatch();
 
   const toogleSearch = () => {
     setSearch(!search);
   };
 
   const getSelectedMachine = (selectedMachine) => {
-    setMachineName(selectedMachine.label.toUpperCase());
+    setNewMachine(selectedMachine.label.toUpperCase());
+    let newMachine = {
+      name: selectedMachine.label,
+      endPoint: selectedMachine.endpoint,
+    };
 
-    sessionStorage.setItem(
-      "selectedMachine",
-      JSON.stringify({
-        name: selectedMachine.label,
-        endPoint: selectedMachine.endpoint,
-      })
-    );
+    sessionStorage.setItem("selectedMachine", JSON.stringify(newMachine));
+
+    dispatch(setMachine(newMachine));
     setRedirect(true);
-    // window.location.reload();
-    // sessionStorage.setItem("endPoint", selectedMachine.endpoint);
-    // console.log({ machineName });
-    //  <Redirect to="/jobs-customer" />;
-    //
+    history.push("/jobs-customer");
   };
+
   const toogleMenuBtn = () => {
     var windowSize = document.documentElement.clientWidth;
 
@@ -136,10 +138,10 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                   {/* Add machine search here with text  <SearchOption />  */}
                   <div
                     className="d-flex align-items-center"
-                    style={{ gap: "2rem" }}
+                    style={{ gap: "1rem" }}
                   >
                     <MachineSearch selectedMachine={getSelectedMachine} />
-                    <h4>{machineName}</h4>
+                    <h4 className={newMachine ? "" : "d-none"}>{newMachine}</h4>
                   </div>
                 </div>
 
@@ -238,7 +240,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                   style={{ gap: "2rem" }}
                 >
                   <MachineSearch selectedMachine={getSelectedMachine} />
-                  <h4>{machineName}</h4>
+                  <h4>{newMachine}</h4>
                 </div>
               </div>
 

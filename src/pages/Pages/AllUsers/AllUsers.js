@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import axios from "axios";
 import { Alert, Button, Col, Container, Row } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
+import { PROFILE_ID, userTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import RegisterUserModal from "./RegisterUserModal";
-import { userTag } from "../../../helpers/appContants";
 const AllUsers = (props) => {
   const columns = [
     {
@@ -41,7 +42,18 @@ const AllUsers = (props) => {
     },
     {
       name: <span className="font-weight-bold fs-13">Open</span>,
-      cell: (row) => <a href={"/profile?profileID=" + row.id}>Profile</a>,
+      cell: (row) => (
+        <a
+          href="#"
+          onClick={(ev) => {
+            ev.preventDefault();
+            openProfilePage(row.id);
+          }}
+          rel="noreferrer"
+        >
+          Profile
+        </a>
+      ),
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
@@ -64,7 +76,12 @@ const AllUsers = (props) => {
       button: true,
     },
   ];
+  const history = useHistory();
 
+  const openProfilePage = (profid) => {
+    const profileUrl = `${PROFILE_ID}${profid}`;
+    history.push(profileUrl);
+  };
   const [successMsg, setSuccess] = useState({
     success: false,
     error: false,

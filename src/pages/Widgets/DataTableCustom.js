@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { debounce, isNil } from "lodash";
+import React, { useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { Input } from "reactstrap";
-import customAxios from "../../Axios/axiosConfig";
+import { customAxios } from "../../Axios/axiosConfig";
 import {
-  authUser,
   customerJobTag,
   groupTag,
   latestJobsTag,
@@ -14,12 +14,12 @@ import {
   userRole,
   userTag,
 } from "../../helpers/appContants";
+import { getCustomerJobResponse, getGraphdata } from "../Jobs/CustomersData";
 import { PieCharFunc } from "../Jobs/PieChart";
 import {
   getJobItemResponse,
   getReportingUrl,
 } from "../Jobs/latest jobs/JobData";
-import { getCustomerJobResponse, getGraphdata } from "../Jobs/CustomersData";
 
 const DataTableCustom = ({
   columns,
@@ -28,6 +28,7 @@ const DataTableCustom = ({
   tag,
   isreportingApi,
   isPieChartVisible,
+  // reload,
 }) => {
   const history = useHistory();
   const [items, setItems] = useState([]);
@@ -41,6 +42,14 @@ const DataTableCustom = ({
     show: false,
     data: [0, 0, 0],
   });
+
+  const machineName = useSelector((state) => state.Machine.machineName);
+
+  useEffect(() => {
+    if (machineName.endPoint) {
+      setPage(1);
+    }
+  }, [machineName]);
 
   useEffect(() => {
     const authUser = sessionStorage.getItem("authUser");
@@ -88,7 +97,7 @@ const DataTableCustom = ({
   };
 
   const setServicesData = (data) => {
-    let gridData = data.items.map((item) => {
+    let gridData = data.map((item) => {
       return {
         key: item.key,
         name: item.name,
@@ -108,10 +117,9 @@ const DataTableCustom = ({
         totalItems = 0,
         items = [];
       if (isreportingApi) {
-        let reportingUrl = getReportingUrl();
+        let reportingUrl = machineName.endPoint || getReportingUrl();
         let finalUrl = `${reportingUrl}/${url}`;
         let axiosInstReporting = customAxios(reportingUrl);
-        console.log("final url", finalUrl);
 
         resp = await axiosInstReporting.post(
           `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
@@ -126,21 +134,21 @@ const DataTableCustom = ({
         items = resp.data.items;
         totalItems = resp.data.totalItems;
       } else {
+        //auth.charpify
         resp = await axios.post(
           `/${url}?page=${page}&itemsPerPage=${per_page}`,
           {
-            sort: sort,
+            sort: tag === servicesTag ? "" : sort,
             expression: expression,
           }
         );
         if (resp.status === 401) {
           history.push("/login");
         }
+        console.log("::resps", resp);
         items = resp.items;
         totalItems = resp.totalItems;
       }
-
-      console.log(`resp for ${url}:`, { items, totalItems });
 
       if (items && items.length) {
         switch (tag) {
@@ -162,7 +170,7 @@ const DataTableCustom = ({
             let resp = await getCustomerJobResponse(items);
             setItems(resp);
             const graphDataResp = await getGraphdata(resp);
-            console.log("graphDataResp", graphDataResp);
+            //  console.log("graphDataResp", graphDataResp);
             setGraphData({
               show: true,
               data: Object.values(graphDataResp),

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { REACT_APP_API_MAIN_URL } from "../helpers/appContants";
 // const api = axios.create({
 //   baseURL: process.env.REACT_APP_API_URL || "http://localhost:3030",
 // });
@@ -7,6 +8,9 @@ import axios from "axios";
 //   reportingJobsURL: JSON.parse(sessionStorage.getItem("selectedMachine"))
 //     .endPoint,
 // });
+const instance = axios.create({
+  baseURL: REACT_APP_API_MAIN_URL,
+});
 
 const customAxios = (dynamicBaseURL) => {
   // axios instance for making requests
@@ -17,6 +21,22 @@ const customAxios = (dynamicBaseURL) => {
   return axiosInstance;
 };
 
-//export { api, reportingAxios, };
+customAxios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response.status === 401) {
+      window.location = "/login";
+    }
+  }
+);
 
-export default customAxios;
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response.status === 401) {
+      window.location = "/login";
+    }
+  }
+);
+
+export { customAxios, instance };

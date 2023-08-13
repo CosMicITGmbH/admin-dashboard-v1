@@ -1,11 +1,11 @@
 import React from "react";
 import {
-  Row,
   Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
   CardBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
 } from "reactstrap";
 
 //import { ToastContainer, toast } from "react-toastify";
@@ -21,6 +21,7 @@ const ConfirmationModal = (props) => {
           //props.closeConfirmModal();
           props.getUserResponse(false);
         }}
+        unmountOnClose={true}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
           {/* <h6>Close</h6> */}

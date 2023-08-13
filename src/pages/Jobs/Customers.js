@@ -1,12 +1,9 @@
-import React, { useState } from "react";
-
-import { Button, Container } from "reactstrap";
-import { APIClient } from "../../helpers/api_helper";
-//import { reportingAxios } from "../../Axios/axiosConfig";
+import React from "react";
 import Moment from "react-moment";
+import { Button, Container } from "reactstrap";
 import { customerJobTag } from "../../helpers/appContants";
 import DataTableCustom from "../Widgets/DataTableCustom";
-const api = new APIClient();
+
 const Customers = (props) => {
   const columns = [
     {
@@ -68,8 +65,6 @@ const Customers = (props) => {
       button: true,
     },
   ];
-
-  const [chartData, setChartData] = useState([]);
 
   document.title = "Customers";
 

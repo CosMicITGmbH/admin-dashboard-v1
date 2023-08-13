@@ -1,4 +1,4 @@
-import customAxios from "../../../Axios/axiosConfig";
+import { customAxios } from "../../../Axios/axiosConfig";
 
 async function getJobItemResponse(dataSet) {
   let reportingUrl = getReportingUrl();

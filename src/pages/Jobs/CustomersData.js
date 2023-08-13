@@ -1,4 +1,4 @@
-import customAxios from "../../Axios/axiosConfig";
+import { customAxios } from "../../Axios/axiosConfig";
 import { getReportingUrl } from "./latest jobs/JobData";
 
 async function getCustomerJobResponse(dataSet) {
@@ -61,7 +61,7 @@ async function getGraphdata(data) {
       // totalSheets: 0,
       goodSheets: 0,
       badSheets: 0,
-      ejectedSheets: 0,
+      // ejectedSheets: 0,
     }
   );
   // Formatting the results to two decimal places

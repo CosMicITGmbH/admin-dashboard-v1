@@ -1,26 +1,25 @@
 import React, { useState } from "react";
-import Loader from "../../../Components/Common/Loader";
 import {
-  Row,
+  Alert,
   Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
   CardBody,
-  Input,
-  Label,
   Form,
   FormFeedback,
-  Alert,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  Row,
 } from "reactstrap";
+import Loader from "../../../Components/Common/Loader";
 // Formik Validation
-import * as Yup from "yup";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
-//import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 import CopyInput from "../../../Components/Reusable/CopyInput";
+import { REGISTER_MACHINE } from "../../../helpers/appContants";
 
 const AddMachineModal = (props) => {
   // const [loading, setLoading] = useState(false);
@@ -35,43 +34,30 @@ const AddMachineModal = (props) => {
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
-
     initialValues: {
       name: "",
-      //  nameService: "",
       endpoint: "",
       password: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please Enter Machine Name"),
-
       endpoint: Yup.string().required("Please Enter Endpoint"),
       password: Yup.string().required("Please Enter password"),
     }),
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: async (values, { resetForm }) => {
       try {
         setService({ ...service, loading: true });
-        axios
-          .post("/auth/machine/register", values)
-          .then((data) => {
-            setService({
-              error: false,
-              success: true,
-              msg: `${values.name} successfully registered. The Password and Secret data are only displayed once. Kindly copy them now.`,
-              loading: false,
-              disable: true,
-            });
-            setResponse(data);
-            resetForm({ values: "" });
-          })
-          .catch((err) => {
-            setService({
-              error: true,
-              success: false,
-              msg: `Error: ${err}. Please try again later! `,
-              loading: false,
-            });
-          });
+        const resp = await axios.post(REGISTER_MACHINE, values);
+
+        setService({
+          error: false,
+          success: true,
+          msg: `${values.name} successfully registered. The Password and Secret data are only displayed once. Kindly copy them now.`,
+          loading: false,
+          disable: true,
+        });
+        setResponse(resp);
+        resetForm({ values: "" });
       } catch (err) {
         setService({
           error: true,
@@ -79,9 +65,11 @@ const AddMachineModal = (props) => {
           msg: `Error: ${err}. Please try again later! `,
           loading: false,
         });
+        console.log("Error from Add Machine:", err);
       }
     },
   });
+
   const closeModal = () => {
     props.closeMachineModal();
     setService({
@@ -100,20 +88,30 @@ const AddMachineModal = (props) => {
         toggle={() => {
           closeModal();
         }}
+        unmountOnClose={true}
       >
-        <ModalHeader style={{ marginLeft: "auto" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "15px",
+          }}
+        >
+          <div>
+            <h5 className="text-primary text-center">Register Machine</h5>
+          </div>
           <div>
             <Button
               type="button"
               onClick={() => {
                 closeModal();
               }}
-              className="btn-close m-lg-auto"
+              className="btn-close" // m-lg-auto
               aria-label="Close"
             ></Button>
           </div>
-        </ModalHeader>
-        <ModalBody>
+        </div>
+        <ModalBody className="p-0">
           <Row className="justify-content-center">
             {service.loading ? (
               <Loader />
@@ -126,9 +124,6 @@ const AddMachineModal = (props) => {
                     {service.msg}
                   </Alert>
                 )}
-                <h5 className="text-primary text-center">
-                  Add Machine-Service form
-                </h5>
 
                 <Form
                   className="form-horizontal"
@@ -138,7 +133,7 @@ const AddMachineModal = (props) => {
                     return false;
                   }}
                 >
-                  <div className="form-group">
+                  <div className="form-group mb-1">
                     <Label className="form-label">Name</Label>
                     <Input
                       name="name"
@@ -162,7 +157,7 @@ const AddMachineModal = (props) => {
                   </div>
 
                   {/*last name */}
-                  <div className="form-group">
+                  <div className="form-group mb-1">
                     <Label className="form-label">Endpoint</Label>
                     <Input
                       name="endpoint"
@@ -190,7 +185,7 @@ const AddMachineModal = (props) => {
 
                   {/*email*/}
                   <div className="form-group">
-                    <Label className="form-label">Password</Label>
+                    <Label className="form-label mb-1">Password</Label>
                     <Input
                       name="password"
                       className="form-control"
