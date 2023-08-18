@@ -1,9 +1,11 @@
-export default function authHeader() {
-  const obj = JSON.parse(sessionStorage.getItem("authUser"))
+import { getLoggedinUser } from "../api_helper";
 
-  if (obj && obj.accessToken) {
-    return { Authorization: obj.accessToken }
+export default function authHeader() {
+  const obj = getLoggedinUser();
+
+  if (obj && obj.token) {
+    return { Authorization: obj.token };
   } else {
-    return {}
+    return {};
   }
 }

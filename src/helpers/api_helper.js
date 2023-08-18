@@ -6,11 +6,45 @@ axios.defaults.baseURL = api.API_URL;
 // content type
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
-// content type
-const token = JSON.parse(sessionStorage.getItem("authUser"))
-  ? JSON.parse(sessionStorage.getItem("authUser")).token
-  : null;
-if (token) axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+const getLoggedinUser = () => {
+  const user = sessionStorage.getItem("authUser");
+  if (!user) {
+    return null;
+  } else {
+    return JSON.parse(user);
+  }
+};
+
+const getToken = () => {
+  const isLoggedIn = getLoggedinUser();
+  if (!isLoggedIn) return null;
+  return JSON.parse(sessionStorage.getItem("authUser"))?.token;
+};
+
+const getUserRole = () => {
+  return JSON.parse(sessionStorage.getItem("authUser"))?.data?.role;
+};
+
+const machineEndPoint = () => {
+  return JSON.parse(sessionStorage.getItem("selectedMachine"))?.endPoint;
+};
+
+const getSelectedMachine = () => {
+  return sessionStorage.getItem("selectedMachine") || "";
+};
+/**
+ * Sets the default authorization
+ * @param {*} token
+ */
+const setAuthorization = (token) => {
+  axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+};
+
+const token = getToken();
+
+if (token) {
+  setAuthorization(token);
+}
 
 // intercepting to capture errors
 axios.interceptors.response.use(
@@ -18,6 +52,7 @@ axios.interceptors.response.use(
     return response.data ? response.data : response;
   },
   function (error) {
+    console.log("ERROR from axios interceptors:", error);
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     let message;
     switch (error.status) {
@@ -36,13 +71,6 @@ axios.interceptors.response.use(
     return Promise.reject(message);
   }
 );
-/**
- * Sets the default authorization
- * @param {*} token
- */
-const setAuthorization = (token) => {
-  axios.defaults.headers.common["Authorization"] = "Bearer " + token;
-};
 
 class APIClient {
   /**
@@ -97,13 +125,13 @@ class APIClient {
     return axios.delete(url, { ...config });
   };
 }
-const getLoggedinUser = () => {
-  const user = sessionStorage.getItem("authUser");
-  if (!user) {
-    return null;
-  } else {
-    return JSON.parse(user);
-  }
-};
 
-export { APIClient, setAuthorization, getLoggedinUser };
+export {
+  APIClient,
+  setAuthorization,
+  getLoggedinUser,
+  getUserRole,
+  getToken,
+  machineEndPoint,
+  getSelectedMachine,
+};

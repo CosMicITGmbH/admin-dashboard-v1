@@ -102,10 +102,11 @@ const Groups = (props) => {
   };
 
   const createGroupResponse = (response) => {
+    console.log("respose adding  group:", response);
     setOpenGroupModal(false);
-    props.history.push(
-      `/group/?groupid=${response.groupId}&groupname=${response.name}`
-    );
+    // props.history.push(
+    //   `/group/?groupid=${response.groupId}&groupname=${response.name}`
+    // );
   };
 
   const clearFields = (err) => {
@@ -181,10 +182,13 @@ const Groups = (props) => {
               modalState={confirmModal}
             />
             <CreateGroupModal
-              title="Enter new group name"
+              title="Create new group"
               closeCreategrpModal={() => setOpenGroupModal(!OpenGroupModal)}
               modalState={OpenGroupModal}
               groupResponse={createGroupResponse}
+              addUser={true}
+              addMachine={true}
+              action={"add"}
             />
           </>
         </Container>

@@ -13,11 +13,12 @@ import {
 import DataTable from "react-data-table-component";
 import ReportConfig from "./ReportConfig";
 import Loader from "../../Components/Common/Loader";
-import { APIClient } from "../../helpers/api_helper";
+import { APIClient, getUserRole } from "../../helpers/api_helper";
 import { reportingAxios } from "../../Axios/axiosConfig";
 import * as url from "../../helpers/url_helper";
 import Moment from "react-moment";
 import { useLocation } from "react-router-dom";
+import { userRole } from "../../helpers/appContants";
 const api = new APIClient();
 
 const ProductOrder = (props) => {
@@ -96,9 +97,9 @@ const ProductOrder = (props) => {
   const productName = new URLSearchParams(searchParam).get("pname");
 
   useEffect(() => {
-    let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
+    let role = getUserRole();
 
-    if (userRole !== "user") {
+    if (role !== userRole) {
       let endpoint = sessionStorage.getItem("endPoint");
       setUrl(endpoint);
       fetchData(page, perPage, sort, expression);

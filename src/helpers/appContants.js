@@ -4,6 +4,8 @@ export const REACT_APP_API_REPORTING_URL =
 export const REACT_APP_API_MAIN_URL = "https://auth.csharpify.com";
 
 export const groupTag = "GROUPS";
+export const userInAGroupTag = "USER_INA_GROUP";
+export const machineInAGroupTag = "MACHINE_INA_GROUP";
 export const servicesTag = "SERVICES";
 export const userTag = "USERS";
 export const latestJobsTag = "LATEST_JOBS";
@@ -16,6 +18,14 @@ export const managerRole = "manager";
 
 /*****************  URLS *************/
 export const LOGIN_API = "/auth/user/login";
+
+//GROUPS
+export const GROUPS_API = "/groups";
+
+//USERS
+export const USERS_API = "/users";
+
+//REGISTERING MACHINES
 export const REGISTER_MACHINE_API = "/auth/machine/register";
 export const REGISTER_SERVICE_API = "/auth/service/register";
 

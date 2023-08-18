@@ -1,28 +1,32 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Loader from "../../../Components/Common/Loader";
-import AsyncSelect from "react-select/async";
 //for url query params
 import { useLocation } from "react-router-dom";
 //import { debounce } from "lodash";
-import "./groupStyles.css";
-import "./groupStyles.css";
+import axios from "axios";
+import { useHistory } from "react-router-dom";
 import {
-  Container,
+  Alert,
   Button,
   Card,
   CardBody,
-  Input,
-  Row,
-  Col,
-  Alert,
   CardTitle,
-  Label,
+  Col,
+  Container,
+  Row,
 } from "reactstrap";
-import axios from "axios";
-import DataTable from "react-data-table-component";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
+import { getUserRole } from "../../../helpers/api_helper";
+import {
+  GROUPS_API,
+  machineInAGroupTag,
+  userInAGroupTag,
+  userRole,
+} from "../../../helpers/appContants";
+import DataTableCustom from "../../Widgets/DataTableCustom";
+import { machineColumns } from "./MachineGroupdata";
+import "./groupStyles.css";
 import CreateGroupModal from "./CreateGroupModal";
-import MachineGroupdata from "./MachineGroupdata";
 
 const GroupData = (props) => {
   const userColumns = [
@@ -81,7 +85,8 @@ const GroupData = (props) => {
 
   const [loading, setLoading] = useState(false);
   const [groupData, setgroupData] = useState([]);
-  // const [machineData, setMachieItems] = useState([]);
+  const [addUser, setAddUser] = useState(false);
+  const [addMachine, setAddMachine] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false);
   const [OpenGroupModal, setOpenGroupModal] = useState(false);
   const [successMsg, setSuccess] = useState({
@@ -106,28 +111,12 @@ const GroupData = (props) => {
   const [sort, setSort] = useState("id asc");
   const [search, setSearch] = useState("");
   const [expression, setExpression] = useState("");
+  const history = useHistory();
 
   useEffect(
     () => {
-      //check for role:if user then show error msg
-      let role = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-
-      setSuccess({
-        error: false,
-        msg: "",
-        success: false,
-      });
-      if (role.toLowerCase() === "user") {
-        setSuccess({
-          error: true,
-          msg: "You are not authorized to access this page.",
-        });
-
-        return props.history.push("/dashboard");
-      }
-
-      if (groupId) {
-        fetchData();
+      if (getUserRole() === userRole) {
+        return history.push("/dashboard");
       }
     },
     [groupId]
@@ -227,9 +216,11 @@ const GroupData = (props) => {
         });
     }
   };
+
   const fetchDataDefault = async () => {
     fetchData(page, perPage, sort, expression);
   };
+
   const fetchData = async () => {
     setLoading(true);
     axios
@@ -243,19 +234,7 @@ const GroupData = (props) => {
           setItems([]);
         }
 
-        // if (data?.machines) {
-        //   let machineData = data?.machines.map((machine) => {
-        //     return {
-        //       id: machine.key,
-        //       name: machine.name,
-        //     };
-        //   });
-        //   setMachieItems(data.machines);
-        // } else {
-        //   setMachieItems([]);
-        // }
         setMachieItems(data);
-        // setTotalRowsMachine(data);
         setTotalRowsUser(data.users.length);
       })
       .catch((err) => {
@@ -266,38 +245,6 @@ const GroupData = (props) => {
           msg: `Error: ${err} Please try again later! `,
         });
       });
-  };
-
-  const handlePageChange = (page) => {
-    setPage(page);
-  };
-
-  const handlePerRowsChange = async (newPerPage, page) => {
-    setPerPage(newPerPage);
-  };
-
-  const handleInputExpression = async (e) => {
-    var val = e.target.value.toLowerCase();
-    setSearch(val);
-    if (val == "") setExpression("");
-    else setExpression(`name.Contains("${val}")`);
-    // fetchData(page, perPage, sort, val);
-  };
-  const handleSort = async (column, sortDirection) => {
-    // console.log({ column: column.database_name, sortDirection });
-    try {
-      let sort = column.database_name + " " + sortDirection;
-
-      //console.log({ sort });
-      setSort(column.database_name + " " + sortDirection);
-    } catch (err) {
-      //console.log(err);
-      setSuccess({
-        error: true,
-        success: false,
-        msg: `Error: ${err} Please try again later! `,
-      });
-    }
   };
 
   return (
@@ -328,8 +275,7 @@ const GroupData = (props) => {
                 </CardTitle>
                 <CardBody>
                   {/* for users table */}
-
-                  <div className="flexSearchBox">
+                  {/* <div className="flexSearchBox">
                     <div>
                       <Label
                         htmlFor="choices-single-no-search"
@@ -347,9 +293,8 @@ const GroupData = (props) => {
                         }}
                       />
                     </div>
-                  </div>
-
-                  <DataTable
+                  </div> */}
+                  {/* <DataTable
                     title="Users"
                     columns={userColumns}
                     data={items}
@@ -361,17 +306,74 @@ const GroupData = (props) => {
                     onChangeRowsPerPage={handlePerRowsChange}
                     // sortServer
                     //  onSort={handleSort}
+                  /> */}
+                  <DataTableCustom
+                    columns={userColumns}
+                    url={groupId}
+                    expressions={["firstName", "lastName", "email"]}
+                    tag={userInAGroupTag}
+                    title="Users"
                   />
 
-                  {/* FOR MACHINES */}
-                  <MachineGroupdata
-                    machineData={itemMachine}
-                    groupId={groupId}
+                  <DataTableCustom
+                    columns={machineColumns}
+                    url={groupId}
+                    expressions={["name", "endpoint"]}
+                    tag={machineInAGroupTag}
+                    title="Machines"
                   />
+
                   <ConfirmationModal
                     title={`Do you wish to delete ${groupname} group?`}
                     getUserResponse={getUserResponse}
                     modalState={confirmModal}
+                  />
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "nowrap",
+                      alignContent: "center",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "5px",
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      color="success"
+                      onClick={() => {
+                        setAddUser(true);
+                        setAddMachine(false);
+                        setOpenGroupModal(true);
+                      }}
+                    >
+                      Add User
+                    </Button>
+                    <Button
+                      type="button"
+                      color="secondary"
+                      onClick={() => {
+                        setAddUser(false);
+                        setAddMachine(true);
+                        setOpenGroupModal(true);
+                      }}
+                    >
+                      Add Machine
+                    </Button>
+                  </div>
+
+                  <CreateGroupModal
+                    title="Update Group"
+                    closeCreategrpModal={() =>
+                      setOpenGroupModal(!OpenGroupModal)
+                    }
+                    modalState={OpenGroupModal}
+                    groupId={groupId}
+                    groupName={groupname}
+                    addUser={addUser}
+                    addMachine={addMachine}
+                    action={"update"}
                   />
                 </CardBody>
               </Card>

@@ -219,7 +219,7 @@ import OnePage from "../pages/Landing/OnePage";
 import NFTLanding from "../pages/Landing/NFTLanding";
 
 // User Profile
-import UserProfile from "../pages/Authentication/user-profile";
+import UserProfile from "../pages/Authentication/UserProfile";
 import AllUsers from "../pages/Pages/AllUsers/AllUsers.js";
 
 //All services

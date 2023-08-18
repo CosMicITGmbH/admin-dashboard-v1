@@ -1,4 +1,5 @@
-import axios from "axios";
+/* eslint-disable jsx-a11y/anchor-is-valid */
+//
 import { Grid, _ } from "gridjs-react";
 import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -21,17 +22,19 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-//redux
 import { useDispatch, useSelector } from "react-redux";
-//for url query params
 import { useHistory, useLocation } from "react-router-dom";
-
-// actions
-import { UPDATE_PROFILE_API } from "../../helpers/appContants";
+import {
+  UPDATE_PROFILE_API,
+  adminRole,
+  managerRole,
+} from "../../helpers/appContants";
 import { resetProfileFlag } from "../../store/actions";
 import RoleOptions from "../Forms/Select2/RoleOptions";
+import { getLoggedinUser, getUserRole } from "../../helpers/api_helper";
+import { AxiosInstance as axios } from "../../Axios/axiosConfig";
 
-const UserProfile = (props) => {
+const UserProfile = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   //const [searchParams, setSearchParams] = useSearchParams();
@@ -75,76 +78,58 @@ const UserProfile = (props) => {
   const search = useLocation().search;
   const profid = new URLSearchParams(search).get("profileID");
 
+  const updateUserDataAndGroups = async (profid) => {
+    const data = await axios.get(`${UPDATE_PROFILE_API}/${profid}`);
+    setUserData({
+      ...userData,
+      idx: data.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      role: data.role,
+      currentRole: getUserRole(),
+      groups: data.groups,
+    });
+    setGroupArr(data.groups);
+  };
   useEffect(() => {
     if (profid) {
-      axios
-        .get(`/users/profile/${profid}`)
-        .then((data) => {
-          console.log("profile resp", data);
-          setUserData({
-            ...userData,
-            idx: data.id,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            role: data.role,
-            currentRole: JSON.parse(sessionStorage.getItem("authUser")).data
-              .role,
-            groups: data.groups,
-          });
-          setGroupArr(data.groups);
-        })
-        .catch((err) => {
-          setSuccess({
-            ...successMsg,
-            error: true,
-            msg: "No Results found.",
-          });
-          if (err.split(" ").includes("401")) {
-            props.history.push("/login");
-          }
-        });
+      updateUserDataAndGroups(profid);
     } else {
-      if (sessionStorage.getItem("authUser")) {
-        const obj = JSON.parse(sessionStorage.getItem("authUser"));
-
-        if (!isEmpty(user)) {
-          obj.data.firstName = user.firstName;
-          sessionStorage.removeItem("authUser");
-          sessionStorage.setItem("authUser", JSON.stringify(obj));
-        }
+      const userData = getLoggedinUser().data;
+      if (userData) {
+        // if (!isEmpty(user)) {
+        //   userData.firstName = user.firstName;
+        //   sessionStorage.removeItem("authUser");
+        //   sessionStorage.setItem("authUser", JSON.stringify(obj));
+        // }
 
         setUserData({
           ...userData,
-          idx: obj.data.id,
-          firstName: obj.data.firstName,
-          lastName: obj.data.lastName,
-          email: obj.data.email,
-          role: obj.data.role,
-
-          groups: obj.data.groups,
+          idx: userData.id,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          role: userData.role,
+          groups: userData.groups,
         });
 
-        //make group arr for data grid
+        setGroupArr(userData.groups);
 
-        setGroupArr(obj.data.groups);
-
-        setTimeout(() => {
-          dispatch(resetProfileFlag());
-        }, 3000);
+        // setTimeout(() => {
+        //   dispatch(resetProfileFlag());
+        // }, 3000);
       }
     }
-  }, [dispatch, user, profid]);
+  }, [user, profid]);
 
   const setGroupArr = (groups) => {
     const newArr = groups.map((item) => [item.groupId, item.name]);
-    console.log("new ARrof grp", newArr);
     setUserGroup(newArr);
   };
 
   const deleteUserGroupId = (id) => {
     let newGroup = userData.groups.filter((item) => item.groupId !== id);
-
     setUserData({ ...userData, groups: newGroup });
     setGroupArr(newGroup);
   };
@@ -164,46 +149,42 @@ const UserProfile = (props) => {
         then: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
       }),
     }),
-    onSubmit: (values) => {
-      let url = `/users/profile/${validation.initialValues.idx}/password`;
-
-      axios
-        .post(url, {
-          password: values.password,
-        })
-        .then((data) => {
-          setSuccess({
-            success: true,
-            error: false,
-            msg: "Password Changed successfully.",
-          });
-
-          setTimeout(() => {
-            setmodal_grid(false);
-          }, 3000);
-        })
-        .catch((err) => {
-          setSuccess({
-            success: false,
-            error: true,
-            msg: err,
-          });
-          if (err.split(" ").includes("401")) {
-            props.history.push("/login");
+    onSubmit: async (values) => {
+      try {
+        const resp = await axios.post(
+          `${UPDATE_PROFILE_API}/${validation.initialValues.idx}/password`,
+          {
+            password: values.password,
           }
+        );
+        setSuccess({
+          success: true,
+          error: false,
+          msg: "Password Changed successfully.",
         });
+
+        setTimeout(() => {
+          setmodal_grid(false);
+        }, 3000);
+      } catch (err) {
+        setSuccess({
+          success: false,
+          error: true,
+          msg: err,
+        });
+      }
     },
   });
 
   const getRoleId = (values) => {
     if (
       typeof values.role === "string" &&
-      values.role.toLowerCase() === "admin"
+      values.role.toLowerCase() === adminRole
     ) {
       return 1;
     } else if (
       typeof values.role === "string" &&
-      values.role.toLowerCase() === "manager"
+      values.role.toLowerCase() === managerRole
     ) {
       return 2;
     } else {
@@ -246,7 +227,6 @@ const UserProfile = (props) => {
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
-
     initialValues: {
       firstName: userData.firstName || "",
       idx: userData.idx || "",
@@ -703,6 +683,7 @@ const UserProfile = (props) => {
             toggle={() => {
               tog_roleModal();
             }}
+            unmountOnClose={true}
           >
             <div
               style={{

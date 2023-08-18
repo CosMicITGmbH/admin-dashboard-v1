@@ -1,42 +1,82 @@
 import axios from "axios";
 import { REACT_APP_API_MAIN_URL } from "../helpers/appContants";
-// const api = axios.create({
-//   baseURL: process.env.REACT_APP_API_URL || "http://localhost:3030",
-// });
+import { getToken } from "../helpers/api_helper";
 
-// const reportingAxios = axios.create({
-//   reportingJobsURL: JSON.parse(sessionStorage.getItem("selectedMachine"))
-//     .endPoint,
-// });
-const instance = axios.create({
+const AxiosInstance = axios.create({
   baseURL: REACT_APP_API_MAIN_URL,
 });
 
+AxiosInstance.interceptors.response.use(
+  (response) => {
+    // console.log("response from axios AxiosInstance:", response);
+    return response.data;
+  },
+  (error) => {
+    console.log("ERROR from axios interceptors:", error.response.status);
+    let message;
+    switch (error.response.status) {
+      case 500:
+        message = "Internal Server Error";
+        break;
+      case 401:
+        message = "Invalid credentials";
+        window.location.href = "/login";
+        break;
+      case 404:
+        message = "Sorry! The data you are looking for could not be found";
+        break;
+      case 403:
+        message = "Sorry! You do not have access to this page";
+        window.location.href = "/dashboard";
+        break;
+      default:
+        message = error.message || error;
+    }
+    return Promise.reject(message);
+  }
+);
+
+AxiosInstance.interceptors.request.use(function (config) {
+  config.headers.Authorization = "Bearer " + getToken();
+  return config;
+});
+
 const customAxios = (dynamicBaseURL) => {
-  // axios instance for making requests
   const axiosInstance = axios.create({
     baseURL: dynamicBaseURL,
   });
 
+  axiosInstance.interceptors.response.use(
+    (response) => {
+      console.log("response from customAxios AxiosInstance:", response.data);
+      return response.data;
+    },
+    (error) => {
+      console.log("ERROR from axios interceptors:", error);
+      let message;
+      switch (error.response.status) {
+        case 500:
+          message = "Internal Server Error";
+          break;
+        case 401:
+          message = "Invalid credentials";
+          window.location.href = "/login";
+          break;
+        case 404:
+          message = "Sorry! The data you are looking for could not be found";
+          break;
+        case 403:
+          message = "Sorry! You do not have access to this page";
+          window.location.href = "/dashboard";
+          break;
+        default:
+          message = error.message || error;
+      }
+      return Promise.reject(message);
+    }
+  );
+
   return axiosInstance;
 };
 
-// customAxios.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.status === 401) {
-//       window.location = "/login";
-//     }
-//   }
-// );
-
-// instance.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.status === 401) {
-//       window.location = "/login";
-//     }
-//   }
-// );
-
-export { customAxios, instance };
+export { customAxios, AxiosInstance };

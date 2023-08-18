@@ -6,6 +6,8 @@ import { Col, Collapse, Row } from "reactstrap";
 import navdata from "../LayoutMenuData";
 //i18n
 import { withTranslation } from "react-i18next";
+import { getUserRole } from "../../helpers/api_helper";
+import { adminRole } from "../../helpers/appContants";
 
 const HorizontalLayout = (props) => {
   const [isMoreMenu, setIsMoreMenu] = useState(false);
@@ -57,8 +59,8 @@ const HorizontalLayout = (props) => {
       }
     };
     initMenu();
-    let currentRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
-    if (currentRole.toLowerCase() === "admin") {
+    let currentRole = getUserRole();
+    if (currentRole === adminRole) {
       setIsAdmin(true);
     }
   }, [props.location.pathname, props.layoutType]);

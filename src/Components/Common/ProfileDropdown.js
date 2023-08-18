@@ -9,6 +9,7 @@ import {
 
 //import images
 import avatar1 from "../../assets/images/utils/icon-menu-png-24.png";
+import { getLoggedinUser } from "../../helpers/api_helper";
 
 const ProfileDropdown = () => {
   const { user } = useSelector((state) => ({
@@ -19,7 +20,7 @@ const ProfileDropdown = () => {
 
   useEffect(() => {
     if (sessionStorage.getItem("authUser")) {
-      const obj = JSON.parse(sessionStorage.getItem("authUser"));
+      const obj = getLoggedinUser();
 
       setUserName(user?.first_name || obj.data.firstName || "User");
     }

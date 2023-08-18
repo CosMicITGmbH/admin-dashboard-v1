@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import axios from "axios";
+
 import { Alert, Button, Col, Container, Row } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 import { PROFILE_ID_API, userTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import RegisterUserModal from "./RegisterUserModal";
-const AllUsers = (props) => {
+
+const AllUsers = () => {
   const columns = [
     {
       name: <span className="font-weight-bold fs-13">ID</span>,
@@ -140,6 +142,7 @@ const AllUsers = (props) => {
           </Col>
         </Row>
         <DataTableCustom
+          title={"Users"}
           columns={columns}
           url={"users"}
           expressions={["firstname", "lastname", "email"]}

@@ -35,15 +35,16 @@ const MachineSearch = (props) => {
     } catch (error) {
       console.log(error, "catch the hoop");
     }
-  }, 300); // Adjust the debounce delay as needed
+  }, 300);
 
   const onSearchChange = debounce((selectedOption) => {
     if (selectedOption) {
       setmachineFilter({ selectedOption });
     } else {
-      setmachineFilter({ label: "" });
+      // setmachineFilter({ label: "" });
     }
   }, 300);
+
   return (
     <AsyncSelect
       loadOptions={loadOptions}
@@ -51,7 +52,6 @@ const MachineSearch = (props) => {
       value={machineFilter.label}
       placeholder="Search Machine..."
       onChange={(value) => {
-        // console.log(value);
         setmachineFilter({ value });
         props.selectedMachine(value);
         //  addToGroup("machine", value);

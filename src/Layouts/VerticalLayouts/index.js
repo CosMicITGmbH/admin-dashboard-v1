@@ -7,6 +7,8 @@ import { Collapse } from "reactstrap";
 import navdata from "../LayoutMenuData";
 //i18n
 import { withTranslation } from "react-i18next";
+import { getSelectedMachine, getUserRole } from "../../helpers/api_helper";
+import { adminRole, managerRole } from "../../helpers/appContants";
 
 const VerticalLayout = (props) => {
   const navData = navdata().props.children;
@@ -14,16 +16,13 @@ const VerticalLayout = (props) => {
   const [jobsvisible, setjobsvisible] = useState(false);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    let currentRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
+    let currentRole = getUserRole();
     // console.log("role vertical menui", currentRole);
-    if (
-      currentRole.toLowerCase() === "admin" ||
-      currentRole.toLowerCase() === "manager"
-    ) {
+    if (currentRole === adminRole || currentRole === managerRole) {
       setIsAdmin(true);
     }
-    let selectedMachine = sessionStorage.getItem("selectedMachine") || "";
-    console.log("selectedMachine", selectedMachine);
+    let selectedMachine = getSelectedMachine();
+    //console.log("selectedMachine", selectedMachine);
     selectedMachine ? setjobsvisible(true) : setjobsvisible(false);
 
     const initMenu = () => {

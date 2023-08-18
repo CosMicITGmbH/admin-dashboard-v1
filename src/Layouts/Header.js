@@ -14,6 +14,7 @@ import LightDark from "../Components/Common/LightDark";
 import NotificationDropdown from "../Components/Common/NotificationDropdown";
 import ProfileDropdown from "../Components/Common/ProfileDropdown";
 import MachineSearch from "../pages/Pages/Groups/MachineSearch";
+import LanguageDropdown from "../Components/Common/LanguageDropdown";
 
 import { useDispatch, useSelector } from "react-redux";
 import { setMachine } from "./../store/actions";
@@ -176,7 +177,8 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                       </Form>
                     </DropdownMenu>
                   </Dropdown>
-
+                  {/* LanguageDropdown */}
+                  <LanguageDropdown />
                   {/* FullScreenDropdown */}
                   <FullScreenDropdown />
 
@@ -275,7 +277,8 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                     </Form>
                   </DropdownMenu>
                 </Dropdown>
-
+                {/* LanguageDropdown */}
+                <LanguageDropdown />
                 {/* FullScreenDropdown */}
                 <FullScreenDropdown />
 

@@ -1,19 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-prototype-builtins */
-import axios from "axios";
+// import axios from "axios";
 import { debounce, isNil } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Input } from "reactstrap";
-import { customAxios } from "../../Axios/axiosConfig";
+import { AxiosInstance as axios, customAxios } from "../../Axios/axiosConfig";
 import Loader from "../../Components/Common/Loader";
 import {
   customerJobTag,
   groupTag,
   latestJobsTag,
+  machineInAGroupTag,
   servicesTag,
+  userInAGroupTag,
   userRole,
   userTag,
 } from "../../helpers/appContants";
@@ -23,6 +25,11 @@ import {
   getJobItemResponse,
   getReportingUrl,
 } from "../Jobs/latest jobs/JobData";
+import {
+  getGroupDatabyId,
+  getMachineDatabyId,
+  getUserDatabyId,
+} from "../Pages/Groups/GroupHelpers";
 
 const DataTableCustom = ({
   columns,
@@ -31,6 +38,7 @@ const DataTableCustom = ({
   tag,
   isreportingApi,
   isPieChartVisible,
+  title,
 }) => {
   const dispatch = useDispatch();
 
@@ -125,7 +133,9 @@ const DataTableCustom = ({
         totalItems = 0,
         items = [];
       setNewLoading(true);
+
       if (isreportingApi) {
+        console.log("in reporting api");
         let reportingUrl = machineName.endPoint || getReportingUrl();
         let finalUrl = `${reportingUrl}/${url}`;
         let axiosInstReporting = customAxios(reportingUrl);
@@ -145,6 +155,20 @@ const DataTableCustom = ({
         totalItems = resp.data.totalItems;
       } else {
         //auth.charpify
+        console.log("auth sharpify api");
+        if (tag === userInAGroupTag) {
+          const resp = await getUserDatabyId(url, expression);
+          console.log("RESP *****", resp);
+          setItems(resp.items);
+          setTotalRows(resp.totalItems);
+          return;
+        } else if (tag === machineInAGroupTag) {
+          const resp = await getMachineDatabyId(url, expression);
+          console.log("RESP *****", resp);
+          setItems(resp.items);
+          setTotalRows(resp.totalItems);
+          return;
+        }
         resp = await axios.post(
           `/${url}?page=${page}&itemsPerPage=${per_page}`,
           {
@@ -153,10 +177,6 @@ const DataTableCustom = ({
           }
         );
 
-        if (resp.statusCode === 401) {
-          history.push("/login");
-        }
-        console.log("::resps", resp);
         items = resp.items;
         totalItems = resp.totalItems;
       }
@@ -188,6 +208,10 @@ const DataTableCustom = ({
             });
             break;
           }
+          // case userMachineInAGroupTag: {
+          //   setItems(items);
+          //   break;
+          // }
           default:
             console.log("No tags matching:", tag);
             break;
@@ -199,7 +223,7 @@ const DataTableCustom = ({
       }
       setNewLoading(false);
     } catch (error) {
-      console.log(`Error from ${url}:`, error.response);
+      console.log(`Error from ${url}:`, error);
       if (error?.response?.status === 401) {
         history.push("/login");
       }
@@ -267,6 +291,7 @@ const DataTableCustom = ({
       />
 
       <DataTable
+        title={title}
         columns={columns}
         data={items}
         pagination

@@ -5,8 +5,13 @@ import { useLocation } from "react-router-dom";
 import { Alert, Button, Col, Container, Input, Row } from "reactstrap";
 import { customAxios } from "../../Axios/axiosConfig";
 import Loader from "../../Components/Common/Loader";
-import { APIClient } from "../../helpers/api_helper";
+import {
+  APIClient,
+  getUserRole,
+  machineEndPoint,
+} from "../../helpers/api_helper";
 import ReportConfig from "./ReportConfig";
+import { userRole } from "../../helpers/appContants";
 const api = new APIClient();
 
 const CustomerProduct = (props) => {
@@ -91,13 +96,10 @@ const CustomerProduct = (props) => {
 
   document.title = "Customer Details";
   useEffect(() => {
-    let userRole = JSON.parse(sessionStorage.getItem("authUser")).data.role;
+    let role = getUserRole();
 
-    if (userRole !== "user") {
-      //getAllUsers(1, 10);
-      let endpoint = JSON.parse(
-        sessionStorage.getItem("selectedMachine")
-      )?.endPoint;
+    if (role !== userRole) {
+      let endpoint = machineEndPoint();
       fetchData(page, perPage, sort, expression, endpoint);
     } else {
       //redirect to dashboard
@@ -108,11 +110,10 @@ const CustomerProduct = (props) => {
   async function makeDataItems(dataSet) {
     let custProdObj = await Promise.all(
       dataSet.map(async (data) => {
-        // console.log("map data", data);
         const res = await api.get(
           `${ReportConfig.reportJobsApi}/products/${data.id}/performance`
         );
-        // const res = await resp.json();
+
         console.log("res", res);
         let finalres = {
           id: data.id,
@@ -127,11 +128,11 @@ const CustomerProduct = (props) => {
           )}% (${res.badResults})`,
           ejectedTotalResults: res.ejectedTotalResults,
         };
-        //console.log("finalres", finalres);
+
         return finalres;
       })
     );
-    // console.log("custProd", custProdObj);
+
     setItems(custProdObj);
   }
   const fetchDataDefault = async () => {
