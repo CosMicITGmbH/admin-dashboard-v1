@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -19,11 +19,14 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 
 //import { ToastContainer, toast } from "react-toastify";
-import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../../Components/Common/Loader";
+import { fetchRoles } from "../../../helpers/api_helper";
+import { AxiosInstance } from "../../../Axios/axiosConfig";
+import { REGISTER_USER_API } from "../../../helpers/appContants";
 
 const RegisterUserModal = (props) => {
+  const [roles, setRoles] = useState([]);
   const [registration, setRegistration] = useState({
     error: false,
     success: false,
@@ -36,6 +39,16 @@ const RegisterUserModal = (props) => {
     msg: "",
     // found: false
   });
+
+  useEffect(() => {
+    async function getRoles() {
+      const resp = await fetchRoles();
+      console.log("roles:", resp[0].options);
+      setRoles(resp[0].options);
+    }
+    getRoles();
+  }, []);
+
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
@@ -48,61 +61,37 @@ const RegisterUserModal = (props) => {
       email: "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("Please Enter Your First Name"),
-      password: Yup.string().required("Please Enter Your Password"),
-      lastName: Yup.string().required("Please Enter Your Last Name"),
-      role: Yup.string().required(
-        "Please Enter Your Role ex: user,admin or manager"
+      firstName: Yup.string().required("Please Enter First Name"),
+      password: Yup.string().required("Please Enter Password"),
+      lastName: Yup.string().required("Please Enter Last Name"),
+      role: Yup.number().required(
+        "Please Enter Role ex: user, admin or manager"
       ),
-      email: Yup.string().required("Please Enter Your Email"),
+      email: Yup.string().required("Please Enter Email"),
     }),
-    onSubmit: (values, { resetForm }) => {
-      let newVal = { ...values };
-      if (
-        typeof newVal.role === "string" &&
-        newVal.role.toLowerCase() === "admin"
-      ) {
-        newVal.role = 1;
-      } else if (
-        typeof newVal.role === "string" &&
-        newVal.role.toLowerCase() === "manager"
-      ) {
-        newVal.role = 2;
-      } else {
-        //for normal user
-        newVal.role = 3;
-      }
+    onSubmit: async (values, { resetForm }) => {
+      let newVal = { ...values, role: Number(values.role) };
 
+      console.log("values***", values);
       try {
         setRegistration({ ...registration, loading: true });
-        axios
-          .post("/auth/user/register", newVal)
-          .then((data) => {
-            let username = newVal.firstName || "user";
-            setRegistration({
-              error: false,
-              success: true,
-              msg: `${username} Successfully Registered. `,
-              loading: false,
-            });
+        const resp = await AxiosInstance.post(`${REGISTER_USER_API}`, newVal);
+        console.log("REGISTER RESP:", resp);
+        setRegistration({
+          error: false,
+          success: true,
+          msg: `${newVal.firstName} Successfully Registered. `,
+          loading: false,
+        });
 
-            setTimeout(() => {
-              props.closeRegModal();
-              setRegistration({
-                error: false,
-                success: false,
-              });
-            }, 2000);
-            resetForm();
-          })
-          .catch((err) => {
-            setRegistration({
-              error: true,
-              success: false,
-              msg: `Error: ${err} Please try again later! `,
-              loading: false,
-            });
+        setTimeout(() => {
+          resetForm();
+          props.closeRegModal();
+          setRegistration({
+            error: false,
+            success: false,
           });
+        }, 2000);
       } catch (err) {
         setRegistration({
           error: true,
@@ -130,7 +119,7 @@ const RegisterUserModal = (props) => {
             <Button
               type="button"
               onClick={() => {
-                // setmodal_Register(false);
+                validation.resetForm();
                 props.closeRegModal();
               }}
               className="btn-close m-lg-auto"
@@ -169,7 +158,6 @@ const RegisterUserModal = (props) => {
                     <Label className="form-label">First Name</Label>
                     <Input
                       name="firstName"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Fisrt Name"
                       type="text"
@@ -190,18 +178,12 @@ const RegisterUserModal = (props) => {
                         {validation.errors.firstName}
                       </FormFeedback>
                     ) : null}
-                    {/* <Input
-                            name="idx"
-                            value={userData.idx}
-                            type="hidden"
-                          /> */}
                   </div>
                   {/*last name */}
                   <div className="form-group">
                     <Label className="form-label">Last Name</Label>
                     <Input
                       name="lastName"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Last Name"
                       type="text"
@@ -214,7 +196,6 @@ const RegisterUserModal = (props) => {
                           ? true
                           : false
                       }
-                      //  disabled={userData.role === "user"}
                     />
                     {validation.touched.lastName &&
                     validation.errors.lastName ? (
@@ -222,11 +203,6 @@ const RegisterUserModal = (props) => {
                         {validation.errors.lastName}
                       </FormFeedback>
                     ) : null}
-                    {/* <Input
-                            name="idx"
-                            value={userData.idx}
-                            type="hidden"
-                          /> */}
                   </div>
 
                   {/*email*/}
@@ -234,7 +210,6 @@ const RegisterUserModal = (props) => {
                     <Label className="form-label">Email</Label>
                     <Input
                       name="email"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter User Name"
                       type="text"
@@ -246,25 +221,18 @@ const RegisterUserModal = (props) => {
                           ? true
                           : false
                       }
-                      // disabled={userData.role === "user"}
                     />
                     {validation.touched.email && validation.errors.email ? (
                       <FormFeedback type="invalid">
                         {validation.errors.email}
                       </FormFeedback>
                     ) : null}
-                    {/* <Input
-                            name="idx"
-                            value={userData.idx}
-                            type="hidden"
-                          /> */}
                   </div>
                   {/*password*/}
                   <div className="form-group">
                     <Label className="form-label">Password</Label>
                     <Input
                       name="password"
-                      // value={name}
                       className="form-control"
                       placeholder="Enter Your Password"
                       type="password"
@@ -277,7 +245,6 @@ const RegisterUserModal = (props) => {
                           ? true
                           : false
                       }
-                      // disabled={userData.role === "user"}
                     />
                     {validation.touched.password &&
                     validation.errors.password ? (
@@ -285,58 +252,34 @@ const RegisterUserModal = (props) => {
                         {validation.errors.password}
                       </FormFeedback>
                     ) : null}
-                    {/* <Input
-                            name="idx"
-                            value={userData.idx}
-                            type="hidden"
-                          /> */}
                   </div>
                   {/*role*/}
                   <div className="form-group">
                     <Label className="form-label">Role</Label>
-                    <Input
-                      name="role"
-                      // value={name}
-                      className="form-control"
-                      placeholder="Enter User Name"
-                      type="text"
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      value={validation.values.role}
-                      // value={
-                      //   validation.values.role === 1
-                      //     ? "admin"
-                      //     : validation.values.role === 2
-                      //     ? "manager"
-                      //     : validation.values.role === 3
-                      //     ? "user"
-                      //     : validation.values.role
-                      // }
-                      invalid={
+                    <select
+                      {...validation.getFieldProps("role")}
+                      className={`form-control ${
                         validation.touched.role && validation.errors.role
-                          ? true
-                          : false
-                      }
-                      // disabled={userData.role === "user"}
-                    />
-                    {validation.touched.role && validation.errors.role ? (
-                      <FormFeedback type="invalid">
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                    >
+                      <option value="" label="Select a role" disabled />
+                      {roles.map((role) => (
+                        <option key={role.value} value={role.value}>
+                          {role.label.toUpperCase()}
+                        </option>
+                      ))}
+                    </select>
+                    {validation.touched.role && validation.errors.role && (
+                      <div className="invalid-feedback">
                         {validation.errors.role}
-                      </FormFeedback>
-                    ) : null}
-                    {/* <Input
-                            name="idx"
-                            value={userData.idx}
-                            type="hidden"
-                          /> */}
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-center mt-4 mx-2">
-                    <Button
-                      type="submit"
-                      color="danger"
-                      //  disabled={userData.role === "user"}
-                    >
+                    <Button type="submit" color="danger">
                       Register
                     </Button>
                   </div>

@@ -14,7 +14,7 @@ async function getCustomerJobResponse(dataSet) {
       const perfData = await axiosInstReporting.get(
         `/jobs/customers/${data.id}/performance`
       );
-
+      console.log("performace data", perfData);
       let {
         totalResults = 0,
         goodResults = 0,
@@ -24,7 +24,7 @@ async function getCustomerJobResponse(dataSet) {
         ejectedGoodResults = 0,
         ejectedBadResults = 0,
         ejectedUnknownResults = 0,
-      } = perfData.data;
+      } = perfData;
 
       let finalres = {
         id: data.id,

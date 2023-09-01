@@ -1,5 +1,6 @@
 import axios from "axios";
 import { api } from "../config";
+import { AxiosInstance } from "../Axios/axiosConfig";
 
 // default
 axios.defaults.baseURL = api.API_URL;
@@ -46,7 +47,22 @@ if (token) {
   setAuthorization(token);
 }
 
-// intercepting to capture errors
+const fetchRoles = async () => {
+  try {
+    const response = await AxiosInstance.post("/roles/applicable", {});
+    console.log("roles response:", response);
+    const options = response.items.map((item) => ({
+      label: item.name,
+      value: item.id,
+    }));
+    return [{ options }];
+  } catch (error) {
+    console.log("Error while fetching roles:", error);
+    // Handle error, e.g., show a message to the user
+  }
+};
+
+// // intercepting to capture errors
 axios.interceptors.response.use(
   function (response) {
     return response.data ? response.data : response;
@@ -134,4 +150,5 @@ export {
   getToken,
   machineEndPoint,
   getSelectedMachine,
+  fetchRoles,
 };

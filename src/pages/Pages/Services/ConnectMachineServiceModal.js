@@ -15,7 +15,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import "react-toastify/dist/ReactToastify.css";
-import { customAxios } from "../../../Axios/axiosConfig";
+import { AxiosInstance, customAxios } from "../../../Axios/axiosConfig";
 import {
   ALL_MACHINES_API,
   ALL_SERVICES_API,
@@ -48,14 +48,17 @@ const ConnectMachineServiceModal = (props) => {
 
   const fetchMachines = async () => {
     try {
+      console.log("in fetchMachines");
       let reportInstance = customAxios(
         process.env.REACT_APP_API_REPORTING_URL || REACT_APP_API_REPORTING_URL
       );
+      console.log("reportInstance", reportInstance);
       const response = await reportInstance.post(`/${ALL_MACHINES_API}`, {
         sort: "Id ASC",
         expression: "",
       });
-      const { items } = response.data;
+      console.log("in fetchMachines response", response);
+      const { items } = response;
       console.log("machine all:", response);
       if (items.length) {
         const options = items.map((item) => ({
@@ -65,6 +68,7 @@ const ConnectMachineServiceModal = (props) => {
         setMachines([{ options }]);
       }
     } catch (error) {
+      console.log("Error while fetching machines", error);
       setErrors({
         ...errors,
         error: true,
@@ -121,7 +125,7 @@ const ConnectMachineServiceModal = (props) => {
     }
 
     try {
-      const submitResp = await axios.post(
+      const submitResp = await AxiosInstance.post(
         `${CONNECT_MACHINE_SERVICE_API}/${selectedservice.value}/${selectedMachine.value}`
       );
       console.log("submit resp", submitResp);
@@ -144,7 +148,7 @@ const ConnectMachineServiceModal = (props) => {
           closeModal();
         }}
         size="lg"
-        style={{ minWidth: "55%" }}
+        // style={{ width: "55%" }}
         unmountOnClose={true}
       >
         <div
@@ -191,12 +195,16 @@ const ConnectMachineServiceModal = (props) => {
                 >
                   <div className="d-flex gap-3">
                     {/* MACHINES DROPDOWN */}
-                    <div className="form-group mb-1">
+                    <div
+                      className="form-group mb-1"
+                      style={{ width: "max-content" }}
+                    >
                       <Label className="form-label">Select Machine</Label>
                       <Select
                         value={selectedMachine}
                         onChange={(machine) => {
                           console.log("selected machine", machine);
+                          dispatch(serviceFetchFailed(""));
                           setSelectedMachine(machine);
                           fetchUnConnectedService(machine);
                         }}
@@ -210,18 +218,19 @@ const ConnectMachineServiceModal = (props) => {
                     {/* SERVICES DROPDOWN */}
                     <div
                       className="form-group mb-1"
-                      styles={{ width: "300px" }}
+                      style={{ width: "max-content" }}
                     >
                       <Label className="form-label">Select Service</Label>
                       <Select
                         value={selectedservice}
                         onChange={(selectedVal) => {
                           console.log("selected service", selectedVal);
+                          dispatch(serviceFetchFailed(""));
                           setSelectedservice(selectedVal);
                         }}
                         options={filteredServices}
                         id="choices-single-default"
-                        styles={{ width: "300px !important" }}
+                        //styles={{ width: "300px !important" }}
                         className="role-select"
                         name="service"
                         isDisabled={!selectedMachine}

@@ -239,17 +239,14 @@ const UserProfile = () => {
       lastName: Yup.string().required("Please Enter Your Last Name"),
       email: Yup.string().required("Please Enter Your email"),
     }),
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       console.log(" profile submitr values:", values);
       const parsedRoleid = getRoleId(values);
       values.role = parsedRoleid;
       //make network call to update the user profile
       try {
         clearReload();
-        const resp = await axios.post(
-          `${UPDATE_PROFILE_API}/${profid}`,
-          values
-        );
+        await axios.post(`${UPDATE_PROFILE_API}/${profid}`, values);
         succesStopReload();
       } catch (error) {
         errorStopReload(error);
@@ -409,7 +406,11 @@ const UserProfile = () => {
                       className="form-control"
                       placeholder="Enter User Name"
                       type="text"
-                      onChange={validation.handleChange}
+                      onChange={() => {
+                        validation.handleChange();
+                        validation.dirty = true;
+                        validation.touched.role = true;
+                      }}
                       onBlur={validation.handleBlur}
                       value={
                         validation.values.role === 1
@@ -520,7 +521,11 @@ const UserProfile = () => {
                   <Button
                     type="submit"
                     color="success"
-                    disabled={userData.currentRole === "user"}
+                    disabled={
+                      userData.currentRole === "user" ||
+                      !validation.dirty ||
+                      validation.isSubmitting
+                    }
                   >
                     Update Profile
                   </Button>
@@ -708,9 +713,6 @@ const UserProfile = () => {
               <Row className="justify-content-center">
                 <div className="mt-2">
                   <RoleOptions getRole={getRole} />
-                  {/* <CardBody className="p-2">
-                    <RoleOptions getRole={getRole} />
-                  </CardBody> */}
                 </div>
               </Row>
             </ModalBody>

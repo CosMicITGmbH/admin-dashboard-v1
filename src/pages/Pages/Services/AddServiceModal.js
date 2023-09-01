@@ -83,6 +83,7 @@ const AddServiceModal = (props) => {
       disable: false,
     });
     setResponse(null);
+    validation.resetForm();
   };
   return (
     <React.Fragment>

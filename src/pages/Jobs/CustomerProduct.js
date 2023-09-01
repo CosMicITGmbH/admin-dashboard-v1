@@ -11,7 +11,8 @@ import {
   machineEndPoint,
 } from "../../helpers/api_helper";
 import ReportConfig from "./ReportConfig";
-import { userRole } from "../../helpers/appContants";
+import { customerProductTag, userRole } from "../../helpers/appContants";
+import DataTableCustom from "../Widgets/DataTableCustom";
 const api = new APIClient();
 
 const CustomerProduct = (props) => {
@@ -166,26 +167,6 @@ const CustomerProduct = (props) => {
       });
   };
 
-  const handlePageChange = (page) => {
-    setPage(page);
-  };
-
-  const handlePerRowsChange = async (newPerPage, page) => {
-    setPerPage(newPerPage);
-  };
-
-  const handleInputExpression = async (e) => {
-    var val = e.target.value;
-    // console.log("aval", val);
-    setSearch(val);
-    if (val == "") setExpression("");
-    else setExpression(`name.ToLower().Contains("${val}")`);
-    // fetchData(page, perPage, sort, val);
-  };
-  const handleSort = async (column, sortDirection) => {
-    setSort(column.database_name + " " + sortDirection);
-  };
-
   return (
     <div className="page-content">
       <Container fluid>
@@ -203,24 +184,15 @@ const CustomerProduct = (props) => {
               </Col>
             </Row>
             <h4>{`${custName}`}</h4>
-            <Input
-              autoFocus
-              type="text"
-              placeholder="search by product name..."
-              value={search}
-              onChange={handleInputExpression}
-            />
-            <DataTable
+
+            <DataTableCustom
               columns={columns}
-              data={items}
-              pagination
-              paginationServer
-              paginationTotalRows={totalRows}
-              paginationRowsPerPageOptions={[10, 25, 50]}
-              onChangePage={handlePageChange}
-              onChangeRowsPerPage={handlePerRowsChange}
-              sortServer
-              onSort={handleSort}
+              url={`jobs/customers/${custid}/products}`}
+              expressions={["name"]}
+              tag={customerProductTag}
+              isreportingApi={true}
+              // performanceUrl={"customers"}
+              isPieChartVisible={true}
             />
           </>
         )}

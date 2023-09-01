@@ -8,7 +8,12 @@ const AxiosInstance = axios.create({
 
 AxiosInstance.interceptors.response.use(
   (response) => {
-    // console.log("response from axios AxiosInstance:", response);
+    console.log("response from axios AxiosInstance:", response);
+    let message;
+    if (response.data.statusCode === 500) {
+      message = "Internal Server Error";
+      return Promise.reject(message);
+    }
     return response.data;
   },
   (error) => {
@@ -49,6 +54,11 @@ const customAxios = (dynamicBaseURL) => {
   axiosInstance.interceptors.response.use(
     (response) => {
       console.log("response from customAxios AxiosInstance:", response.data);
+      let message;
+      if (response.data.statusCode === 500) {
+        message = "Internal Server Error";
+        return Promise.reject(message);
+      }
       return response.data;
     },
     (error) => {

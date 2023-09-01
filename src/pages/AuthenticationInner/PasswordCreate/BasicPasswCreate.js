@@ -4,11 +4,12 @@ import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
 import ParticlesAuth from "../ParticlesAuth";
 import logoLight from "../../../assets/images/logo-light.png";
 import axios from "axios";
+import { AxiosInstance } from "../../../Axios/axiosConfig";
 const BasicPasswCreate = (props) => {
   document.title =
     "Create New Password | Velzon - React Admin & Dashboard Template";
 
-  const changePassword = (e) => {
+  const changePassword = async (e) => {
     //hit the url and save the pwd
 
     e.preventDefault();
@@ -16,6 +17,7 @@ const BasicPasswCreate = (props) => {
     const ConfirmPwd = document.getElementById("confirm-password-input").value;
 
     if (pwd.toLowerCase() === ConfirmPwd.toLowerCase()) {
+      //await AxiosInstance.post
       axios
         .post("/users/profile/1/password", {
           password: pwd,

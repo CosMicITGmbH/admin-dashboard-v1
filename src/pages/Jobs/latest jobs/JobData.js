@@ -23,7 +23,7 @@ async function getJobItemResponse(dataSet) {
         ejectedGoodResults = 0,
         ejectedBadResults = 0,
         ejectedUnknownResults = 0,
-      } = perfData.data;
+      } = perfData;
 
       let finalres = {
         id: data.id,

@@ -84,6 +84,10 @@ const Login = (props) => {
     }, 3000);
   }, [dispatch, error]);
 
+  useEffect(() => {
+    sessionStorage.clear();
+  }, []);
+
   document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
   return (
     <React.Fragment>

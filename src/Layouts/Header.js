@@ -26,6 +26,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const history = useHistory();
 
   const machineName = useSelector((state) => state.Machine.machineName);
+  console.log("machine name from state:", machineName);
   //whenever the page is refreshed/reloaded state will lose the machine value so retrive from session storage
   useEffect(() => {
     const getMachineName =

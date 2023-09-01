@@ -75,12 +75,14 @@ const CreateGroupModal = (props) => {
     console.log("selected machine", selectedMachine);
     setMachineId(selectedMachine.id);
   };
+
   const handleFormSubmit = async () => {
     console.log("group new payload", {
       groupName,
       userId,
       machineId,
     });
+
     if (props.action === "add") {
       if (!groupName || !userId || !machineId) {
         setSetup({ ...setup, error: true, msg: "All fields are required" });
@@ -92,12 +94,11 @@ const CreateGroupModal = (props) => {
         machineIds: [machineId],
       };
       try {
-        const resp = await AxiosInstance.post(`${GROUPS_API}`, { ...payload });
+        const resp = await AxiosInstance.put(`${GROUPS_API}`, { ...payload });
         setSetup({
           success: true,
           msg: "Group added successfully",
         });
-        props.closeCreategrpModal();
       } catch (error) {
         setSetup({
           error: true,
@@ -115,7 +116,7 @@ const CreateGroupModal = (props) => {
           return;
         }
         try {
-          const resp = await AxiosInstance.post(
+          const resp = await AxiosInstance.put(
             `${GROUPS_API}/${groupId}/users/${userId}`,
             {}
           );
@@ -123,7 +124,6 @@ const CreateGroupModal = (props) => {
             success: true,
             msg: "User added successfully",
           });
-          props.closeCreategrpModal();
         } catch (error) {
           setSetup({
             error: true,
@@ -140,15 +140,15 @@ const CreateGroupModal = (props) => {
           return;
         }
         try {
-          const resp = await AxiosInstance.post(
+          const resp = await AxiosInstance.put(
             `${GROUPS_API}/${groupId}/machines/${machineId}`,
             {}
           );
+
           setSetup({
             success: true,
             msg: "Machine added successfully",
           });
-          props.closeCreategrpModal();
         } catch (error) {
           setSetup({
             error: true,
@@ -157,6 +157,12 @@ const CreateGroupModal = (props) => {
         }
       }
     }
+
+    setTimeout(() => {
+      resetStates();
+      props.closeCreategrpModal();
+      props.reload();
+    }, 3000);
   };
   return (
     <React.Fragment>
@@ -190,17 +196,21 @@ const CreateGroupModal = (props) => {
         <ModalBody style={{ padding: "0" }}>
           {(setup.error || setup.success) && (
             <Row>
-              <Col lg="12">
+              <Col md={11} className="m-auto">
                 <Alert color={setup.error ? "danger" : "success"}>
                   {setup.msg}
                 </Alert>
               </Col>
+              {/* <Alert color={setup.error ? "danger" : "success"}>
+                {setup.msg}
+              </Alert> */}
             </Row>
           )}
           <CardBody>
             {/* <h5 className="text-primary text-center">{props.title}</h5> */}
-            <div className="mx-2 mb-2">
-              <Col md={6} className="my-2">
+            <div className="m-auto mb-2">
+              <Col md={8} className="my-2">
+                <label htmlFor="createGroup">Group Name</label>
                 <Input
                   type="text"
                   className="form-control"
@@ -216,10 +226,12 @@ const CreateGroupModal = (props) => {
                 />
               </Col>
               {props.addUser && (
-                <Col md={6} className="my-2">
+                <Col md={8} className="my-2">
+                  <label htmlFor="createGroup">User</label>
                   <AsyncSelect
                     loadOptions={loadOptions}
                     onInputChange={onSearchChange}
+                    className="react-select-container"
                     value={userFilter.value}
                     placeholder="search user to add..."
                     onChange={(user) => {
@@ -230,7 +242,8 @@ const CreateGroupModal = (props) => {
                 </Col>
               )}
               {props.addMachine && (
-                <Col md={6} className="mb-2">
+                <Col md={8} className="mb-2">
+                  <label htmlFor="createGroup">Machine</label>
                   <MachineSearch selectedMachine={getSelectedMachine} />
                 </Col>
               )}

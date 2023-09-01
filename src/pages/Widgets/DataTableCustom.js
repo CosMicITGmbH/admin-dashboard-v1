@@ -19,14 +19,12 @@ import {
   userRole,
   userTag,
 } from "../../helpers/appContants";
-import { getCustomerJobResponse, getGraphdata } from "../Jobs/CustomersData";
-import { PieCharFunc } from "../Jobs/PieChart";
+import { getCustomerJobResponse } from "../Jobs/CustomersData";
 import {
   getJobItemResponse,
   getReportingUrl,
 } from "../Jobs/latest jobs/JobData";
 import {
-  getGroupDatabyId,
   getMachineDatabyId,
   getUserDatabyId,
 } from "../Pages/Groups/GroupHelpers";
@@ -37,8 +35,9 @@ const DataTableCustom = ({
   expressions,
   tag,
   isreportingApi,
-  isPieChartVisible,
+  //isPieChartVisible,
   title,
+  reloadData,
 }) => {
   const dispatch = useDispatch();
 
@@ -84,7 +83,14 @@ const DataTableCustom = ({
     } catch (error) {
       console.error("Error parsing 'authUser' JSON data:", error);
     }
-  }, [expression, sort, perPage, page]);
+  }, [expression, sort, perPage, page, reloadData]);
+
+  useEffect(() => {
+    console.log("need to reload page", reloadData, typeof reloadData);
+    if (reloadData) {
+      fetchDataDefault();
+    }
+  }, [reloadData]);
 
   const fetchDataDefault = async () => {
     setNewLoading(true);
@@ -131,14 +137,17 @@ const DataTableCustom = ({
     try {
       let resp,
         totalItems = 0,
+        finalUrl,
         items = [];
-      setNewLoading(true);
 
+      setNewLoading(true);
+      let reportingUrl = machineName.endPoint || getReportingUrl();
+      let axiosInstReporting = customAxios(reportingUrl);
       if (isreportingApi) {
         console.log("in reporting api");
         let reportingUrl = machineName.endPoint || getReportingUrl();
-        let finalUrl = `${reportingUrl}/${url}`;
         let axiosInstReporting = customAxios(reportingUrl);
+        finalUrl = `${reportingUrl}/${url}`;
 
         resp = await axiosInstReporting.post(
           `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
@@ -148,11 +157,8 @@ const DataTableCustom = ({
           }
         );
 
-        if (resp.statusCode === 401) {
-          history.push("/login");
-        }
-        items = resp.data.items;
-        totalItems = resp.data.totalItems;
+        // items = resp.items;
+        // totalItems = resp.totalItems;
       } else {
         //auth.charpify
         console.log("auth sharpify api");
@@ -177,9 +183,12 @@ const DataTableCustom = ({
           }
         );
 
-        items = resp.items;
-        totalItems = resp.totalItems;
+        // items = resp.items;
+        // totalItems = resp.totalItems;
       }
+
+      items = resp.items;
+      totalItems = resp.totalItems;
 
       if (items && items.length) {
         switch (tag) {
@@ -200,16 +209,25 @@ const DataTableCustom = ({
           case customerJobTag: {
             let resp = await getCustomerJobResponse(items);
             setItems(resp);
-            const graphDataResp = await getGraphdata(resp);
-            //  console.log("graphDataResp", graphDataResp);
-            setGraphData({
-              show: true,
-              data: Object.values(graphDataResp),
-            });
+            // const graphDataResp = await getGraphdata(resp);
+            // //  console.log("graphDataResp", graphDataResp);
+            // setGraphData({
+            //   show: true,
+            //   data: Object.values(graphDataResp),
+            // });
             break;
           }
-          // case userMachineInAGroupTag: {
+          // case customerProductTag: {
+          //   //get grpah data
+          //   let resp = await  getCustomerProductResp(items)
           //   setItems(items);
+
+          //       const graphDataResp = await getGraphdata(resp);
+          //       //  console.log("graphDataResp", graphDataResp);
+          //       setGraphData({
+          //         show: true,
+          //         data: Object.values(graphDataResp),
+          //       });
           //   break;
           // }
           default:
@@ -223,10 +241,10 @@ const DataTableCustom = ({
       }
       setNewLoading(false);
     } catch (error) {
-      console.log(`Error from ${url}:`, error);
-      if (error?.response?.status === 401) {
-        history.push("/login");
-      }
+      console.log(`Error from ${url} ${tag}:`, error);
+      // if (error?.response?.status === 401) {
+      //   history.push("/login");
+      // }
     }
   };
 
@@ -263,7 +281,8 @@ const DataTableCustom = ({
 
   return (
     <>
-      {graphData.show && (
+      {/* graph data omitted from MVP  */}
+      {/* {graphData.show && (
         <div
           style={{
             width: "50%",
@@ -281,7 +300,7 @@ const DataTableCustom = ({
             }}
           />
         </div>
-      )}
+      )} */}
 
       <Input
         type="text"

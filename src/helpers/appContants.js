@@ -10,6 +10,7 @@ export const servicesTag = "SERVICES";
 export const userTag = "USERS";
 export const latestJobsTag = "LATEST_JOBS";
 export const customerJobTag = "CUSTOMER_JOBS";
+export const customerProductTag = "CUSTOMER_PRODUCT_JOBS";
 
 //roles
 export const userRole = "user";
@@ -24,6 +25,7 @@ export const GROUPS_API = "/groups";
 
 //USERS
 export const USERS_API = "/users";
+export const REGISTER_USER_API = "/auth/user/register";
 
 //REGISTERING MACHINES
 export const REGISTER_MACHINE_API = "/auth/machine/register";
@@ -40,3 +42,6 @@ export const CONNECT_MACHINE_SERVICE_API = "/services/connect/id";
 //services
 export const ALL_SERVICES_API = "/services";
 export const GET_CONNECTED_SERVICE_API = "/services/machines/id";
+
+//JOBS
+export const CUSTOMER_JOBS = "jobs/customers";

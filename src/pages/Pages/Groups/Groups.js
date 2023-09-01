@@ -81,7 +81,7 @@ const Groups = (props) => {
       button: true,
     },
   ];
-
+  const [reloading, setreLoading] = useState(false);
   const [successMsg, setSuccess] = useState({
     success: false,
     error: false,
@@ -101,13 +101,13 @@ const Groups = (props) => {
     }
   };
 
-  const createGroupResponse = (response) => {
-    console.log("respose adding  group:", response);
-    setOpenGroupModal(false);
-    // props.history.push(
-    //   `/group/?groupid=${response.groupId}&groupname=${response.name}`
-    // );
-  };
+  // const createGroupResponse = (response) => {
+  //   console.log("respose adding  group:", response);
+  //   setOpenGroupModal(false);
+  //   // props.history.push(
+  //   //   `/group/?groupid=${response.groupId}&groupname=${response.name}`
+  //   // );
+  // };
 
   const clearFields = (err) => {
     setSuccess({
@@ -161,7 +161,7 @@ const Groups = (props) => {
                         setOpenGroupModal(true);
                       }}
                     >
-                      CREATE NEW GROUP
+                      + ADD GROUP
                     </Button>
                   </div>
                 </div>
@@ -171,7 +171,7 @@ const Groups = (props) => {
                   columns={columns}
                   url={"groups"}
                   expressions={["name"]}
-                  reloadData={reloadData}
+                  reloadData={reloading}
                   tag={groupTag}
                 />
               </CardBody>
@@ -185,7 +185,7 @@ const Groups = (props) => {
               title="Create new group"
               closeCreategrpModal={() => setOpenGroupModal(!OpenGroupModal)}
               modalState={OpenGroupModal}
-              groupResponse={createGroupResponse}
+              reload={() => setreLoading(true)}
               addUser={true}
               addMachine={true}
               action={"add"}

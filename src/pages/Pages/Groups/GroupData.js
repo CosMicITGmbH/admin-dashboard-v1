@@ -14,19 +14,22 @@ import {
   Col,
   Container,
   Row,
+  Toast,
+  ToastBody,
+  ToastHeader,
 } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 import { getUserRole } from "../../../helpers/api_helper";
 import {
-  GROUPS_API,
   machineInAGroupTag,
   userInAGroupTag,
   userRole,
 } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
-import { machineColumns } from "./MachineGroupdata";
-import "./groupStyles.css";
 import CreateGroupModal from "./CreateGroupModal";
+// import { machineColumns } from "./MachineGroupdata";
+import "./groupStyles.css";
+import { AxiosInstance } from "../../../Axios/axiosConfig";
 
 const GroupData = (props) => {
   const userColumns = [
@@ -82,12 +85,45 @@ const GroupData = (props) => {
       ),
     },
   ];
+  const machineColumns = [
+    {
+      name: <span className="font-weight-bold fs-13">Key</span>,
+      selector: (row) => row.key,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Name</span>,
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: <span className="font-weight-bold fs-13">Action</span>,
+      selector: (row) => row.machine.id,
+      sortable: true,
+      cell: (row) => (
+        <Button
+          type="button"
+          color="danger"
+          onClick={() => {
+            console.log("machine id to delete", row.machine.id);
+            setMachinetoDelete(row.machine.id);
+            setConfirmModalMachine(true);
+          }}
+        >
+          Delete
+        </Button>
+      ),
+    },
+  ];
 
+  const [reloading, setreLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [groupData, setgroupData] = useState([]);
   const [addUser, setAddUser] = useState(false);
   const [addMachine, setAddMachine] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false);
+  const [confirmModalMachine, setConfirmModalMachine] = useState(false);
   const [OpenGroupModal, setOpenGroupModal] = useState(false);
   const [successMsg, setSuccess] = useState({
     success: false,
@@ -104,6 +140,7 @@ const GroupData = (props) => {
   const [itemMachine, setMachieItems] = useState([]);
   const [totalRowsUser, setTotalRowsUser] = useState(0);
   const [userToDelete, setUsertoDelete] = useState(null);
+  const [machineToDelete, setMachinetoDelete] = useState(null);
   const [totalRowsMachine, setTotalRowsMachine] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -113,138 +150,61 @@ const GroupData = (props) => {
   const [expression, setExpression] = useState("");
   const history = useHistory();
 
-  useEffect(
-    () => {
-      if (getUserRole() === userRole) {
-        return history.push("/dashboard");
-      }
-    },
-    [groupId]
-    // [groupId, page, perPage, sort, expression]
-  );
-  /**For Async select starts */
-  const loadOptions = (inputValue, callback) => {
-    if (!inputValue) return;
-    setTimeout(() => {
-      axios
-        .post(`/users`, {
-          expression: `firstName.contains("${inputValue}") || lastName.contains("${inputValue}") || email.contains("${inputValue}")`,
-          sort: "Id ASC",
-        })
-        .then((data) => {
-          const tempArray = [];
-
-          if (data) {
-            if (data.items.length) {
-              data.items.forEach((element) => {
-                tempArray.push({
-                  label: `${element.firstName} ${element.lastName}`,
-                  value: `${element.id}`,
-                });
-              });
-            }
-          }
-
-          callback(tempArray);
-        })
-        .catch((error) => {
-          //console.log(error, "catch the hoop");
-        });
-    }, 500);
-  };
-
-  const onSearchChange = (selectedOption) => {
-    if (selectedOption) {
-      setUserFilter({ selectedOption });
+  useEffect(() => {
+    if (getUserRole() === userRole) {
+      return history.push("/dashboard");
     }
-  };
-  const addToGroup = (type, value) => {
-    setLoading(true);
-    if (type == "user") {
-      axios
-        .put(`/users/profile/${value.value}/groups/${groupId}`)
-        .then((data) => {
-          setLoading(false);
-          setSuccess({
-            success: true,
-            msg: "User successfully added to the group.",
-          });
-          fetchDataDefault();
-        })
-        .catch((e) => {
-          setLoading(false);
-          setSuccess({
-            error: true,
-            msg: "Error Ocurred while adding user to the group. " + e,
-          });
-        });
-    } else {
-      //add machie to group
-    }
-  };
-  /**For Async select ends */
-  const getUserResponse = (response) => {
+  }, [groupId]);
+
+  /** deletes a user*/
+  const getUserResponse = async (response) => {
     setConfirmModal(false);
     if (response) {
-      setLoading(true);
-      axios
-        .delete(`/users/profile/${userToDelete}/groups/${groupId}`)
-        .then((data) => {
-          setLoading(false);
-          if (data.status === 200) {
-            setSuccess({
-              ...successMsg,
-              error: false,
-              success: true,
-              msg: "User deleted successfully.",
-            });
-            fetchDataDefault();
-          } else {
-            setSuccess({
-              error: true,
-              msg: "Error ocurred while deleting user. " + data.message,
-            });
-          }
-        })
-        .catch((err) => {
-          setLoading(false);
-          setSuccess({
-            ...successMsg,
-            error: true,
-            msg: "Error ocurred while deleting user. " + err,
-          });
+      try {
+        await AxiosInstance.delete(
+          `/users/profile/${userToDelete}/groups/${groupId}`
+        );
+        setSuccess({
+          ...successMsg,
+          error: false,
+          success: true,
+          msg: "User deleted successfully.",
         });
+        setreLoading(true);
+        window.location.reload();
+      } catch (error) {
+        setSuccess({
+          ...successMsg,
+          error: true,
+          msg: "Error ocurred while deleting user. " + error,
+        });
+      }
     }
   };
 
-  const fetchDataDefault = async () => {
-    fetchData(page, perPage, sort, expression);
-  };
-
-  const fetchData = async () => {
-    setLoading(true);
-    axios
-      .get(`/groups/${groupId}`)
-      .then((data) => {
-        setLoading(false);
-
-        if (data?.users) {
-          setItems(data.users);
-        } else {
-          setItems([]);
-        }
-
-        setMachieItems(data);
-        setTotalRowsUser(data.users.length);
-      })
-      .catch((err) => {
-        setLoading(false);
+  //deletes a machine
+  const getMachineResponse = async (resp) => {
+    setConfirmModalMachine(false);
+    if (resp) {
+      try {
+        await AxiosInstance.delete(
+          `/groups/${groupId}/machines/${machineToDelete}`
+        );
         setSuccess({
-          error: true,
-          success: false,
-          msg: `Error: ${err} Please try again later! `,
+          ...successMsg,
+          error: false,
+          success: true,
+          msg: "Machine deleted successfully.",
         });
-      });
+        setreLoading(true);
+      } catch (error) {
+        setSuccess({
+          ...successMsg,
+          error: true,
+          msg: "Error ocurred while deleting user. " + error,
+        });
+      }
+    }
   };
 
   return (
@@ -258,10 +218,10 @@ const GroupData = (props) => {
               {/**FORM code */}
               <Row>
                 <Col lg="12">
-                  {successMsg.error === true ? (
-                    <Alert color="danger">{successMsg.msg}</Alert>
-                  ) : successMsg.success === true ? (
-                    <Alert color="success">{successMsg.msg}</Alert>
+                  {successMsg.error || successMsg.success ? (
+                    <Alert color={successMsg.success ? "success" : "error"}>
+                      {successMsg.msg}
+                    </Alert>
                   ) : null}
                 </Col>
               </Row>
@@ -274,39 +234,7 @@ const GroupData = (props) => {
                   </div>
                 </CardTitle>
                 <CardBody>
-                  {/* for users table */}
-                  {/* <div className="flexSearchBox">
-                    <div>
-                      <Label
-                        htmlFor="choices-single-no-search"
-                        className="form-label text-muted"
-                      >
-                        Search User
-                      </Label>
-                      <AsyncSelect
-                        loadOptions={loadOptions}
-                        onInputChange={onSearchChange}
-                        value={userFilter.value}
-                        placeholder="Type to search user and add..."
-                        onChange={(value) => {
-                          addToGroup("user", value);
-                        }}
-                      />
-                    </div>
-                  </div> */}
-                  {/* <DataTable
-                    title="Users"
-                    columns={userColumns}
-                    data={items}
-                    pagination
-                    // paginationServer
-                    paginationTotalRows={totalRowsUser}
-                    //  paginationRowsPerPageOptions={[5, 10, 25, 50]}
-                    onChangePage={handlePageChange}
-                    onChangeRowsPerPage={handlePerRowsChange}
-                    // sortServer
-                    //  onSort={handleSort}
-                  /> */}
+                  {/* USER TABLE */}
                   <DataTableCustom
                     columns={userColumns}
                     url={groupId}
@@ -314,19 +242,25 @@ const GroupData = (props) => {
                     tag={userInAGroupTag}
                     title="Users"
                   />
-
+                  {/* Machine TABLE */}
                   <DataTableCustom
                     columns={machineColumns}
                     url={groupId}
                     expressions={["name", "endpoint"]}
                     tag={machineInAGroupTag}
                     title="Machines"
+                    reloadData={reloading}
                   />
 
                   <ConfirmationModal
-                    title={`Do you wish to delete ${groupname} group?`}
-                    getUserResponse={getUserResponse}
+                    title={`Do you wish to remove this user from group?`}
+                    confirmResp={getUserResponse}
                     modalState={confirmModal}
+                  />
+                  <ConfirmationModal
+                    title={`Do you wish to remove this machine from group?`}
+                    confirmResp={getMachineResponse}
+                    modalState={confirmModalMachine}
                   />
 
                   <div
@@ -346,10 +280,12 @@ const GroupData = (props) => {
                         setAddUser(true);
                         setAddMachine(false);
                         setOpenGroupModal(true);
+                        setreLoading(false);
                       }}
                     >
                       Add User
                     </Button>
+
                     <Button
                       type="button"
                       color="secondary"
@@ -357,6 +293,7 @@ const GroupData = (props) => {
                         setAddUser(false);
                         setAddMachine(true);
                         setOpenGroupModal(true);
+                        setreLoading(false);
                       }}
                     >
                       Add Machine
@@ -374,6 +311,7 @@ const GroupData = (props) => {
                     addUser={addUser}
                     addMachine={addMachine}
                     action={"update"}
+                    reload={() => setreLoading(true)}
                   />
                 </CardBody>
               </Card>

@@ -141,6 +141,17 @@ const AllUsers = () => {
             ) : null}
           </Col>
         </Row>
+        <div className="mx-auto mb-2 w-25">
+          <Button
+            type="button"
+            color="success"
+            onClick={() => {
+              setmodal_RegistrationModal(true);
+            }}
+          >
+            + ADD USER
+          </Button>
+        </div>
         <DataTableCustom
           title={"Users"}
           columns={columns}

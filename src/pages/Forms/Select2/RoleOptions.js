@@ -40,7 +40,7 @@ const RoleOptions = ({ getRole }) => {
             options={roles}
             id="choices-single-default"
             className="role-select"
-            name="state"
+            name="chooseRole"
           />
         </Col>
         <div className="mt-4 text-center">

@@ -62,7 +62,7 @@ const Services = () => {
       wrap: true,
     },
   ];
-
+  const [reloading, setRealoading] = useState(false);
   const [modalService, setmodalService] = useState(false);
   const [modalMachine, setmodalMachine] = useState(false);
   const [modalConnectBoth, setModalConnectBoth] = useState(false);
@@ -78,7 +78,7 @@ const Services = () => {
                 columns={columns}
                 url={"services"}
                 expressions={["name", "endpoint"]}
-                reloadData={true}
+                reloadData={reloading}
                 tag={servicesTag}
               />
               {/*add machine and add service modals*/}
@@ -87,6 +87,7 @@ const Services = () => {
                   type="button"
                   color="info"
                   onClick={() => {
+                    setRealoading(false);
                     setmodalService(true);
                   }}
                 >
@@ -97,6 +98,7 @@ const Services = () => {
                   type="button"
                   color="success"
                   onClick={() => {
+                    setRealoading(false);
                     setmodalMachine(true);
                   }}
                   style={{ marginLeft: "3px" }}
@@ -107,6 +109,7 @@ const Services = () => {
                   type="button"
                   color="success"
                   onClick={() => {
+                    setRealoading(false);
                     setModalConnectBoth(true);
                   }}
                   style={{ marginLeft: "3px" }}
@@ -119,18 +122,21 @@ const Services = () => {
           <AddServiceModal
             modalState={modalService}
             closeServiceModal={() => {
+              setRealoading(true);
               setmodalService(!modalService);
             }}
           />
           <AddMachineModal
             modalState={modalMachine}
             closeMachineModal={() => {
+              setRealoading(true);
               setmodalMachine(!modalMachine);
             }}
           />
           <ConnectMachineServiceModal
             modalState={modalConnectBoth}
             closeConnectModal={() => {
+              setRealoading(true);
               setModalConnectBoth(!modalConnectBoth);
             }}
           />
