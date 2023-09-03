@@ -1,3 +1,4 @@
+/* eslint-disable no-lone-blocks */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-prototype-builtins */
 // import axios from "axios";
@@ -11,9 +12,11 @@ import { AxiosInstance as axios, customAxios } from "../../Axios/axiosConfig";
 import Loader from "../../Components/Common/Loader";
 import {
   customerJobTag,
+  customerProductTag,
   groupTag,
   latestJobsTag,
   machineInAGroupTag,
+  productOrderTag,
   servicesTag,
   userInAGroupTag,
   userRole,
@@ -22,12 +25,14 @@ import {
 import { getCustomerJobResponse } from "../Jobs/CustomersData";
 import {
   getJobItemResponse,
+  getJobItemResponseV2,
   getReportingUrl,
 } from "../Jobs/latest jobs/JobData";
 import {
   getMachineDatabyId,
   getUserDatabyId,
 } from "../Pages/Groups/GroupHelpers";
+import { PieChart } from "../Jobs/PieChart";
 
 const DataTableCustom = ({
   columns,
@@ -35,13 +40,16 @@ const DataTableCustom = ({
   expressions,
   tag,
   isreportingApi,
-  //isPieChartVisible,
+  isPieChartVisible,
   title,
   reloadData,
+  value,
+  // unsetReload,
 }) => {
   const dispatch = useDispatch();
 
   const machineName = useSelector((state) => state.Machine.machineName);
+  // console.log("machineName reducer", machineName);
   const history = useHistory();
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
@@ -57,12 +65,14 @@ const DataTableCustom = ({
   const [newloading, setNewLoading] = useState(true);
 
   useEffect(() => {
-    if (machineName.endPoint) {
-      setNewLoading(true);
-      setPage(1);
-      setNewLoading(false);
+    //  console.log("out trying to reload machine data");
+    if (machineName.name && tag === customerJobTag) {
+      console.log("trying to reload machine data", { machineName, tag });
+      setGraphData({ ...graphData, show: false });
+      setExpression(`machineId==${machineName.id}`);
+      // setNewLoading(false);
     }
-  }, [machineName]);
+  }, [machineName.name]);
 
   useEffect(() => {
     const authUser = sessionStorage.getItem("authUser");
@@ -86,8 +96,8 @@ const DataTableCustom = ({
   }, [expression, sort, perPage, page, reloadData]);
 
   useEffect(() => {
-    console.log("need to reload page", reloadData, typeof reloadData);
     if (reloadData) {
+      console.log("****Pls wait reloading data*****");
       fetchDataDefault();
     }
   }, [reloadData]);
@@ -141,24 +151,113 @@ const DataTableCustom = ({
         items = [];
 
       setNewLoading(true);
-      let reportingUrl = machineName.endPoint || getReportingUrl();
+      let reportingUrl = machineName.endpoint || getReportingUrl();
       let axiosInstReporting = customAxios(reportingUrl);
       if (isreportingApi) {
         console.log("in reporting api");
-        let reportingUrl = machineName.endPoint || getReportingUrl();
-        let axiosInstReporting = customAxios(reportingUrl);
         finalUrl = `${reportingUrl}/${url}`;
+        console.log("final url", finalUrl);
+        switch (tag) {
+          case latestJobsTag:
+            {
+              resp = await axiosInstReporting.post(
+                `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
+                {
+                  sort: "id DESC", //lates job should return latest record
+                  expression: expression,
+                }
+              );
+              if (resp.items.length) {
+                let finalItems = await getJobItemResponseV2(resp.items);
+                console.log("finalItems", finalItems);
+                setItems(finalItems);
+              }
 
-        resp = await axiosInstReporting.post(
-          `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
-          {
-            sort: "id DESC", //lates job should return latest record
-            expression: expression,
-          }
-        );
+              setTotalRows(resp.totalItems);
+            }
+            break;
+          case customerJobTag:
+            {
+              resp = await axiosInstReporting.post(
+                `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
+                { expression: `machineId==${machineName.id}` }
+              );
+              setNewLoading(false);
+              setItems(resp.items);
+              setTotalRows(resp.totalItems);
+              setNewLoading(true);
+              // set performance data of product
+              const perfData = await axiosInstReporting.get(
+                `${reportingUrl}/jobs/machines/${machineName.id}/performance`
+              );
+              console.log("perfData for customer****", perfData);
 
-        // items = resp.items;
-        // totalItems = resp.totalItems;
+              setGraphData({
+                show: true,
+                data: [
+                  perfData.goodResults,
+                  perfData.badResults,
+                  perfData.unknownResults,
+                ],
+              });
+            }
+
+            break;
+          case customerProductTag:
+            {
+              resp = await axiosInstReporting.post(
+                `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
+                {}
+              );
+              setNewLoading(false);
+              setItems(resp.items);
+              setTotalRows(resp.totalItems);
+              setNewLoading(true);
+              // set performance data of machine
+              const perfData = await axiosInstReporting.get(
+                `${reportingUrl}/jobs/products/${value}/performance`
+              );
+              console.log("perfData for produt****", perfData);
+
+              setGraphData({
+                show: true,
+                data: [
+                  perfData.goodResults,
+                  perfData.badResults,
+                  perfData.unknownResults,
+                ],
+              });
+            }
+            break;
+          case productOrderTag:
+            {
+              resp = await axiosInstReporting.post(
+                `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
+                {}
+              );
+              setNewLoading(false);
+              setItems(resp.items);
+              setTotalRows(resp.totalItems);
+              setNewLoading(true);
+              // set performance data of machine
+              const perfData = await axiosInstReporting.get(
+                `${reportingUrl}/jobs/orders/${value}/performance`
+              );
+              console.log("perfData for orders****", perfData);
+
+              setGraphData({
+                show: true,
+                data: [
+                  perfData.goodResults,
+                  perfData.badResults,
+                  perfData.unknownResults,
+                ],
+              });
+            }
+            break;
+          default:
+            break;
+        }
       } else {
         //auth.charpify
         console.log("auth sharpify api");
@@ -182,63 +281,70 @@ const DataTableCustom = ({
             expression: expression,
           }
         );
+        items = resp.items;
+        totalItems = resp.totalItems;
 
-        // items = resp.items;
-        // totalItems = resp.totalItems;
-      }
-
-      items = resp.items;
-      totalItems = resp.totalItems;
-
-      if (items && items.length) {
-        switch (tag) {
-          case groupTag:
-            setGroupData(items);
-            break;
-          case servicesTag:
-            setServicesData(items);
-            break;
-          case userTag:
-            setItems(items);
-            break;
-          case latestJobsTag: {
-            let resp = await getJobItemResponse(items);
-            setItems(resp);
-            break;
-          }
-          case customerJobTag: {
-            let resp = await getCustomerJobResponse(items);
-            setItems(resp);
-            // const graphDataResp = await getGraphdata(resp);
-            // //  console.log("graphDataResp", graphDataResp);
-            // setGraphData({
-            //   show: true,
-            //   data: Object.values(graphDataResp),
-            // });
-            break;
-          }
-          // case customerProductTag: {
-          //   //get grpah data
-          //   let resp = await  getCustomerProductResp(items)
-          //   setItems(items);
-
-          //       const graphDataResp = await getGraphdata(resp);
-          //       //  console.log("graphDataResp", graphDataResp);
-          //       setGraphData({
-          //         show: true,
-          //         data: Object.values(graphDataResp),
-          //       });
-          //   break;
-          // }
-          default:
-            console.log("No tags matching:", tag);
-            break;
+        if (tag === groupTag) {
+          setGroupData(items);
+        } else if (tag === servicesTag) {
+          setServicesData(items);
+        } else {
+          setItems(items);
+          setTotalRows(totalItems);
         }
-        setTotalRows(totalItems);
-      } else {
-        setItems(items ?? []);
-        setTotalRows(totalItems ?? 0);
+        console.log("resp from datacustom", resp);
       }
+
+      // if (items && items.length) {
+      //   switch (tag) {
+      //     case groupTag:
+      //       setGroupData(items);
+      //       break;
+      //     case servicesTag:
+      //       setServicesData(items);
+      //       break;
+      //     case userTag:
+      //       setItems(items);
+      //       break;
+      //     // case latestJobsTag: {
+      //     //   let resp = await getJobItemResponse(items);
+      //     //   setItems(resp);
+      //     //   break;
+      //     // }
+      //     case customerJobTag: {
+      //       // let resp = await getCustomerJobResponse(items);
+      //       // setItems(resp);
+      //       // const graphDataResp = await getGraphdata(resp);
+      //       // //  console.log("graphDataResp", graphDataResp);
+      //       // setGraphData({
+      //       //   show: true,
+      //       //   data: Object.values(graphDataResp),
+      //       // });
+      //       break;
+      //     }
+      //     // case customerProductTag: {
+      //     //   //get grpah data
+      //     //   let resp = await  getCustomerProductResp(items)
+      //     //   setItems(items);
+
+      //     //       const graphDataResp = await getGraphdata(resp);
+      //     //       //  console.log("graphDataResp", graphDataResp);
+      //     //       setGraphData({
+      //     //         show: true,
+      //     //         data: Object.values(graphDataResp),
+      //     //       });
+      //     //   break;
+      //     // }
+      //     default:
+      //       console.log("No tags matching:", tag);
+      //       break;
+      //   }
+      //   setItems(items);
+      //   setTotalRows(totalItems);
+      // } else {
+      //   setItems(items ?? []);
+      //   setTotalRows(totalItems ?? 0);
+      // }
       setNewLoading(false);
     } catch (error) {
       console.log(`Error from ${url} ${tag}:`, error);
@@ -281,8 +387,7 @@ const DataTableCustom = ({
 
   return (
     <>
-      {/* graph data omitted from MVP  */}
-      {/* {graphData.show && (
+      {graphData.show && (
         <div
           style={{
             width: "50%",
@@ -291,16 +396,16 @@ const DataTableCustom = ({
             textAlign: "center",
           }}
         >
-          <PieCharFunc
+          <PieChart
             configuration={{
-              labels: ["Good", "Bad", "Ejected"],
+              labels: ["Good", "Bad", "Unkown"],
               title: "Performance for customer",
               data: graphData.data,
               color: ["#7acc29", "#db184f", "#0bcbe0"],
             }}
           />
         </div>
-      )} */}
+      )}
 
       <Input
         type="text"

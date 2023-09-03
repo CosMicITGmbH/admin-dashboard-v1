@@ -1,4 +1,5 @@
 import { customAxios } from "../../../Axios/axiosConfig";
+import { machineEndPoint } from "../../../helpers/api_helper";
 
 async function getJobItemResponse(dataSet) {
   let reportingUrl = getReportingUrl();
@@ -48,16 +49,29 @@ async function getJobItemResponse(dataSet) {
   return customerObj;
 }
 
+async function getJobItemResponseV2(dataSet) {
+  let customerObj = dataSet.map((data) => {
+    const { customer, product } = data;
+    let finalres = {
+      id: data.id,
+      date: data.insertedAt,
+      customer: `${customer.name} #${customer.id}`,
+      product: `${product.name} #${product.id}`,
+      order: `${data.name} #${data.id}`,
+    };
+    return finalres;
+  });
+  return customerObj;
+}
+
 const getReportingUrl = () => {
   let baseUrlReporting = "";
   try {
-    baseUrlReporting = JSON.parse(
-      sessionStorage.getItem("selectedMachine")
-    )?.endPoint;
+    baseUrlReporting = machineEndPoint();
     return baseUrlReporting;
   } catch (error) {
     console.log("Error fetching report Url:", error);
   }
 };
 
-export { getReportingUrl, getJobItemResponse };
+export { getReportingUrl, getJobItemResponse, getJobItemResponseV2 };

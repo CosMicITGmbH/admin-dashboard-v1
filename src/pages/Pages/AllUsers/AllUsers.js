@@ -146,6 +146,7 @@ const AllUsers = () => {
             type="button"
             color="success"
             onClick={() => {
+              setReload(false);
               setmodal_RegistrationModal(true);
             }}
           >
@@ -164,6 +165,7 @@ const AllUsers = () => {
           modalState={modal_RegistrationModal}
           closeRegModal={() => {
             setmodal_RegistrationModal(!modal_RegistrationModal);
+            setReload(true);
           }}
         />
         <ConfirmationModal

@@ -3,7 +3,6 @@ import Loader from "../../../Components/Common/Loader";
 //for url query params
 import { useLocation } from "react-router-dom";
 //import { debounce } from "lodash";
-import axios from "axios";
 import { useHistory } from "react-router-dom";
 import {
   Alert,
@@ -14,9 +13,6 @@ import {
   Col,
   Container,
   Row,
-  Toast,
-  ToastBody,
-  ToastHeader,
 } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 import { getUserRole } from "../../../helpers/api_helper";
@@ -28,8 +24,8 @@ import {
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import CreateGroupModal from "./CreateGroupModal";
 // import { machineColumns } from "./MachineGroupdata";
-import "./groupStyles.css";
 import { AxiosInstance } from "../../../Axios/axiosConfig";
+import "./groupStyles.css";
 
 const GroupData = (props) => {
   const userColumns = [
@@ -38,7 +34,19 @@ const GroupData = (props) => {
       selector: (row) => row.id,
       ////sortable: true,
       cell: (row) => (
-        <span>{<a href={`/profile?profileID=${row.id}`}>{row.id}</a>}</span>
+        <span>
+          {
+            <a
+              href="#"
+              rel="noreferrer"
+              onClick={() => {
+                props.history.push(`/profile?profileID=${row.id}`);
+              }}
+            >
+              {row.id}
+            </a>
+          }
+        </span>
       ),
     },
     {
@@ -47,7 +55,17 @@ const GroupData = (props) => {
       //sortable: true,
       cell: (row) => (
         <span>
-          {<a href={`/profile?profileID=${row.id}`}>{row.firstName}</a>}
+          {
+            <a
+              href="#"
+              rel="noreferrer"
+              onClick={() => {
+                props.history.push(`/profile?profileID=${row.id}`);
+              }}
+            >
+              {row.firstName}
+            </a>
+          }
         </span>
       ),
     },
@@ -57,7 +75,17 @@ const GroupData = (props) => {
       //sortable: true,
       cell: (row) => (
         <span>
-          {<a href={`/profile?profileID=${row.id}`}>{row.lastName}</a>}
+          {
+            <a
+              href="#"
+              rel="noreferrer"
+              onClick={() => {
+                props.history.push(`/profile?profileID=${row.id}`);
+              }}
+            >
+              {row.lastName}
+            </a>
+          }
         </span>
       ),
     },
@@ -119,7 +147,6 @@ const GroupData = (props) => {
 
   const [reloading, setreLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [groupData, setgroupData] = useState([]);
   const [addUser, setAddUser] = useState(false);
   const [addMachine, setAddMachine] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false);
@@ -132,22 +159,12 @@ const GroupData = (props) => {
     // found: false
   });
 
-  const [userFilter, setUserFilter] = useState({});
   const searchParams = useLocation().search;
   const groupId = new URLSearchParams(searchParams).get("groupid");
   const groupname = new URLSearchParams(searchParams).get("groupname");
-  const [items, setItems] = useState([]);
-  const [itemMachine, setMachieItems] = useState([]);
-  const [totalRowsUser, setTotalRowsUser] = useState(0);
   const [userToDelete, setUsertoDelete] = useState(null);
   const [machineToDelete, setMachinetoDelete] = useState(null);
-  const [totalRowsMachine, setTotalRowsMachine] = useState(0);
-  const [perPage, setPerPage] = useState(10);
-  const [page, setPage] = useState(1);
-
-  const [sort, setSort] = useState("id asc");
-  const [search, setSearch] = useState("");
-  const [expression, setExpression] = useState("");
+  console.log("detail group", { groupId, groupname });
   const history = useHistory();
 
   useEffect(() => {

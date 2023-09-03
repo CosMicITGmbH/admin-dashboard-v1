@@ -224,7 +224,7 @@ import AllUsers from "../pages/Pages/AllUsers/AllUsers.js";
 
 //All services
 import Services from "../pages/Pages/Services/Services";
-import Groups from "../pages/Pages/Groups/Groups";
+import Groups from "../pages/Pages/Groups/All-Groups";
 import GroupData from "../pages/Pages/Groups/GroupData";
 import CustomerProduct from "../pages/Jobs/CustomerProduct";
 import ProductOrder from "../pages/Jobs/ProductOrder";

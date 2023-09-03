@@ -3,7 +3,10 @@ import { SET_MACHINE } from "./actionType";
 const initialState = {
   machineName: {
     name: "",
-    endPoint: "",
+    endpoint: "",
+    id: "",
+    label: "",
+    value: "",
   },
 };
 

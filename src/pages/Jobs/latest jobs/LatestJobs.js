@@ -16,7 +16,7 @@ const LatestJobs = () => {
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
       ),
-      sortable: true,
+      // sortable: true,
       database_name: "insertedAt",
     },
     {
@@ -28,7 +28,7 @@ const LatestJobs = () => {
             row.customer.split(" #")[0]
           }`}
         >
-          {row.customer}
+          {row.customer.split(" #")[0]}
         </a>
       ),
     },
@@ -41,7 +41,7 @@ const LatestJobs = () => {
             row.product.split(" #")[0]
           }`}
         >
-          {row.product}
+          {row.product.split(" #")[0]}
         </a>
       ),
       // database_name: "name",
@@ -56,27 +56,27 @@ const LatestJobs = () => {
             row.order.split(" #")[0]
           }`}
         >
-          {row.order}
+          {row.order.split(" #")[0]}
         </a>
       ),
     },
-    {
-      name: <span className="font-weight-bold fs-13">Total Sheets</span>,
-      selector: (row) => row.totalSheets,
-    },
-    {
-      name: <span className="font-weight-bold fs-13">Good Sheets</span>,
-      selector: (row) => row.goodSheets,
-    },
-    {
-      name: <span className="font-weight-bold fs-13">Bad Sheets</span>,
-      selector: (row) => row.badSheets,
-    },
-    {
-      name: <span className="font-weight-bold fs-13">Ejected sheets</span>,
-      selector: (row) => row.ejectedSheets,
-      button: true,
-    },
+    // {
+    //   name: <span className="font-weight-bold fs-13">Total Sheets</span>,
+    //   selector: (row) => row.totalSheets,
+    // },
+    // {
+    //   name: <span className="font-weight-bold fs-13">Good Sheets</span>,
+    //   selector: (row) => row.goodSheets,
+    // },
+    // {
+    //   name: <span className="font-weight-bold fs-13">Bad Sheets</span>,
+    //   selector: (row) => row.badSheets,
+    // },
+    // {
+    //   name: <span className="font-weight-bold fs-13">Ejected sheets</span>,
+    //   selector: (row) => row.ejectedSheets,
+    //   button: true,
+    // },
   ];
 
   document.title = "Latest Jobs";

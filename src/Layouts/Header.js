@@ -18,6 +18,8 @@ import LanguageDropdown from "../Components/Common/LanguageDropdown";
 
 import { useDispatch, useSelector } from "react-redux";
 import { setMachine } from "./../store/actions";
+import { getUserRole } from "../helpers/api_helper";
+import { userRole } from "../helpers/appContants";
 
 const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const [search, setSearch] = useState(false);
@@ -25,14 +27,23 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   const [redirect, setRedirect] = useState(false);
   const history = useHistory();
 
-  const machineName = useSelector((state) => state.Machine.machineName);
-  console.log("machine name from state:", machineName);
+  const machineData = useSelector((state) => state.Machine.machineName);
+  // console.log("machine name from state:", machineData);
   //whenever the page is refreshed/reloaded state will lose the machine value so retrive from session storage
   useEffect(() => {
-    const getMachineName =
-      JSON.parse(sessionStorage.getItem("selectedMachine"))?.name ||
-      machineName.name;
-    setNewMachine(getMachineName);
+    if (!machineData.name) {
+      //set redux store
+      const savedMachineData = JSON.parse(
+        sessionStorage.getItem("selectedMachine")
+      );
+      if (savedMachineData) {
+        //console.log("savedMachineData", savedMachineData);
+        getSelectedMachine(savedMachineData);
+        //setNewMachine(savedMachineData.name);
+      } else {
+        setNewMachine("");
+      }
+    }
   }, []);
 
   const dispatch = useDispatch();
@@ -42,10 +53,16 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
   };
 
   const getSelectedMachine = (selectedMachine) => {
+    //console.log("selectedMachine", selectedMachine);
+    const { label, id, value, endpoint } = selectedMachine;
+
     setNewMachine(selectedMachine.label.toUpperCase());
     let newMachine = {
-      name: selectedMachine.label,
-      endPoint: selectedMachine.endpoint,
+      name: label,
+      endpoint,
+      id,
+      label,
+      value,
     };
 
     sessionStorage.setItem("selectedMachine", JSON.stringify(newMachine));
@@ -140,7 +157,12 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                   {/* Add machine search here with text  <SearchOption />  */}
                   <div
                     className="d-flex align-items-center"
-                    style={{ gap: "1rem" }}
+                    style={{
+                      gap: "1rem",
+
+                      visibility:
+                        getUserRole() === userRole ? "hidden" : "visible",
+                    }}
                   >
                     <MachineSearch selectedMachine={getSelectedMachine} />
                     <h4 className={newMachine ? "" : "d-none"}>{newMachine}</h4>
@@ -240,7 +262,11 @@ const Header = ({ onChangeLayoutMode, layoutModeType, headerClass }) => {
                 {/* Add machine search here with text  <SearchOption />  */}
                 <div
                   className="d-flex align-items-center"
-                  style={{ gap: "2rem" }}
+                  style={{
+                    gap: "2rem",
+                    visibility:
+                      getUserRole() === userRole ? "hidden" : "visible",
+                  }}
                 >
                   <MachineSearch selectedMachine={getSelectedMachine} />
                   <h4>{newMachine}</h4>

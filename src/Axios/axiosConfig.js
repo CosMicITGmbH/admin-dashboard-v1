@@ -1,6 +1,6 @@
 import axios from "axios";
-import { REACT_APP_API_MAIN_URL } from "../helpers/appContants";
 import { getToken } from "../helpers/api_helper";
+import { REACT_APP_API_MAIN_URL } from "../helpers/appContants";
 
 const AxiosInstance = axios.create({
   baseURL: REACT_APP_API_MAIN_URL,
@@ -8,7 +8,7 @@ const AxiosInstance = axios.create({
 
 AxiosInstance.interceptors.response.use(
   (response) => {
-    console.log("response from axios AxiosInstance:", response);
+    // console.log("response from axios AxiosInstance:", response);
     let message;
     if (response.data.statusCode === 500) {
       message = "Internal Server Error";
@@ -17,7 +17,7 @@ AxiosInstance.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    console.log("ERROR from axios interceptors:", error.response.status);
+    // console.log("ERROR from axios interceptors:", error.response.status);
     let message;
     switch (error.response.status) {
       case 500:
@@ -53,7 +53,7 @@ const customAxios = (dynamicBaseURL) => {
 
   axiosInstance.interceptors.response.use(
     (response) => {
-      console.log("response from customAxios AxiosInstance:", response.data);
+      // console.log("response from customAxios AxiosInstance:", response.data);
       let message;
       if (response.data.statusCode === 500) {
         message = "Internal Server Error";
@@ -62,7 +62,7 @@ const customAxios = (dynamicBaseURL) => {
       return response.data;
     },
     (error) => {
-      console.log("ERROR from axios interceptors:", error);
+      // console.log("ERROR from axios interceptors:", error);
       let message;
       switch (error.response.status) {
         case 500:
@@ -89,4 +89,4 @@ const customAxios = (dynamicBaseURL) => {
   return axiosInstance;
 };
 
-export { customAxios, AxiosInstance };
+export { AxiosInstance, customAxios };

@@ -11,11 +11,11 @@ import {
   Row,
 } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
+import { groupTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import CreateGroupModal from "./CreateGroupModal";
-import { groupTag } from "../../../helpers/appContants";
 
-const Groups = (props) => {
+const AllGroups = (props) => {
   const columns = [
     {
       name: <span className="font-weight-bold fs-13">ID</span>,
@@ -24,7 +24,15 @@ const Groups = (props) => {
       cell: (row) => (
         <span>
           {
-            <a href={`/group/?groupid=${row.id}&groupname=${row.name}`}>
+            <a
+              href="#"
+              rel="noreferrer"
+              onClick={() => {
+                props.history.push(
+                  `/group/?groupid=${row.id}&groupname=${row.name}`
+                );
+              }}
+            >
               {row.id}
             </a>
           }
@@ -40,7 +48,15 @@ const Groups = (props) => {
       cell: (row) => (
         <span>
           {
-            <a href={`/group/?groupid=${row.id}&groupname=${row.name}`}>
+            <a
+              href="#"
+              rel="noreferrer"
+              onClick={() => {
+                props.history.push(
+                  `/group/?groupid=${row.id}&groupname=${row.name}`
+                );
+              }}
+            >
               {row.name}
             </a>
           }
@@ -197,4 +213,4 @@ const Groups = (props) => {
   );
 };
 
-export default Groups;
+export default AllGroups;

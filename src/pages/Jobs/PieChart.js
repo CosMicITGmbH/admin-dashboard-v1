@@ -1,5 +1,4 @@
 import React from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
 //ChartJS.register(ArcElement, Tooltip, Legend);
@@ -45,7 +44,7 @@ function makePie(props) {
   };
   return dataForChart;
 }
-export function PieCharFunc(props) {
+export function PieChart(props) {
   console.log("props pie chart", props);
   return <Pie data={() => makePie(props)} />;
 }

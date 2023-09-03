@@ -11,7 +11,7 @@ export const userTag = "USERS";
 export const latestJobsTag = "LATEST_JOBS";
 export const customerJobTag = "CUSTOMER_JOBS";
 export const customerProductTag = "CUSTOMER_PRODUCT_JOBS";
-
+export const productOrderTag = "PRODUCT_ORDER_JOBS";
 //roles
 export const userRole = "user";
 export const adminRole = "admin";

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Dropdown,
@@ -8,10 +8,11 @@ import {
 } from "reactstrap";
 
 //import images
+import { useHistory } from "react-router-dom";
 import avatar1 from "../../assets/images/utils/icon-menu-png-24.png";
 import { getLoggedinUser } from "../../helpers/api_helper";
-
 const ProfileDropdown = () => {
+  const history = useHistory();
   const { user } = useSelector((state) => ({
     user: state.Profile.user,
   }));
@@ -21,7 +22,6 @@ const ProfileDropdown = () => {
   useEffect(() => {
     if (sessionStorage.getItem("authUser")) {
       const obj = getLoggedinUser();
-
       setUserName(user?.first_name || obj.data.firstName || "User");
     }
   }, [userName, user]);
@@ -57,7 +57,12 @@ const ProfileDropdown = () => {
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
           <h6 className="dropdown-header">Welcome {userName}!</h6>
-          <DropdownItem href="/profile">
+          <DropdownItem
+            href="#"
+            onClick={() => {
+              history.push("/profile");
+            }}
+          >
             <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
             <span className="align-middle">Profile</span>
           </DropdownItem>
@@ -75,7 +80,7 @@ const ProfileDropdown = () => {
           </DropdownItem> */}
 
           <div className="dropdown-divider"></div>
-          <DropdownItem href="/logout">
+          <DropdownItem href="#" onClick={() => history.push("/logout")}>
             <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
             <span className="align-middle" data-key="t-logout">
               Logout

@@ -1,8 +1,10 @@
 /* eslint-disable no-prototype-builtins */
 import React, { useState } from "react";
-import axios from "axios";
-import AsyncSelect from "react-select/async";
+// import axios from "axios";
 import { debounce } from "lodash";
+import AsyncSelect from "react-select/async";
+import { AxiosInstance } from "../../../Axios/axiosConfig";
+
 const MachineSearch = (props) => {
   const [machineFilter, setmachineFilter] = useState({});
 
@@ -10,7 +12,7 @@ const MachineSearch = (props) => {
     if (!inputValue) return;
 
     try {
-      const response = await axios.post(`/services`, {
+      const response = await AxiosInstance.post(`/services`, {
         expression: `name.ToLower().contains("${inputValue}") && machine != null && identity.services.Any(x => x.Name == "api.reporting")`,
         sort: "key asc",
       });
@@ -26,11 +28,13 @@ const MachineSearch = (props) => {
             label: element.name,
             value: element.key,
             id: element.machine.id,
-            endpoint: element.machine.connectedServices[0].endpoint,
+            endpoint: element.machine.connectedServices.find(
+              (item) => item.name === "api.reporting"
+            ).endpoint,
           });
         });
       }
-
+      console.log("temp arr", tempArray);
       callback(tempArray);
     } catch (error) {
       console.log(error, "catch the hoop");
@@ -38,6 +42,7 @@ const MachineSearch = (props) => {
   }, 300);
 
   const onSearchChange = debounce((selectedOption) => {
+    console.log();
     if (selectedOption) {
       setmachineFilter({ selectedOption });
     } else {
@@ -47,13 +52,20 @@ const MachineSearch = (props) => {
 
   return (
     <AsyncSelect
+      styles={{
+        width: "250px",
+      }}
       loadOptions={loadOptions}
       onInputChange={onSearchChange}
       value={machineFilter.label}
+      isMulti={props.isMulti}
+      isClearable={props.isClearable}
+      isSearchable={props.isSearchable}
       placeholder="Search Machine..."
-      onChange={(value) => {
+      onChange={(value, action) => {
+        console.log("machine", value);
         setmachineFilter({ value });
-        props.selectedMachine(value);
+        props.selectedMachine(value, action);
         //  addToGroup("machine", value);
       }}
     />

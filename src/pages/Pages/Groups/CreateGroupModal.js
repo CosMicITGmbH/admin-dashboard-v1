@@ -1,5 +1,8 @@
-import axios from "axios";
+import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import AsyncSelect from "react-select/async";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Alert,
   Button,
@@ -8,22 +11,19 @@ import {
   Input,
   Modal,
   ModalBody,
-  ModalHeader,
   Row,
 } from "reactstrap";
-import AsyncSelect from "react-select/async";
-import "react-toastify/dist/ReactToastify.css";
-import { debounce } from "lodash";
-import MachineSearch from "./MachineSearch";
 import { AxiosInstance } from "../../../Axios/axiosConfig";
 import { GROUPS_API, USERS_API } from "../../../helpers/appContants";
+import MachineSearch from "./MachineSearch";
 
 const CreateGroupModal = (props) => {
+  const history = useHistory();
   const [groupName, setGroupName] = useState("");
   const [userFilter, setUserFilter] = useState({});
   const [groupId, setGroupid] = useState("");
-  const [userId, setUserId] = useState("");
-  const [machineId, setMachineId] = useState("");
+  const [userId, setUserId] = useState([]);
+  const [machineId, setMachineId] = useState([]);
   const [setup, setSetup] = useState({
     loading: false,
     error: false,
@@ -46,6 +46,7 @@ const CreateGroupModal = (props) => {
   const loadOptions = debounce(async (inputValue, callback) => {
     if (!inputValue) return;
     try {
+      setSetup({ ...setSetup, loading: true });
       const list = await AxiosInstance.post(`${USERS_API}`, {
         expression: `firstName.contains("${inputValue}") || lastName.contains("${inputValue}") || email.contains("${inputValue}")`,
         sort: "Id ASC",
@@ -59,7 +60,11 @@ const CreateGroupModal = (props) => {
           });
         });
         callback(tempArray);
+      } else {
+        callback([]);
       }
+
+      setSetup({ ...setSetup, loading: false });
     } catch (error) {
       console.log("**error from load options", error);
     }
@@ -71,9 +76,18 @@ const CreateGroupModal = (props) => {
     }
   }, 300);
 
-  const getSelectedMachine = (selectedMachine) => {
-    console.log("selected machine", selectedMachine);
-    setMachineId(selectedMachine.id);
+  const getSelectedMachine = (selectedMachine, action) => {
+    console.log("selected machine", { selectedMachine, action });
+    // setMachineId(selectedMachine.id);
+    if (action.action === "remove-value") {
+      const machine = machineId.filter(
+        (id) => id !== action["removedValue"]["id"]
+      );
+      setMachineId(machine);
+    } else {
+      // action==="select-option"
+      setMachineId([...machineId, action.option.id]);
+    }
   };
 
   const handleFormSubmit = async () => {
@@ -84,21 +98,29 @@ const CreateGroupModal = (props) => {
     });
 
     if (props.action === "add") {
-      if (!groupName || !userId || !machineId) {
-        setSetup({ ...setup, error: true, msg: "All fields are required" });
+      if (!groupName) {
+        setSetup({ ...setup, error: true, msg: "Group Name required" });
         return;
       }
       const payload = {
         name: groupName,
-        userIds: [userId],
-        machineIds: [machineId],
+        userIds: [],
+        machineIds: [],
       };
       try {
         const resp = await AxiosInstance.put(`${GROUPS_API}`, { ...payload });
         setSetup({
           success: true,
-          msg: "Group added successfully",
+          msg: "Group added successfully. Redirecting...",
         });
+
+        setTimeout(
+          () =>
+            history.push(
+              `/group/?groupid=${resp.groupId}&groupname=${resp.name}`
+            ),
+          3000
+        );
       } catch (error) {
         setSetup({
           error: true,
@@ -107,7 +129,8 @@ const CreateGroupModal = (props) => {
       }
     } else {
       if (props.addUser) {
-        if (!userId) {
+        console.log("userId", userId);
+        if (!userId.length) {
           setSetup({
             ...setup,
             error: true,
@@ -116,9 +139,13 @@ const CreateGroupModal = (props) => {
           return;
         }
         try {
-          const resp = await AxiosInstance.put(
-            `${GROUPS_API}/${groupId}/users/${userId}`,
-            {}
+          await Promise.all(
+            userId.map(async (id) => {
+              const resp = await AxiosInstance.put(
+                `${GROUPS_API}/${groupId}/users/${Number(id)}`,
+                {}
+              );
+            })
           );
           setSetup({
             success: true,
@@ -131,7 +158,7 @@ const CreateGroupModal = (props) => {
           });
         }
       } else {
-        if (!machineId) {
+        if (!machineId.length) {
           setSetup({
             ...setup,
             error: true,
@@ -140,9 +167,13 @@ const CreateGroupModal = (props) => {
           return;
         }
         try {
-          const resp = await AxiosInstance.put(
-            `${GROUPS_API}/${groupId}/machines/${machineId}`,
-            {}
+          await Promise.all(
+            machineId.map(async (id) => {
+              const resp = await AxiosInstance.put(
+                `${GROUPS_API}/${groupId}/machines/${id}`,
+                {}
+              );
+            })
           );
 
           setSetup({
@@ -225,26 +256,43 @@ const CreateGroupModal = (props) => {
                   }}
                 />
               </Col>
-              {props.addUser && (
+              {props.action === "update" && props.addUser && (
                 <Col md={8} className="my-2">
                   <label htmlFor="createGroup">User</label>
                   <AsyncSelect
+                    isLoading={setup.loading}
                     loadOptions={loadOptions}
+                    isMulti
+                    isClearable={true}
+                    isSearchable={true}
                     onInputChange={onSearchChange}
-                    className="react-select-container"
                     value={userFilter.value}
                     placeholder="search user to add..."
-                    onChange={(user) => {
-                      console.log("user", user);
-                      setUserId(Number(user.value));
+                    onChange={(user, action) => {
+                      console.log("userId", { user, action });
+
+                      if (action.action === "remove-value") {
+                        const newUserIds = userId.filter(
+                          (id) => id !== action["removedValue"]["value"]
+                        );
+                        setUserId(newUserIds);
+                      } else {
+                        // action==="select-option"
+                        setUserId([...userId, action.option.value]);
+                      }
                     }}
                   />
                 </Col>
               )}
-              {props.addMachine && (
+              {props.action === "update" && props.addMachine && (
                 <Col md={8} className="mb-2">
                   <label htmlFor="createGroup">Machine</label>
-                  <MachineSearch selectedMachine={getSelectedMachine} />
+                  <MachineSearch
+                    selectedMachine={getSelectedMachine}
+                    isMulti={true}
+                    isClearable={true}
+                    isSearchable={true}
+                  />
                 </Col>
               )}
 

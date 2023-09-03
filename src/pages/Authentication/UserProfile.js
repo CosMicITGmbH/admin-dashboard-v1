@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 //
 import { Grid, _ } from "gridjs-react";
-import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -21,18 +20,17 @@ import {
 // Formik Validation
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
+import { AxiosInstance as axios } from "../../Axios/axiosConfig";
+import { getLoggedinUser, getUserRole } from "../../helpers/api_helper";
 import {
   UPDATE_PROFILE_API,
   adminRole,
   managerRole,
+  userRole,
 } from "../../helpers/appContants";
-import { resetProfileFlag } from "../../store/actions";
 import RoleOptions from "../Forms/Select2/RoleOptions";
-import { getLoggedinUser, getUserRole } from "../../helpers/api_helper";
-import { AxiosInstance as axios } from "../../Axios/axiosConfig";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -76,7 +74,7 @@ const UserProfile = () => {
     error: state.Profile.error,
   }));
   const search = useLocation().search;
-  const profid = new URLSearchParams(search).get("profileID");
+  let profid = new URLSearchParams(search).get("profileID"); //|| getLoggedinUser().data.id;
 
   const updateUserDataAndGroups = async (profid) => {
     const data = await axios.get(`${UPDATE_PROFILE_API}/${profid}`);
@@ -246,6 +244,8 @@ const UserProfile = () => {
       //make network call to update the user profile
       try {
         clearReload();
+        profid = profid || getLoggedinUser().data.id;
+        console.log("profid", profid);
         await axios.post(`${UPDATE_PROFILE_API}/${profid}`, values);
         succesStopReload();
       } catch (error) {
@@ -444,7 +444,11 @@ const UserProfile = () => {
                         //  changePassword();
                         setmodal_role(true);
                       }}
-                      style={{ marginLeft: "3px" }}
+                      style={{
+                        marginLeft: "3px",
+                        visibility:
+                          getUserRole() === userRole ? "hidden" : "visible",
+                      }}
                     >
                       Change Role
                     </Button>{" "}
