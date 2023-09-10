@@ -6,32 +6,34 @@ import DataTableCustom from "../../Widgets/DataTableCustom";
 import AddMachineModal from "./AddMachineModal";
 import AddServiceModal from "./AddServiceModal";
 import ConnectMachineServiceModal from "./ConnectMachineServiceModal";
+import { useTranslation } from "react-i18next";
 
 const Services = () => {
+  const { t } = useTranslation();
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">Key</span>,
+      name: <span className="font-weight-bold fs-13">{t("Key")}</span>,
       selector: (row) => row.key,
       // sortable: true,
       wrap: true,
       database_name: "key",
     },
     {
-      name: <span className="font-weight-bold fs-13">Name</span>,
+      name: <span className="font-weight-bold fs-13">{t("Name")}</span>,
       selector: (row) => row.name,
       sortable: true,
       wrap: true,
       database_name: "name",
     },
     {
-      name: <span className="font-weight-bold fs-13">EndPoint</span>,
+      name: <span className="font-weight-bold fs-13">{t("EndPoint")}</span>,
       selector: (row) => row.endpoint,
       sortable: true,
       wrap: true,
       database_name: "endpoint",
     },
     {
-      name: <span className="font-weight-bold fs-13">CreatedOn</span>,
+      name: <span className="font-weight-bold fs-13">{t("Created On")}</span>,
       selector: (row) => row.insertedAt,
       sortable: true,
       cell: (row) => (
@@ -40,7 +42,7 @@ const Services = () => {
       database_name: "insertedAt",
     },
     {
-      name: <span className="font-weight-bold fs-13">Updated On</span>,
+      name: <span className="font-weight-bold fs-13">{t("Updated On")}</span>,
       selector: (row) => row.updatedAt,
       sortable: true,
       cell: (row) => (
@@ -50,13 +52,13 @@ const Services = () => {
     },
 
     {
-      name: <span className="font-weight-bold fs-13">Machine-ID</span>,
+      name: <span className="font-weight-bold fs-13">{t("Machine-ID")}</span>,
       selector: (row) => row.machineId,
       //sortable: true,
       wrap: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Machine-Key</span>,
+      name: <span className="font-weight-bold fs-13">{t("Machine-Key")}</span>,
       selector: (row) => row.machineKey,
       // sortable: true,
       wrap: true,
@@ -66,7 +68,7 @@ const Services = () => {
   const [modalService, setmodalService] = useState(false);
   const [modalMachine, setmodalMachine] = useState(false);
   const [modalConnectBoth, setModalConnectBoth] = useState(false);
-  document.title = "All Services";
+  document.title = t("All Services");
 
   return (
     <React.Fragment>
@@ -91,7 +93,7 @@ const Services = () => {
                     setmodalService(true);
                   }}
                 >
-                  Add Service
+                  {t("Add Service")}
                 </Button>
 
                 <Button
@@ -103,7 +105,7 @@ const Services = () => {
                   }}
                   style={{ marginLeft: "3px" }}
                 >
-                  Add Machine
+                  {t("Add Machine")}
                 </Button>
                 <Button
                   type="button"
@@ -114,7 +116,7 @@ const Services = () => {
                   }}
                   style={{ marginLeft: "3px" }}
                 >
-                  Connect Machine - Service
+                  {t("Connect Machine - Service")}
                 </Button>
               </div>
             </CardBody>

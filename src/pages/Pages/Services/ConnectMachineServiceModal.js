@@ -29,10 +29,11 @@ import {
   setServiceLoading,
   setServiceSuccess,
 } from "../../../store/services/action";
+import { useTranslation } from "react-i18next";
 
 const ConnectMachineServiceModal = (props) => {
   const dispatch = useDispatch();
-
+  const { t } = useTranslation();
   const [machines, setMachines] = useState([]);
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [selectedservice, setSelectedservice] = useState(null);
@@ -72,7 +73,7 @@ const ConnectMachineServiceModal = (props) => {
       setErrors({
         ...errors,
         error: true,
-        msg: `Error: ${error}`,
+        msg: `${t("Error occured")}: ${error}`,
       });
     }
   };
@@ -121,7 +122,9 @@ const ConnectMachineServiceModal = (props) => {
   const handleSubmit = async (e) => {
     console.log("submitting form:", selectedservice, selectedMachine);
     if (!selectedservice || !selectedMachine) {
-      return dispatch(serviceFetchFailed("Please select Machine and Service"));
+      return dispatch(
+        serviceFetchFailed(t("Please select Machine and Service"))
+      );
     }
 
     try {
@@ -131,7 +134,9 @@ const ConnectMachineServiceModal = (props) => {
       console.log("submit resp", submitResp);
       dispatch(
         setConnectSuccess(
-          `${selectedservice.label} successfully connected to ${selectedMachine.label} !!`
+          `${selectedservice.label} ${t("successfully connected to")} ${
+            selectedMachine.label
+          } !!`
         )
       );
     } catch (error) {
@@ -160,7 +165,7 @@ const ConnectMachineServiceModal = (props) => {
         >
           <div>
             <h5 className="text-primary text-center">
-              Connect Machine & Service
+              {t("Connect Machine & Service")}
             </h5>
           </div>
           <div>
@@ -199,7 +204,9 @@ const ConnectMachineServiceModal = (props) => {
                       className="form-group mb-1"
                       style={{ width: "max-content" }}
                     >
-                      <Label className="form-label">Select Machine</Label>
+                      <Label className="form-label">
+                        {t("Select Machine")}
+                      </Label>
                       <Select
                         value={selectedMachine}
                         onChange={(machine) => {
@@ -220,7 +227,9 @@ const ConnectMachineServiceModal = (props) => {
                       className="form-group mb-1"
                       style={{ width: "max-content" }}
                     >
-                      <Label className="form-label">Select Service</Label>
+                      <Label className="form-label">
+                        {t("Select Service")}
+                      </Label>
                       <Select
                         value={selectedservice}
                         onChange={(selectedVal) => {
@@ -244,7 +253,7 @@ const ConnectMachineServiceModal = (props) => {
                       color="success"
                       disabled={!selectedservice}
                     >
-                      Connect
+                      {t("Connect")}
                     </Button>
                   </div>
                 </Form>

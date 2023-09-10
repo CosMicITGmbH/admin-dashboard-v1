@@ -16,9 +16,11 @@ import {
 import { AxiosInstance } from "../../../Axios/axiosConfig";
 import { GROUPS_API, USERS_API } from "../../../helpers/appContants";
 import MachineSearch from "./MachineSearch";
+import { useTranslation } from "react-i18next";
 
 const CreateGroupModal = (props) => {
   const history = useHistory();
+  const { t } = useTranslation();
   const [groupName, setGroupName] = useState("");
   const [userFilter, setUserFilter] = useState({});
   const [groupId, setGroupid] = useState("");
@@ -99,7 +101,7 @@ const CreateGroupModal = (props) => {
 
     if (props.action === "add") {
       if (!groupName) {
-        setSetup({ ...setup, error: true, msg: "Group Name required" });
+        setSetup({ ...setup, error: true, msg: t("Group Name required") });
         return;
       }
       const payload = {
@@ -111,7 +113,7 @@ const CreateGroupModal = (props) => {
         const resp = await AxiosInstance.put(`${GROUPS_API}`, { ...payload });
         setSetup({
           success: true,
-          msg: "Group added successfully. Redirecting...",
+          msg: t("Group added successfully. Redirecting..."),
         });
 
         setTimeout(
@@ -124,7 +126,7 @@ const CreateGroupModal = (props) => {
       } catch (error) {
         setSetup({
           error: true,
-          msg: "Error Occured while adding record:" + error,
+          msg: "" + error,
         });
       }
     } else {
@@ -134,7 +136,7 @@ const CreateGroupModal = (props) => {
           setSetup({
             ...setup,
             error: true,
-            msg: "Please select a user to add",
+            msg: t("Please select a user to add"),
           });
           return;
         }
@@ -149,12 +151,12 @@ const CreateGroupModal = (props) => {
           );
           setSetup({
             success: true,
-            msg: "User added successfully",
+            msg: t("User added successfully"),
           });
         } catch (error) {
           setSetup({
             error: true,
-            msg: "Error Occured while adding record:" + error,
+            msg: t("Error occured") + " : " + error,
           });
         }
       } else {
@@ -162,7 +164,7 @@ const CreateGroupModal = (props) => {
           setSetup({
             ...setup,
             error: true,
-            msg: "Please select a machine to add",
+            msg: t("Please select a machine to add"),
           });
           return;
         }
@@ -178,12 +180,12 @@ const CreateGroupModal = (props) => {
 
           setSetup({
             success: true,
-            msg: "Machine added successfully",
+            msg: t("Machine added successfully"),
           });
         } catch (error) {
           setSetup({
             error: true,
-            msg: "Error Occured while adding record:" + error,
+            msg: t("Error occured") + " : " + error,
           });
         }
       }
@@ -213,7 +215,7 @@ const CreateGroupModal = (props) => {
             padding: "15px",
           }}
         >
-          <h5 className="card-title mb-3">{props.title}</h5>
+          <h5 className="card-title mb-3">{t(props.title)}</h5>
           <Button
             type="button"
             onClick={() => {
@@ -232,21 +234,17 @@ const CreateGroupModal = (props) => {
                   {setup.msg}
                 </Alert>
               </Col>
-              {/* <Alert color={setup.error ? "danger" : "success"}>
-                {setup.msg}
-              </Alert> */}
             </Row>
           )}
           <CardBody>
-            {/* <h5 className="text-primary text-center">{props.title}</h5> */}
             <div className="m-auto mb-2">
               <Col md={8} className="my-2">
-                <label htmlFor="createGroup">Group Name</label>
+                <label htmlFor="createGroup">{t("Group Name")}</label>
                 <Input
                   type="text"
                   className="form-control"
                   id="createGroup"
-                  placeholder="Enter New Group Name"
+                  placeholder={t("Enter New Group Name")}
                   disabled={props.action === "update"}
                   value={
                     props.action === "update" ? props.groupName : groupName
@@ -258,7 +256,7 @@ const CreateGroupModal = (props) => {
               </Col>
               {props.action === "update" && props.addUser && (
                 <Col md={8} className="my-2">
-                  <label htmlFor="createGroup">User</label>
+                  <label htmlFor="createGroup">{t("User")}</label>
                   <AsyncSelect
                     isLoading={setup.loading}
                     loadOptions={loadOptions}
@@ -267,7 +265,7 @@ const CreateGroupModal = (props) => {
                     isSearchable={true}
                     onInputChange={onSearchChange}
                     value={userFilter.value}
-                    placeholder="search user to add..."
+                    placeholder={t("search user to add")}
                     onChange={(user, action) => {
                       console.log("userId", { user, action });
 
@@ -286,7 +284,7 @@ const CreateGroupModal = (props) => {
               )}
               {props.action === "update" && props.addMachine && (
                 <Col md={8} className="mb-2">
-                  <label htmlFor="createGroup">Machine</label>
+                  <label htmlFor="createGroup">{t("Machine")}</label>
                   <MachineSearch
                     selectedMachine={getSelectedMachine}
                     isMulti={true}
@@ -298,7 +296,7 @@ const CreateGroupModal = (props) => {
 
               <div className="my-2 m-auto">
                 <Button type="button" color="info" onClick={handleFormSubmit}>
-                  {props.action === "add" ? "Create" : "Update"}
+                  {props.action === "add" ? t("Create") : t("Update")}
                 </Button>
               </div>
             </div>

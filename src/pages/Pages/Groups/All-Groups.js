@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import axios from "axios";
 import React, { useState } from "react";
 import {
@@ -14,11 +15,13 @@ import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 import { groupTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import CreateGroupModal from "./CreateGroupModal";
+import { useTranslation } from "react-i18next";
 
 const AllGroups = (props) => {
+  const { t } = useTranslation();
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">ID</span>,
+      name: <span className="font-weight-bold fs-13">{t("ID")}</span>,
       selector: (row) => row.id,
       sortable: true,
       cell: (row) => (
@@ -42,7 +45,7 @@ const AllGroups = (props) => {
       database_name: "id",
     },
     {
-      name: <span className="font-weight-bold fs-13">Name</span>,
+      name: <span className="font-weight-bold fs-13">{t("Name")}</span>,
       selector: (row) => row.name,
       sortable: true,
       cell: (row) => (
@@ -65,13 +68,13 @@ const AllGroups = (props) => {
       database_name: "name",
     },
     {
-      name: <span className="font-weight-bold fs-13">Members</span>,
+      name: <span className="font-weight-bold fs-13">{t("Members")}</span>,
       selector: (row) => row.member,
       // sortable: true,
       database_name: "users",
     },
     {
-      name: <span className="font-weight-bold fs-13">Machine</span>,
+      name: <span className="font-weight-bold fs-13">{t("Machine")}</span>,
       selector: (row) => row.machines,
       // sortable: true,
       // cell: (row) => <span>{row.machines.join(", ")}</span>,
@@ -79,7 +82,7 @@ const AllGroups = (props) => {
       wrap: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Delete</span>,
+      name: <span className="font-weight-bold fs-13">{t("Delete")}</span>,
       cell: (row, column) => (
         <Button
           color="danger"
@@ -89,7 +92,7 @@ const AllGroups = (props) => {
             setConfirmModal(true);
           }}
         >
-          Delete
+          {t("Delete")}
         </Button>
       ),
       ignoreRowClick: true,
@@ -108,7 +111,7 @@ const AllGroups = (props) => {
   const [confirmModal, setConfirmModal] = useState(false);
   const [reloadData, setReload] = useState(false);
 
-  document.title = "All Groups";
+  document.title = t("All Groups");
 
   const getUserResponse = (response) => {
     setConfirmModal(false);
@@ -142,7 +145,7 @@ const AllGroups = (props) => {
         setSuccess({
           success: true,
           error: false,
-          msg: "Group deleted successfully.",
+          msg: t("Group deleted successfully"),
         });
       }
     } catch (error) {
@@ -177,7 +180,7 @@ const AllGroups = (props) => {
                         setOpenGroupModal(true);
                       }}
                     >
-                      + ADD GROUP
+                      + {t("ADD GROUP")}
                     </Button>
                   </div>
                 </div>
@@ -193,12 +196,12 @@ const AllGroups = (props) => {
               </CardBody>
             </Card>
             <ConfirmationModal
-              title={`Do you wish to delete this user?`}
+              title={t(`Do you wish to delete this group?`)}
               getUserResponse={getUserResponse}
               modalState={confirmModal}
             />
             <CreateGroupModal
-              title="Create new group"
+              title={t("Create new group")}
               closeCreategrpModal={() => setOpenGroupModal(!OpenGroupModal)}
               modalState={OpenGroupModal}
               reload={() => setreLoading(true)}

@@ -8,30 +8,27 @@ import {
   Row,
 } from "reactstrap";
 
-//import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
 const ConfirmationModal = (props) => {
+  const { t } = useTranslation();
   return (
     <React.Fragment>
       {/* modal to change Register */}
       <Modal
         isOpen={props.modalState}
         toggle={() => {
-          //props.closeConfirmModal();
-          props.confirmResp(false);
+          props.getUserResponse(false);
         }}
         unmountOnClose={true}
       >
         <ModalHeader style={{ marginLeft: "auto" }}>
-          {/* <h6>Close</h6> */}
           <div>
             <Button
               type="button"
               onClick={() => {
-                // setmodal_Register(false);
-                // props.closeConfirmModal();
-                props.confirmResp(false);
+                props.getUserResponse(false);
               }}
               className="btn-close m-lg-auto"
               aria-label="Close"
@@ -47,21 +44,21 @@ const ConfirmationModal = (props) => {
                   type="button"
                   color="info"
                   onClick={() => {
-                    props.confirmResp(true);
+                    props.getUserResponse(true);
                   }}
                 >
-                  YES
+                  {t("YES")}
                 </Button>
 
                 <Button
                   type="button"
                   color="success"
                   onClick={() => {
-                    props.confirmResp(false);
+                    props.getUserResponse(false);
                   }}
                   style={{ marginLeft: "3px" }}
                 >
-                  NO
+                  {t("NO")}
                 </Button>
               </div>
             </CardBody>

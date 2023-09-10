@@ -1,50 +1,49 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-
 import axios from "axios";
-
 import { Alert, Button, Col, Container, Row } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 import { PROFILE_ID_API, userTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import RegisterUserModal from "./RegisterUserModal";
-
+import { useTranslation } from "react-i18next";
 const AllUsers = () => {
+  const { t } = useTranslation();
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">ID</span>,
+      name: <span className="font-weight-bold fs-13">{t("ID")}</span>,
       selector: (row) => row.id,
       sortable: true,
       database_name: "id",
     },
     {
-      name: <span className="font-weight-bold fs-13">First Name</span>,
+      name: <span className="font-weight-bold fs-13">{t("First Name")}</span>,
       selector: (row) => row.firstName,
       database_name: "firstName",
       sortable: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Last Name</span>,
+      name: <span className="font-weight-bold fs-13">{t("Last Name")}</span>,
       selector: (row) => row.lastName,
       database_name: "lastName",
       sortable: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Email</span>,
+      name: <span className="font-weight-bold fs-13">{t("Email")}</span>,
       selector: (row) => row.email,
       database_name: "email",
       sortable: true,
       wrap: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Role</span>,
+      name: <span className="font-weight-bold fs-13">{t("Role")}</span>,
       selector: (row) => row.role,
       database_name: "role",
       sortable: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Open</span>,
+      name: <span className="font-weight-bold fs-13">{t("Open")}</span>,
       cell: (row) => (
         <a
           href="#"
@@ -54,7 +53,7 @@ const AllUsers = () => {
           }}
           rel="noreferrer"
         >
-          Profile
+          {t("Profile")}
         </a>
       ),
       ignoreRowClick: true,
@@ -62,7 +61,7 @@ const AllUsers = () => {
       button: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Delete</span>,
+      name: <span className="font-weight-bold fs-13"> {t("Delete")}</span>,
       cell: (row, column) => (
         <Button
           color="danger"
@@ -71,7 +70,7 @@ const AllUsers = () => {
             setConfirmModal(true);
           }}
         >
-          Delete
+          {t("Delete")}
         </Button>
       ),
       ignoreRowClick: true,
@@ -95,7 +94,7 @@ const AllUsers = () => {
   const [confirmModal, setConfirmModal] = useState(false);
   const [modal_RegistrationModal, setmodal_RegistrationModal] = useState(false);
 
-  document.title = "All Users";
+  document.title = t("All Users");
 
   const getUserResponse = (response) => {
     setConfirmModal(false);
@@ -120,7 +119,7 @@ const AllUsers = () => {
         setSuccess({
           success: true,
           error: false,
-          msg: "User deleted successfully.",
+          msg: t("User deleted successfully."),
         });
       }
     } catch (error) {
@@ -150,7 +149,7 @@ const AllUsers = () => {
               setmodal_RegistrationModal(true);
             }}
           >
-            + ADD USER
+            + {t("Add User")}
           </Button>
         </div>
         <DataTableCustom
@@ -169,7 +168,7 @@ const AllUsers = () => {
           }}
         />
         <ConfirmationModal
-          title={`Do you wish to delete this user?`}
+          title={t(`Do you wish to delete this user?`)}
           getUserResponse={getUserResponse}
           modalState={confirmModal}
         />

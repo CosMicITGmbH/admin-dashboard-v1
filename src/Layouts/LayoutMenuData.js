@@ -243,19 +243,19 @@ const Navdata = () => {
       subItems: [
         {
           id: "all-users",
-          label: "All-Users",
+          label: "All Users",
           link: "/all-users",
           parentId: "admin",
         },
         {
           id: "all-groups",
-          label: "All-Groups",
+          label: "All Groups",
           link: "/all-groups",
           parentId: "admin",
         },
         {
           id: "all-services",
-          label: "All-Services",
+          label: "All Services",
           link: "/all-services",
           parentId: "admin",
         },

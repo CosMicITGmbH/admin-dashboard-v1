@@ -11,7 +11,9 @@ import {
 import { useHistory } from "react-router-dom";
 import avatar1 from "../../assets/images/utils/icon-menu-png-24.png";
 import { getLoggedinUser } from "../../helpers/api_helper";
-const ProfileDropdown = () => {
+import { withTranslation } from "react-i18next";
+import { withRouter } from "react-router-dom";
+const ProfileDropdown = ({ t }) => {
   const history = useHistory();
   const { user } = useSelector((state) => ({
     user: state.Profile.user,
@@ -56,7 +58,9 @@ const ProfileDropdown = () => {
           </span>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <h6 className="dropdown-header">Welcome {userName}!</h6>
+          <h6 className="dropdown-header">
+            {t("Welcome")} {userName}!
+          </h6>
           <DropdownItem
             href="#"
             onClick={() => {
@@ -64,7 +68,7 @@ const ProfileDropdown = () => {
             }}
           >
             <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
-            <span className="align-middle">Profile</span>
+            <span className="align-middle">{t("Profile")}</span>
           </DropdownItem>
           {/* <DropdownItem href="/all-users">
             <i className="mdi mdi-account-multiple-plus text-muted fs-16 align-middle me-1"></i>
@@ -83,7 +87,7 @@ const ProfileDropdown = () => {
           <DropdownItem href="#" onClick={() => history.push("/logout")}>
             <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
             <span className="align-middle" data-key="t-logout">
-              Logout
+              {t("Logout")}
             </span>
           </DropdownItem>
         </DropdownMenu>
@@ -91,5 +95,5 @@ const ProfileDropdown = () => {
     </React.Fragment>
   );
 };
-
-export default ProfileDropdown;
+export default withTranslation()(ProfileDropdown);
+//export default ProfileDropdown;

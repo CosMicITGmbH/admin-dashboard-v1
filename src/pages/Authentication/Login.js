@@ -32,12 +32,14 @@ import { loginUser, resetLoginFlag } from "../../store/actions";
 
 import logoLight from "../../assets/images/logo-light.png";
 import Loader from "../../Components/Common/Loader";
+import { useTranslation } from "react-i18next";
 //Import config
 // import { facebook, google } from "../../config";
 //import images
 
 const Login = (props) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { user } = useSelector((state) => ({
     user: state.Account.user,
   }));
@@ -88,7 +90,7 @@ const Login = (props) => {
     sessionStorage.clear();
   }, []);
 
-  document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
+  document.title = t("Sign In");
   return (
     <React.Fragment>
       <ParticlesAuth>
@@ -114,10 +116,10 @@ const Login = (props) => {
                 <Card className="mt-4">
                   <CardBody className="p-4">
                     <div className="text-center mt-2">
-                      <h5 className="text-primary">Welcome Back !</h5>
-                      <p className="text-muted">
+                      <h5 className="text-primary">{t("Welcome")} !</h5>
+                      {/* <p className="text-muted">
                         Sign in to continue to Velzon.
-                      </p>
+                      </p> */}
                     </div>
                     {error && error ? (
                       <Alert color="danger"> {error} </Alert>
@@ -136,12 +138,12 @@ const Login = (props) => {
                         >
                           <div className="mb-3">
                             <Label htmlFor="email" className="form-label">
-                              Email
+                              {t("Email")}
                             </Label>
                             <Input
                               name="email"
                               className="form-control"
-                              placeholder="Enter email"
+                              placeholder={t("Enter email")}
                               type="email"
                               onChange={validation.handleChange}
                               onBlur={validation.handleBlur}
@@ -169,7 +171,7 @@ const Login = (props) => {
                               className="form-label"
                               htmlFor="password-input"
                             >
-                              Password
+                              {t("Password")}
                             </Label>
                             <div className="position-relative auth-pass-inputgroup mb-3">
                               <Input
@@ -177,7 +179,7 @@ const Login = (props) => {
                                 value={validation.values.password || ""}
                                 type="password"
                                 className="form-control pe-5"
-                                placeholder="Enter Password"
+                                placeholder={t("Enter Password")}
                                 onChange={validation.handleChange}
                                 onBlur={validation.handleBlur}
                                 invalid={
@@ -210,7 +212,7 @@ const Login = (props) => {
                               type="submit"
                               disabled={loading}
                             >
-                              Sign In
+                              {t("Sign In")}
                             </Button>
                           </div>
                         </Form>

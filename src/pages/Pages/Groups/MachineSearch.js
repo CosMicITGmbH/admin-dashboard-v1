@@ -1,11 +1,12 @@
 /* eslint-disable no-prototype-builtins */
 import React, { useState } from "react";
-// import axios from "axios";
 import { debounce } from "lodash";
 import AsyncSelect from "react-select/async";
 import { AxiosInstance } from "../../../Axios/axiosConfig";
+import { useTranslation } from "react-i18next";
 
 const MachineSearch = (props) => {
+  const { t } = useTranslation();
   const [machineFilter, setmachineFilter] = useState({});
 
   const loadOptions = debounce(async (inputValue, callback) => {
@@ -61,7 +62,7 @@ const MachineSearch = (props) => {
       isMulti={props.isMulti}
       isClearable={props.isClearable}
       isSearchable={props.isSearchable}
-      placeholder="Search Machine..."
+      placeholder={t("Search Machine...")}
       onChange={(value, action) => {
         console.log("machine", value);
         setmachineFilter({ value });

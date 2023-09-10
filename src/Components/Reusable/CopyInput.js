@@ -1,10 +1,12 @@
 import React from "react";
-import { Input, Label } from "reactstrap";
+import { useTranslation } from "react-i18next";
+import { Label } from "reactstrap";
 
 const CopyInput = (props) => {
+  const { t } = useTranslation();
   return (
     <>
-      <Label className="form-label">{props.title}</Label>
+      <Label className="form-label">{t(props.title)}</Label>
       <div className="input-group mb-1">
         <input
           type="text"
@@ -20,14 +22,9 @@ const CopyInput = (props) => {
           id={props.title}
           onClick={() => {
             navigator.clipboard.writeText(JSON.stringify(props.value));
-            //   setService({
-            //     ...service,
-            //     success: true,
-            //     msg: "Copied",
-            //   });
           }}
         >
-          Copy
+          {t("Copy")}
         </button>
       </div>
     </>

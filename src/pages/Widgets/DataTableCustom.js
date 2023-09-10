@@ -33,6 +33,7 @@ import {
   getUserDatabyId,
 } from "../Pages/Groups/GroupHelpers";
 import { PieChart } from "../Jobs/PieChart";
+import { useTranslation } from "react-i18next";
 
 const DataTableCustom = ({
   columns,
@@ -47,7 +48,7 @@ const DataTableCustom = ({
   // unsetReload,
 }) => {
   const dispatch = useDispatch();
-
+  const { t } = useTranslation();
   const machineName = useSelector((state) => state.Machine.machineName);
   // console.log("machineName reducer", machineName);
   const history = useHistory();
@@ -409,13 +410,13 @@ const DataTableCustom = ({
 
       <Input
         type="text"
-        placeholder="type to search..."
+        placeholder={t("type to search") + " ..."}
         value={search}
         onChange={handleChange}
       />
 
       <DataTable
-        title={title}
+        title={t(title)}
         columns={columns}
         data={items}
         pagination

@@ -24,8 +24,10 @@ import Loader from "../../../Components/Common/Loader";
 import { fetchRoles } from "../../../helpers/api_helper";
 import { AxiosInstance } from "../../../Axios/axiosConfig";
 import { REGISTER_USER_API } from "../../../helpers/appContants";
+import { useTranslation } from "react-i18next";
 
 const RegisterUserModal = (props) => {
+  const { t } = useTranslation();
   const [roles, setRoles] = useState([]);
   const [registration, setRegistration] = useState({
     error: false,
@@ -61,13 +63,13 @@ const RegisterUserModal = (props) => {
       email: "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("Please Enter First Name"),
-      password: Yup.string().required("Please Enter Password"),
-      lastName: Yup.string().required("Please Enter Last Name"),
+      firstName: Yup.string().required(t("Please Enter First Name")),
+      password: Yup.string().required(t("Please Enter Password")),
+      lastName: Yup.string().required(t("Please Enter Last Name")),
       role: Yup.number().required(
-        "Please Enter Role ex: user, admin or manager"
+        t("Please Enter Role ex: user, admin or manager")
       ),
-      email: Yup.string().required("Please Enter Email"),
+      email: Yup.string().required(t("Please Enter Email")),
     }),
     onSubmit: async (values, { resetForm }) => {
       let newVal = { ...values, role: Number(values.role) };
@@ -80,7 +82,7 @@ const RegisterUserModal = (props) => {
         setRegistration({
           error: false,
           success: true,
-          msg: `${newVal.firstName} Successfully Registered. `,
+          msg: `${newVal.firstName} ${t("successfully registered")}.`,
           loading: false,
         });
 
@@ -134,7 +136,7 @@ const RegisterUserModal = (props) => {
             ) : (
               <CardBody className="p-4">
                 <h5 className="text-primary text-center">
-                  User Registation form
+                  {t("User Registation form")}
                 </h5>
                 <Row>
                   <Col lg="12">
@@ -155,11 +157,11 @@ const RegisterUserModal = (props) => {
                   }}
                 >
                   <div className="form-group">
-                    <Label className="form-label">First Name</Label>
+                    <Label className="form-label">{t("First Name")}</Label>
                     <Input
                       name="firstName"
                       className="form-control"
-                      placeholder="Enter Fisrt Name"
+                      placeholder={t("Enter First Name")}
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -181,11 +183,11 @@ const RegisterUserModal = (props) => {
                   </div>
                   {/*last name */}
                   <div className="form-group">
-                    <Label className="form-label">Last Name</Label>
+                    <Label className="form-label">{t("Last Name")}</Label>
                     <Input
                       name="lastName"
                       className="form-control"
-                      placeholder="Enter Last Name"
+                      placeholder={t("Enter Last Name")}
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -207,11 +209,11 @@ const RegisterUserModal = (props) => {
 
                   {/*email*/}
                   <div className="form-group">
-                    <Label className="form-label">Email</Label>
+                    <Label className="form-label">{t("Email")}</Label>
                     <Input
                       name="email"
                       className="form-control"
-                      placeholder="Enter User Name"
+                      placeholder={t("Enter User Name")}
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -230,11 +232,11 @@ const RegisterUserModal = (props) => {
                   </div>
                   {/*password*/}
                   <div className="form-group">
-                    <Label className="form-label">Password</Label>
+                    <Label className="form-label">{t("Password")}</Label>
                     <Input
                       name="password"
                       className="form-control"
-                      placeholder="Enter Your Password"
+                      placeholder={t("Enter Your Password")}
                       type="password"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -255,7 +257,7 @@ const RegisterUserModal = (props) => {
                   </div>
                   {/*role*/}
                   <div className="form-group">
-                    <Label className="form-label">Role</Label>
+                    <Label className="form-label">{t("Role")}</Label>
                     <select
                       {...validation.getFieldProps("role")}
                       className={`form-control ${
@@ -264,7 +266,7 @@ const RegisterUserModal = (props) => {
                           : ""
                       }`}
                     >
-                      <option value="" label="Select a role" disabled />
+                      <option value="" label={t("Select a role")} disabled />
                       {roles.map((role) => (
                         <option key={role.value} value={role.value}>
                           {role.label.toUpperCase()}
@@ -280,7 +282,7 @@ const RegisterUserModal = (props) => {
 
                   <div className="text-center mt-4 mx-2">
                     <Button type="submit" color="danger">
-                      Register
+                      {t("Register")}
                     </Button>
                   </div>
                 </Form>

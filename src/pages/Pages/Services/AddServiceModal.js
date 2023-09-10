@@ -23,8 +23,10 @@ import {
   REGISTER_SERVICE,
   REGISTER_SERVICE_API,
 } from "../../../helpers/appContants";
+import { useTranslation } from "react-i18next";
 
 const AddServiceModal = (props) => {
+  const { t } = useTranslation();
   const [service, setService] = useState({
     error: false,
     success: false,
@@ -44,9 +46,9 @@ const AddServiceModal = (props) => {
       password: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Please Enter Name"),
-      endpoint: Yup.string().required("Please Enter Endpoint"),
-      password: Yup.string().required("Please Enter password"),
+      name: Yup.string().required(t("Please Enter Name")),
+      endpoint: Yup.string().required(t("Please Enter Endpoint")),
+      password: Yup.string().required(t("Please Enter password")),
     }),
     onSubmit: async (values, { resetForm }) => {
       try {
@@ -55,7 +57,9 @@ const AddServiceModal = (props) => {
         setService({
           error: false,
           success: true,
-          msg: `${values.name} successfully registered. The Password and Secret data are only displayed once. Kindly copy them now.`,
+          msg: `${values.name} ${t("successfully registered")}. ${t(
+            "The Password and Secret data are only displayed once. Kindly copy them now."
+          )}`,
           loading: false,
           disable: true,
         });
@@ -65,7 +69,7 @@ const AddServiceModal = (props) => {
         setService({
           error: true,
           success: false,
-          msg: `Error: ${err}. Please try again later! `,
+          msg: `${t("Error occured")} : ${t(err)}`,
           loading: false,
         });
         console.log("Error from add service:", err);
@@ -102,7 +106,9 @@ const AddServiceModal = (props) => {
           }}
         >
           <div>
-            <h5 className="text-primary text-center">Register Service</h5>
+            <h5 className="text-primary text-center">
+              {t("Register Service")}
+            </h5>
           </div>
           <div>
             <Button
@@ -134,16 +140,15 @@ const AddServiceModal = (props) => {
                   onSubmit={(e) => {
                     e.preventDefault();
                     validation.handleSubmit();
-
                     return false;
                   }}
                 >
                   <div className="form-group mb-1">
-                    <Label className="form-label">Name</Label>
+                    <Label className="form-label">{t("Name")}</Label>
                     <Input
                       name="name"
                       className="form-control"
-                      placeholder="Enter Name"
+                      placeholder={t("Enter Name")}
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -162,11 +167,11 @@ const AddServiceModal = (props) => {
                   </div>
                   {/*last name */}
                   <div className="form-group mb-1">
-                    <Label className="form-label">Endpoint</Label>
+                    <Label className="form-label">{t("Endpoint")}</Label>
                     <Input
                       name="endpoint"
                       className="form-control"
-                      placeholder="Enter end point"
+                      placeholder={t("Enter end point")}
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -188,11 +193,11 @@ const AddServiceModal = (props) => {
 
                   {/*email*/}
                   <div className="form-group mb-1">
-                    <Label className="form-label">Password</Label>
+                    <Label className="form-label">{t("Password")}</Label>
                     <Input
                       name="password"
                       className="form-control"
-                      placeholder="Enter Password"
+                      placeholder={t("Enter Password")}
                       type="text"
                       onChange={validation.handleChange}
                       onBlur={validation.handleBlur}
@@ -218,7 +223,7 @@ const AddServiceModal = (props) => {
                       color="danger"
                       disabled={service.disable}
                     >
-                      Add
+                      {t("Add")}
                     </Button>
                   </div>
                 </Form>
