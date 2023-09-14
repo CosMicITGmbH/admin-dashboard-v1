@@ -4,11 +4,13 @@ import { useLocation } from "react-router-dom";
 import { Button, Container } from "reactstrap";
 import { customerProductTag } from "../../helpers/appContants";
 import DataTableCustom from "../Widgets/DataTableCustom";
+import { useTranslation } from "react-i18next";
 
 const CustomerProduct = (props) => {
+  const { t } = useTranslation();
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">#ID</span>,
+      name: <span className="font-weight-bold fs-13">#{t("ID")}</span>,
       selector: (row) => row.id,
       // cell: (row) => (
       //   <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
@@ -17,7 +19,7 @@ const CustomerProduct = (props) => {
       database_name: "id",
     },
     {
-      name: <span className="font-weight-bold fs-13">Date</span>,
+      name: <span className="font-weight-bold fs-13">{t("Date")}</span>,
       selector: (row) => row.updatedAt,
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.updatedAt}</Moment>}</span>
@@ -26,7 +28,7 @@ const CustomerProduct = (props) => {
       database_name: "updatedAt",
     },
     {
-      name: <span className="font-weight-bold fs-13">Name</span>,
+      name: <span className="font-weight-bold fs-13">{t("Name")}</span>,
       selector: (row) => row.name,
       // cell: (row) => (
       //   <a href={`/product-order?pid=${row.id}&pname=${row.name}`}>
@@ -54,7 +56,7 @@ const CustomerProduct = (props) => {
     //   button: true,
     // },
     {
-      name: <span className="font-weight-bold fs-13">View</span>,
+      name: <span className="font-weight-bold fs-13">{t("View")}</span>,
       cell: (row, column) => (
         <Button
           color="danger"
@@ -64,13 +66,14 @@ const CustomerProduct = (props) => {
             );
           }}
         >
-          Details
+          {t("Details")}
         </Button>
       ),
 
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+      width: "150px",
     },
   ];
 
@@ -78,7 +81,7 @@ const CustomerProduct = (props) => {
   const custid = new URLSearchParams(searchParam).get("cid");
   const custName = new URLSearchParams(searchParam).get("cname");
 
-  document.title = "Product Details";
+  document.title = t("Customer Product Details");
 
   return (
     <div className="page-content">

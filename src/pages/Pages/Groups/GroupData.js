@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from "react";
 import Loader from "../../../Components/Common/Loader";
 //for url query params
@@ -38,7 +39,7 @@ const GroupData = (props) => {
           {
             <a
               href="#"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={() => {
                 props.history.push(`/profile?profileID=${row.id}`);
               }}

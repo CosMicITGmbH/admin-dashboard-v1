@@ -4,11 +4,13 @@ import { useLocation } from "react-router-dom";
 import { Container } from "reactstrap";
 import { productOrderTag } from "../../helpers/appContants";
 import DataTableCustom from "../Widgets/DataTableCustom";
+import { useTranslation } from "react-i18next";
 
 const ProductOrder = () => {
+  const { t } = useTranslation();
   const columns = [
     {
-      name: <span className="font-weight-bold fs-13">#ID</span>,
+      name: <span className="font-weight-bold fs-13">#{t("ID")}</span>,
       selector: (row) => row.id,
       // cell: (row) => (
       //   <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
@@ -17,7 +19,7 @@ const ProductOrder = () => {
       database_name: "id",
     },
     {
-      name: <span className="font-weight-bold fs-13">Date</span>,
+      name: <span className="font-weight-bold fs-13">{t("Date")}</span>,
       selector: (row) => row.updatedAt,
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.updatedAt}</Moment>}</span>
@@ -26,7 +28,7 @@ const ProductOrder = () => {
       database_name: "updatedAt",
     },
     {
-      name: <span className="font-weight-bold fs-13">Name</span>,
+      name: <span className="font-weight-bold fs-13">{t("Name")}</span>,
       selector: (row) => row.name,
       // cell: (row) => <a href={`/order?oid=${row.id}`}>{row.order}</a>,
       database_name: "name",
@@ -68,7 +70,7 @@ const ProductOrder = () => {
     // },
   ];
 
-  document.title = "Product Details";
+  document.title = t("Product Order Details");
 
   const searchParam = useLocation().search;
   const productId = new URLSearchParams(searchParam).get("pid");

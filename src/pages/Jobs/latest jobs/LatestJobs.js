@@ -3,15 +3,17 @@ import Moment from "react-moment";
 import { Container } from "reactstrap";
 import { latestJobsTag } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
+import { useTranslation } from "react-i18next";
 
 const LatestJobs = () => {
+  const { t } = useTranslation();
   const columns = [
     {
       name: <span className="font-weight-bold fs-13">#</span>,
       cell: (row) => <span>{row.id}</span>,
     },
     {
-      name: <span className="font-weight-bold fs-13">Date</span>,
+      name: <span className="font-weight-bold fs-13">{t("Date")}</span>,
       selector: (row) => row.date,
       cell: (row) => (
         <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
@@ -20,7 +22,7 @@ const LatestJobs = () => {
       database_name: "insertedAt",
     },
     {
-      name: <span className="font-weight-bold fs-13">Customer</span>,
+      name: <span className="font-weight-bold fs-13">{t("Customer")}</span>,
       selector: (row) => row.customer,
       cell: (row) => (
         <a
@@ -33,7 +35,7 @@ const LatestJobs = () => {
       ),
     },
     {
-      name: <span className="font-weight-bold fs-13">Product</span>,
+      name: <span className="font-weight-bold fs-13">{t("Product")}</span>,
       selector: (row) => row.product,
       cell: (row) => (
         <a
@@ -48,7 +50,7 @@ const LatestJobs = () => {
       // sortable: true,
     },
     {
-      name: <span className="font-weight-bold fs-13">Order</span>,
+      name: <span className="font-weight-bold fs-13">{t("Order")}</span>,
       selector: (row) => row.order,
       cell: (row) => (
         <a
@@ -79,7 +81,7 @@ const LatestJobs = () => {
     // },
   ];
 
-  document.title = "Latest Jobs";
+  document.title = t("Latest Jobs");
 
   return (
     <div className="page-content">

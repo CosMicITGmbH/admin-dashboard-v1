@@ -31,9 +31,10 @@ import {
   userRole,
 } from "../../helpers/appContants";
 import RoleOptions from "../Forms/Select2/RoleOptions";
+import { useTranslation } from "react-i18next";
 
 const UserProfile = () => {
-  const dispatch = useDispatch();
+  const { t } = useTranslation();
   const history = useHistory();
   //const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -140,11 +141,14 @@ const UserProfile = () => {
     },
     validationSchema: Yup.object({
       password: Yup.string()
-        .required("New Password is required")
-        .min(4, "Password should be minimum 4 characters long."),
+        .required(t("New Password is required"))
+        .min(4, t("Password should be minimum 4 characters long")),
       changePassword: Yup.string().when("password", {
         is: (val) => (val && val.length > 0 ? true : false),
-        then: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
+        then: Yup.string().oneOf(
+          [Yup.ref("password")],
+          t("Passwords must match")
+        ),
       }),
     }),
     onSubmit: async (values) => {
@@ -158,7 +162,7 @@ const UserProfile = () => {
         setSuccess({
           success: true,
           error: false,
-          msg: "Password Changed successfully.",
+          msg: t("Password Changed successfully"),
         });
 
         setTimeout(() => {
@@ -205,7 +209,7 @@ const UserProfile = () => {
     setSuccess({
       success: true,
       error: false,
-      msg: "Profile saved successfully",
+      msg: "Profile updated successfully",
     });
   };
 
@@ -233,9 +237,9 @@ const UserProfile = () => {
       email: userData.email || "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("Please Enter Your First Name"),
-      lastName: Yup.string().required("Please Enter Your Last Name"),
-      email: Yup.string().required("Please Enter Your email"),
+      firstName: Yup.string().required(t("Please Enter First Name")),
+      lastName: Yup.string().required(t("Please Enter Last Name")),
+      email: Yup.string().required(t("Please Enter email")),
     }),
     onSubmit: async (values, { resetForm }) => {
       console.log(" profile submitr values:", values);
@@ -255,7 +259,7 @@ const UserProfile = () => {
     },
   });
 
-  document.title = "Profile | Velzon - React Admin & Dashboard Template";
+  document.title = t("Profile");
   return (
     <React.Fragment>
       <div className="page-content">
@@ -267,7 +271,7 @@ const UserProfile = () => {
                 <Alert color="danger">{successMsg.msg}</Alert>
               ) : null}
               {successMsg.success ? (
-                <Alert color="success">Profile updated successfully !</Alert>
+                <Alert color="success">{successMsg.msg}</Alert>
               ) : null}
 
               <Card>
@@ -286,9 +290,12 @@ const UserProfile = () => {
                           {validation.values.firstName || userData.firstName}
                         </h5>
                         <p className="mb-1">
-                          Email Id : {validation.values.email || userData.email}
+                          {t("Email Id")} :{" "}
+                          {validation.values.email || userData.email}
                         </p>
-                        <p className="mb-0">Id No : #{userData.idx}</p>
+                        <p className="mb-0">
+                          {t("Id No")} : #{userData.idx}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -297,7 +304,7 @@ const UserProfile = () => {
             </Col>
           </Row>
 
-          <h4 className="card-title mb-4">Edit User Profile</h4>
+          <h4 className="card-title mb-4">{t("Edit User Profile")}</h4>
 
           <Card>
             <CardBody>
@@ -310,12 +317,12 @@ const UserProfile = () => {
                 }}
               >
                 <div className="form-group">
-                  <Label className="form-label">First Name</Label>
+                  <Label className="form-label">{t("First Name")}</Label>
                   <Input
                     name="firstName"
                     // value={name}
                     className="form-control"
-                    placeholder="Enter Fisrt Name"
+                    placeholder={t("First Name")}
                     type="text"
                     onChange={validation.handleChange}
                     onBlur={validation.handleBlur}
@@ -338,12 +345,12 @@ const UserProfile = () => {
                 </div>
                 {/*last name */}
                 <div className="form-group">
-                  <Label className="form-label">Last Name</Label>
+                  <Label className="form-label">{t("Last Name")}</Label>
                   <Input
                     name="lastName"
                     // value={name}
                     className="form-control"
-                    placeholder="Enter Last Name"
+                    placeholder={t("Last Name")}
                     type="text"
                     onChange={validation.handleChange}
                     onBlur={validation.handleBlur}
@@ -365,12 +372,12 @@ const UserProfile = () => {
 
                 {/*email*/}
                 <div className="form-group">
-                  <Label className="form-label">Email</Label>
+                  <Label className="form-label">{t("Email")}</Label>
                   <Input
                     name="email"
                     // value={name}
                     className="form-control"
-                    placeholder="Enter User Name"
+                    placeholder={t("Email")}
                     type="text"
                     onChange={validation.handleChange}
                     onBlur={validation.handleBlur}
@@ -399,12 +406,12 @@ const UserProfile = () => {
                   }}
                 >
                   <Col lg="8">
-                    <Label className="form-label">Role</Label>
+                    <Label className="form-label">{t("Role")}</Label>
                     <Input
                       name="role"
                       // value={name}
                       className="form-control"
-                      placeholder="Enter User Name"
+                      placeholder={t("Role")}
                       type="text"
                       onChange={() => {
                         validation.handleChange();
@@ -450,7 +457,7 @@ const UserProfile = () => {
                           getUserRole() === userRole ? "hidden" : "visible",
                       }}
                     >
-                      Change Role
+                      {t("Change Role")}
                     </Button>{" "}
                   </Col>
                 </div>
@@ -461,7 +468,7 @@ const UserProfile = () => {
                     style={{ width: "50%", marginTop: "0.5rem" }}
                     className="form-group"
                   >
-                    <Label className="form-label">Groups</Label>
+                    <Label className="form-label">{t("Groups")}</Label>
                     <Grid
                       data={userGroup}
                       columns={[
@@ -486,7 +493,7 @@ const UserProfile = () => {
                             ),
                         },
                         {
-                          name: "Name",
+                          name: t("Name"),
                           formatter: (cell, row) =>
                             _(
                               <a
@@ -531,7 +538,7 @@ const UserProfile = () => {
                       validation.isSubmitting
                     }
                   >
-                    Update Profile
+                    {t("Update Profile")}
                   </Button>
 
                   <Button
@@ -547,7 +554,7 @@ const UserProfile = () => {
                     }}
                     style={{ marginLeft: "3px" }}
                   >
-                    Change Password
+                    {t("Change Password")}
                   </Button>
                 </div>
               </Form>
@@ -569,7 +576,7 @@ const UserProfile = () => {
               }}
             >
               <div>
-                <h5 className="text-primary">Reset Password</h5>
+                <h5 className="text-primary">{t("Reset Password")}</h5>
               </div>
               <div>
                 <Button
@@ -595,8 +602,9 @@ const UserProfile = () => {
                     ) : null}
                     <div className="text-center mt-2">
                       <p className="text-muted">
-                        Your new password must be different from previous used
-                        password.
+                        {t(
+                          "Your new password must be different from previously used password"
+                        )}
                       </p>
                     </div>
 
@@ -611,12 +619,14 @@ const UserProfile = () => {
                       >
                         {/*password*/}
                         <div className="form-group">
-                          <Label className="form-label">New Password</Label>
+                          <Label className="form-label">
+                            {t("New Password")}
+                          </Label>
                           <Input
                             name="password"
                             // value={name}
                             className="form-control"
-                            placeholder="Enter New Password"
+                            placeholder={t("New Password")}
                             type="password"
                             onChange={resetPwdValidation.handleChange}
                             onBlur={resetPwdValidation.handleBlur}
@@ -640,13 +650,13 @@ const UserProfile = () => {
                         {/* confirm password */}
                         <div className="form-group">
                           <Label className="form-label">
-                            Confirm New Password
+                            {t("Confirm New Password")}
                           </Label>
                           <Input
                             name="changePassword"
                             // value={name}
                             className="form-control"
-                            placeholder="Confirm New Password"
+                            placeholder={t("Confirm New Password")}
                             type="text"
                             onChange={resetPwdValidation.handleChange}
                             onBlur={resetPwdValidation.handleBlur}
@@ -675,7 +685,7 @@ const UserProfile = () => {
                             className="w-100"
                             type="submit"
                           >
-                            Reset Password
+                            {t("Reset Password")}
                           </Button>
                         </div>
                       </Form>
@@ -701,7 +711,9 @@ const UserProfile = () => {
                 padding: "15px",
               }}
             >
-              <h5 className="card-title mb-3">Choose a role to change</h5>
+              <h5 className="card-title mb-3">
+                {t("Choose a role to change")}
+              </h5>
               <div>
                 <Button
                   type="button"

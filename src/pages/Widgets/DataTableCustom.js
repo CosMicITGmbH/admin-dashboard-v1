@@ -61,7 +61,10 @@ const DataTableCustom = ({
   const [expression, setExpression] = useState("");
   const [graphData, setGraphData] = useState({
     show: false,
-    data: [0, 0, 0],
+    data: [0, 0, 0, 0, 0, 0],
+  });
+  const [ejectedData, setEjectedData] = useState({
+    data: [0, 0],
   });
   const [newloading, setNewLoading] = useState(true);
 
@@ -197,8 +200,17 @@ const DataTableCustom = ({
                 show: true,
                 data: [
                   perfData.goodResults,
+                  perfData.ejectedGoodResults,
                   perfData.badResults,
+                  perfData.ejectedBadResults,
                   perfData.unknownResults,
+                  perfData.ejectedUnknownResults,
+                ],
+              });
+              setEjectedData({
+                data: [
+                  perfData.ejectedTotalResults,
+                  perfData.totalResults - perfData.ejectedTotalResults,
                 ],
               });
             }
@@ -224,8 +236,17 @@ const DataTableCustom = ({
                 show: true,
                 data: [
                   perfData.goodResults,
+                  perfData.ejectedGoodResults,
                   perfData.badResults,
+                  perfData.ejectedBadResults,
                   perfData.unknownResults,
+                  perfData.ejectedUnknownResults,
+                ],
+              });
+              setEjectedData({
+                data: [
+                  perfData.ejectedTotalResults,
+                  perfData.totalResults - perfData.ejectedTotalResults,
                 ],
               });
             }
@@ -250,8 +271,17 @@ const DataTableCustom = ({
                 show: true,
                 data: [
                   perfData.goodResults,
+                  perfData.ejectedGoodResults,
                   perfData.badResults,
+                  perfData.ejectedBadResults,
                   perfData.unknownResults,
+                  perfData.ejectedUnknownResults,
+                ],
+              });
+              setEjectedData({
+                data: [
+                  perfData.ejectedTotalResults,
+                  perfData.totalResults - perfData.ejectedTotalResults,
                 ],
               });
             }
@@ -391,18 +421,56 @@ const DataTableCustom = ({
       {graphData.show && (
         <div
           style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "10px",
             width: "50%",
             height: "50%",
-            margin: "10px auto",
-            textAlign: "center",
+            flexWrap: "no-wrap",
+            padding: "10px",
           }}
         >
           <PieChart
+            style={{
+              width: "50%",
+              height: "50%",
+              margin: "10px auto",
+              textAlign: "center",
+            }}
             configuration={{
-              labels: ["Good", "Bad", "Unkown"],
-              title: "Performance for customer",
+              labels: [
+                t("Good"),
+                t("Good Ejected"),
+                t("Bad"),
+                t("Bad Ejected"),
+                t("Unknown"),
+                t("Unknown Ejected"),
+              ],
+              title: t("Performance"),
               data: graphData.data,
-              color: ["#7acc29", "#db184f", "#0bcbe0"],
+              color: [
+                "#7acc29",
+                "#a6e65f",
+                "#db184f",
+                "#ff346f",
+                "#d9e04f",
+                "#e6f09f",
+              ],
+            }}
+          />
+          <PieChart
+            style={{
+              width: "50%",
+              height: "50%",
+              margin: "10px auto",
+              textAlign: "center",
+            }}
+            configuration={{
+              labels: [t("Ejected"), t("Unjected")],
+              title: t("Ejected Vs Unjected"),
+              data: ejectedData.data,
+              color: ["#db184f", "#7acc29"],
             }}
           />
         </div>

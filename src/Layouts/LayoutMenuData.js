@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 const Navdata = () => {
   const history = useHistory();
+  const { t } = useTranslation();
   //state data
   const [isDashboard, setIsDashboard] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
@@ -73,7 +75,7 @@ const Navdata = () => {
     if (iscurrentState !== "Dashboard") {
       setIsDashboard(false);
     }
-    if (iscurrentState !== "Jobs") {
+    if (iscurrentState !== t("Jobs")) {
       setIsJobs(false);
     }
     if (iscurrentState !== "Administration") {
@@ -132,6 +134,7 @@ const Navdata = () => {
     isIcons,
     isMaps,
     isMultiLevel,
+    t,
   ]);
 
   const menuItems = [
@@ -155,14 +158,14 @@ const Navdata = () => {
     },
     {
       id: "jobs", //apps
-      label: "Jobs",
+      label: t("Jobs"),
       icon: "mdi mdi-view-grid-plus-outline",
       link: "/#",
       forUser: false,
       click: function (e) {
         e.preventDefault();
         setIsJobs(!isJobs);
-        setIscurrentState("Jobs");
+        setIscurrentState(t("Jobs"));
         updateIconSidebar(e);
       },
       stateVariables: isJobs,
