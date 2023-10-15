@@ -14,7 +14,6 @@ const Services = () => {
     {
       name: <span className="font-weight-bold fs-13">{t("Key")}</span>,
       selector: (row) => row.key,
-      // sortable: true,
       wrap: true,
       database_name: "key",
     },
@@ -50,17 +49,9 @@ const Services = () => {
       ),
       database_name: "updatedAt",
     },
-
-    {
-      name: <span className="font-weight-bold fs-13">{t("Machine-ID")}</span>,
-      selector: (row) => row.machineId,
-      //sortable: true,
-      wrap: true,
-    },
     {
       name: <span className="font-weight-bold fs-13">{t("Machine-Key")}</span>,
       selector: (row) => row.machineKey,
-      // sortable: true,
       wrap: true,
     },
   ];

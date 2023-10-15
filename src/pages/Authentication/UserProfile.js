@@ -55,6 +55,7 @@ const UserProfile = () => {
   });
   const [userGroup, setUserGroup] = useState([]);
   const [modal_grid, setmodal_grid] = useState(false);
+  const [isUser, setIsUser] = useState(false);
 
   function tog_grid() {
     setmodal_grid(!modal_grid);
@@ -96,13 +97,8 @@ const UserProfile = () => {
       updateUserDataAndGroups(profid);
     } else {
       const userData = getLoggedinUser().data;
+      setIsUser(userData.role === "user");
       if (userData) {
-        // if (!isEmpty(user)) {
-        //   userData.firstName = user.firstName;
-        //   sessionStorage.removeItem("authUser");
-        //   sessionStorage.setItem("authUser", JSON.stringify(obj));
-        // }
-
         setUserData({
           ...userData,
           idx: userData.id,
@@ -196,10 +192,11 @@ const UserProfile = () => {
   };
 
   const clearReload = () => {
-    setLoading(true);
+    setLoading(false);
     setSuccess({
       ...successMsg,
       error: false,
+      success: false,
       msg: "",
     });
   };
@@ -327,7 +324,7 @@ const UserProfile = () => {
                     onChange={validation.handleChange}
                     onBlur={validation.handleBlur}
                     value={validation.values.firstName || ""}
-                    disabled={userData.currentRole === "user"}
+                    disabled={isUser}
                     invalid={
                       validation.touched.firstName &&
                       validation.errors.firstName
@@ -360,7 +357,7 @@ const UserProfile = () => {
                         ? true
                         : false
                     }
-                    disabled={userData.currentRole === "user"}
+                    disabled={isUser}
                   />
                   {validation.touched.lastName && validation.errors.lastName ? (
                     <FormFeedback type="invalid">
@@ -387,7 +384,7 @@ const UserProfile = () => {
                         ? true
                         : false
                     }
-                    disabled={userData.currentRole === "user"}
+                    disabled={isUser}
                   />
                   {validation.touched.email && validation.errors.email ? (
                     <FormFeedback type="invalid">
@@ -446,9 +443,8 @@ const UserProfile = () => {
                     <Button
                       type="button"
                       color="info"
-                      disabled={userData.currentRole === "user"}
+                      disabled={isUser}
                       onClick={() => {
-                        //  changePassword();
                         setmodal_role(true);
                       }}
                       style={{
@@ -529,22 +525,14 @@ const UserProfile = () => {
 
                 {/*ALL CODE ABOVE THIS: update profile and change pwd button below*/}
                 <div className="text-center mt-4 mx-2">
-                  <Button
-                    type="submit"
-                    color="success"
-                    disabled={
-                      userData.currentRole === "user" ||
-                      !validation.dirty ||
-                      validation.isSubmitting
-                    }
-                  >
+                  <Button type="submit" color="success" disabled={isUser}>
                     {t("Update Profile")}
                   </Button>
 
                   <Button
                     type="button"
                     color="info"
-                    disabled={userData.currentRole === "user"}
+                    disabled={isUser}
                     onClick={() => {
                       setSuccess({
                         success: false,
@@ -637,7 +625,7 @@ const UserProfile = () => {
                                 ? true
                                 : false
                             }
-                            disabled={userData.currentRole === "user"}
+                            disabled={isUser}
                           />
                           {resetPwdValidation.touched.password &&
                           resetPwdValidation.errors.password ? (
@@ -669,7 +657,7 @@ const UserProfile = () => {
                                 ? true
                                 : false
                             }
-                            disabled={userData.currentRole === "user"}
+                            disabled={isUser}
                           />
                           {resetPwdValidation.touched.changePassword &&
                           resetPwdValidation.errors.changePassword ? (

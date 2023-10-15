@@ -53,7 +53,6 @@ const ConnectMachineServiceModal = (props) => {
       let reportInstance = customAxios(
         process.env.REACT_APP_API_REPORTING_URL || REACT_APP_API_REPORTING_URL
       );
-      console.log("reportInstance", reportInstance);
       const response = await reportInstance.post(`/${ALL_MACHINES_API}`, {
         sort: "Id ASC",
         expression: "",
@@ -79,6 +78,7 @@ const ConnectMachineServiceModal = (props) => {
   };
 
   useEffect(() => {
+    // console.log("nede to fire fetch machine");
     fetchMachines();
   }, []);
 
@@ -153,7 +153,6 @@ const ConnectMachineServiceModal = (props) => {
           closeModal();
         }}
         size="lg"
-        // style={{ width: "55%" }}
         unmountOnClose={true}
       >
         <div

@@ -179,6 +179,7 @@ const GroupData = (props) => {
     setConfirmModal(false);
     if (response) {
       try {
+        // setreLoading(true);
         await AxiosInstance.delete(
           `/users/profile/${userToDelete}/groups/${groupId}`
         );
@@ -188,7 +189,7 @@ const GroupData = (props) => {
           success: true,
           msg: "User deleted successfully.",
         });
-        setreLoading(true);
+
         window.location.reload();
       } catch (error) {
         setSuccess({

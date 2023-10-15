@@ -38,7 +38,7 @@ const ConfirmationModal = (props) => {
         <ModalBody>
           <Row className="justify-content-center">
             <CardBody>
-              <h5 className="text-primary text-center">{props.title}</h5>
+              <h5 className="text-primary text-center">{t(props.title)}</h5>
               <div className="text-center my-4 mx-2">
                 <Button
                   type="button"

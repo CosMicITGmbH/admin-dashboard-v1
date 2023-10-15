@@ -23,19 +23,11 @@ import { withRouter, Link } from "react-router-dom";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
-//Social Media Imports
-// import { GoogleLogin } from "react-google-login";
-// import TwitterLogin from "react-twitter-auth"
-// import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
-// actions
 import { loginUser, resetLoginFlag } from "../../store/actions";
 
 import logoLight from "../../assets/images/logo-light.png";
 import Loader from "../../Components/Common/Loader";
 import { useTranslation } from "react-i18next";
-//Import config
-// import { facebook, google } from "../../config";
-//import images
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -104,9 +96,7 @@ const Login = (props) => {
                       <img src={logoLight} alt="" height="20" />
                     </Link>
                   </div>
-                  <p className="mt-3 fs-15 fw-medium">
-                    Premium Admin & Dashboard Template
-                  </p>
+                  <p className="mt-3 fs-15 fw-medium">LOGIN</p>
                 </div>
               </Col>
             </Row>

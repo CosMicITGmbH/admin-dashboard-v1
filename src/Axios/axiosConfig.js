@@ -3,7 +3,7 @@ import { getToken } from "../helpers/api_helper";
 import { REACT_APP_API_MAIN_URL } from "../helpers/appContants";
 
 const AxiosInstance = axios.create({
-  baseURL: REACT_APP_API_MAIN_URL,
+  baseURL: process.env.REACT_APP_API_MAIN_URL || REACT_APP_API_MAIN_URL,
 });
 
 AxiosInstance.interceptors.response.use(

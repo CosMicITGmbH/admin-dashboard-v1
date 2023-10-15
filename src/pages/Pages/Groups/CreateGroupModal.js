@@ -50,7 +50,7 @@ const CreateGroupModal = (props) => {
     try {
       setSetup({ ...setSetup, loading: true });
       const list = await AxiosInstance.post(`${USERS_API}`, {
-        expression: `firstName.contains("${inputValue}") || lastName.contains("${inputValue}") || email.contains("${inputValue}")`,
+        expression: `firstName.ToLower().contains("${inputValue}") || lastName.ToLower().contains("${inputValue}") || email.ToLower().contains("${inputValue}")`,
         sort: "Id ASC",
       });
       if (list.items.length) {

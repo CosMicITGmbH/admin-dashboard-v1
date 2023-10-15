@@ -101,7 +101,7 @@ const DataTableCustom = ({
 
   useEffect(() => {
     if (reloadData) {
-      console.log("****Pls wait reloading data*****");
+      // console.log("****Pls wait reloading data*****");
       fetchDataDefault();
     }
   }, [reloadData]);
@@ -140,8 +140,9 @@ const DataTableCustom = ({
         endpoint: item.endpoint,
         insertedAt: item.insertedAt,
         updatedAt: item.updatedAt,
-        machineId: item?.machine?.connectedServices?.[0].key || "NA",
-        machineKey: item?.machine?.connectedServices?.[0].name || "NA",
+        machineKey: `${item?.machine?.connectedServices?.[0]?.name ?? "NA"} (${
+          item?.machine?.connectedServices?.[0]?.key || "NA"
+        })`,
       };
     });
     setItems(gridData);
@@ -173,7 +174,6 @@ const DataTableCustom = ({
               );
               if (resp.items.length) {
                 let finalItems = await getJobItemResponseV2(resp.items);
-                console.log("finalItems", finalItems);
                 setItems(finalItems);
               }
 
@@ -184,7 +184,9 @@ const DataTableCustom = ({
             {
               resp = await axiosInstReporting.post(
                 `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
-                { expression: `machineId==${machineName.id}` }
+                {
+                  expression: `machineId==${machineName.id} && name.ToLower().Contains("${search}")`,
+                }
               );
               setNewLoading(false);
               setItems(resp.items);
@@ -195,24 +197,29 @@ const DataTableCustom = ({
                 `${reportingUrl}/jobs/machines/${machineName.id}/performance`
               );
               console.log("perfData for customer****", perfData);
-
-              setGraphData({
-                show: true,
-                data: [
-                  perfData.goodResults,
-                  perfData.ejectedGoodResults,
-                  perfData.badResults,
-                  perfData.ejectedBadResults,
-                  perfData.unknownResults,
-                  perfData.ejectedUnknownResults,
-                ],
-              });
-              setEjectedData({
-                data: [
-                  perfData.ejectedTotalResults,
-                  perfData.totalResults - perfData.ejectedTotalResults,
-                ],
-              });
+              if (perfData.totalResults > 0) {
+                setGraphData({
+                  show: true,
+                  data: [
+                    perfData.goodResults,
+                    perfData.ejectedGoodResults,
+                    perfData.badResults,
+                    perfData.ejectedBadResults,
+                    perfData.unknownResults,
+                    perfData.ejectedUnknownResults,
+                  ],
+                });
+                setEjectedData({
+                  data: [
+                    perfData.ejectedTotalResults,
+                    perfData.totalResults - perfData.ejectedTotalResults,
+                  ],
+                });
+              } else {
+                setGraphData({
+                  show: false,
+                });
+              }
             }
 
             break;
@@ -228,28 +235,30 @@ const DataTableCustom = ({
               setNewLoading(true);
               // set performance data of machine
               const perfData = await axiosInstReporting.get(
-                `${reportingUrl}/jobs/products/${value}/performance`
+                `${reportingUrl}/jobs/customers/${value}/performance`
               );
-              console.log("perfData for produt****", perfData);
-
-              setGraphData({
-                show: true,
-                data: [
-                  perfData.goodResults,
-                  perfData.ejectedGoodResults,
-                  perfData.badResults,
-                  perfData.ejectedBadResults,
-                  perfData.unknownResults,
-                  perfData.ejectedUnknownResults,
-                ],
-              });
-              setEjectedData({
-                data: [
-                  perfData.ejectedTotalResults,
-                  perfData.totalResults - perfData.ejectedTotalResults,
-                ],
-              });
+              // console.log("perfData for produt****", perfData);
+              if (perfData.totalResults > 0) {
+                setGraphData({
+                  show: true,
+                  data: [
+                    perfData.goodResults,
+                    perfData.ejectedGoodResults,
+                    perfData.badResults,
+                    perfData.ejectedBadResults,
+                    perfData.unknownResults,
+                    perfData.ejectedUnknownResults,
+                  ],
+                });
+                setEjectedData({
+                  data: [
+                    perfData.ejectedTotalResults,
+                    perfData.totalResults - perfData.ejectedTotalResults,
+                  ],
+                });
+              }
             }
+
             break;
           case productOrderTag:
             {
@@ -263,27 +272,28 @@ const DataTableCustom = ({
               setNewLoading(true);
               // set performance data of machine
               const perfData = await axiosInstReporting.get(
-                `${reportingUrl}/jobs/orders/${value}/performance`
+                `${reportingUrl}/jobs/products/${value}/performance`
               );
-              console.log("perfData for orders****", perfData);
-
-              setGraphData({
-                show: true,
-                data: [
-                  perfData.goodResults,
-                  perfData.ejectedGoodResults,
-                  perfData.badResults,
-                  perfData.ejectedBadResults,
-                  perfData.unknownResults,
-                  perfData.ejectedUnknownResults,
-                ],
-              });
-              setEjectedData({
-                data: [
-                  perfData.ejectedTotalResults,
-                  perfData.totalResults - perfData.ejectedTotalResults,
-                ],
-              });
+              // console.log("perfData for orders****", perfData);
+              if (perfData.totalResults > 0) {
+                setGraphData({
+                  show: true,
+                  data: [
+                    perfData.goodResults,
+                    perfData.ejectedGoodResults,
+                    perfData.badResults,
+                    perfData.ejectedBadResults,
+                    perfData.unknownResults,
+                    perfData.ejectedUnknownResults,
+                  ],
+                });
+                setEjectedData({
+                  data: [
+                    perfData.ejectedTotalResults,
+                    perfData.totalResults - perfData.ejectedTotalResults,
+                  ],
+                });
+              }
             }
             break;
           default:
@@ -291,16 +301,16 @@ const DataTableCustom = ({
         }
       } else {
         //auth.charpify
-        console.log("auth sharpify api");
+        console.log("else 298 auth sharpify api");
         if (tag === userInAGroupTag) {
           const resp = await getUserDatabyId(url, expression);
-          console.log("RESP *****", resp);
+          // console.log("RESP *****", resp);
           setItems(resp.items);
           setTotalRows(resp.totalItems);
           return;
         } else if (tag === machineInAGroupTag) {
           const resp = await getMachineDatabyId(url, expression);
-          console.log("RESP *****", resp);
+          // console.log("RESP *****", resp);
           setItems(resp.items);
           setTotalRows(resp.totalItems);
           return;
@@ -312,6 +322,7 @@ const DataTableCustom = ({
             expression: expression,
           }
         );
+        console.log("resp from datacustom " + tag, resp);
         items = resp.items;
         totalItems = resp.totalItems;
 
@@ -321,67 +332,13 @@ const DataTableCustom = ({
           setServicesData(items);
         } else {
           setItems(items);
-          setTotalRows(totalItems);
         }
-        console.log("resp from datacustom", resp);
+        setTotalRows(totalItems);
       }
 
-      // if (items && items.length) {
-      //   switch (tag) {
-      //     case groupTag:
-      //       setGroupData(items);
-      //       break;
-      //     case servicesTag:
-      //       setServicesData(items);
-      //       break;
-      //     case userTag:
-      //       setItems(items);
-      //       break;
-      //     // case latestJobsTag: {
-      //     //   let resp = await getJobItemResponse(items);
-      //     //   setItems(resp);
-      //     //   break;
-      //     // }
-      //     case customerJobTag: {
-      //       // let resp = await getCustomerJobResponse(items);
-      //       // setItems(resp);
-      //       // const graphDataResp = await getGraphdata(resp);
-      //       // //  console.log("graphDataResp", graphDataResp);
-      //       // setGraphData({
-      //       //   show: true,
-      //       //   data: Object.values(graphDataResp),
-      //       // });
-      //       break;
-      //     }
-      //     // case customerProductTag: {
-      //     //   //get grpah data
-      //     //   let resp = await  getCustomerProductResp(items)
-      //     //   setItems(items);
-
-      //     //       const graphDataResp = await getGraphdata(resp);
-      //     //       //  console.log("graphDataResp", graphDataResp);
-      //     //       setGraphData({
-      //     //         show: true,
-      //     //         data: Object.values(graphDataResp),
-      //     //       });
-      //     //   break;
-      //     // }
-      //     default:
-      //       console.log("No tags matching:", tag);
-      //       break;
-      //   }
-      //   setItems(items);
-      //   setTotalRows(totalItems);
-      // } else {
-      //   setItems(items ?? []);
-      //   setTotalRows(totalItems ?? 0);
-      // }
       setNewLoading(false);
     } catch (error) {
       console.log(`Error from ${url} ${tag}:`, error);
-      // if (error?.response?.status === 401) {
-      //   history.push("/login");
-      // }
     }
   };
 
@@ -406,7 +363,7 @@ const DataTableCustom = ({
     if (isNil(value)) setExpression("");
     else {
       const exp = expressions
-        .map((item) => `${item}.Contains("${value}")`)
+        .map((item) => `${item}.ToLower().Contains("${value}")`)
         .join(" || ");
       setExpression(exp);
     }

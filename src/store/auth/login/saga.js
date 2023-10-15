@@ -11,12 +11,15 @@ import {
 //Include Both Helper File with needed methods
 import { getFirebaseBackend } from "../../../helpers/firebase_helper";
 import { appLogin, postSocialLogin } from "../../../helpers/fakebackend_helper";
+import { REACT_APP_API_MAIN_URL } from "../../../helpers/appContants";
 
 const fireBaseBackend = getFirebaseBackend();
 
 function* loginUser({ payload: { user, history } }) {
   try {
-    if (process.env.REACT_APP_API_URL) {
+    console.log("out if checkking");
+    if (process.env.REACT_APP_API_URL || REACT_APP_API_MAIN_URL) {
+      console.log("in if");
       yield put(startLoading());
       const response = yield call(appLogin, {
         email: user.email,

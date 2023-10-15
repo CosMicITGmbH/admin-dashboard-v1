@@ -15,6 +15,7 @@ export const startLoading = () => {
   };
 };
 export const loginUser = (user, history) => {
+  console.log("login krein**");
   return {
     type: LOGIN_USER,
     payload: { user, history },
