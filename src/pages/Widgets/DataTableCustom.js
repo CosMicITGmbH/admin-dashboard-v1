@@ -11,6 +11,7 @@ import { Input } from "reactstrap";
 import { AxiosInstance as axios, customAxios } from "../../Axios/axiosConfig";
 import Loader from "../../Components/Common/Loader";
 import {
+  GROUPS_API,
   customerJobTag,
   customerProductTag,
   groupTag,
@@ -79,6 +80,7 @@ const DataTableCustom = ({
   }, [machineName.name]);
 
   useEffect(() => {
+    console.log("expression", expressions);
     const authUser = sessionStorage.getItem("authUser");
     if (!authUser) {
       history.push("/login");
@@ -186,6 +188,7 @@ const DataTableCustom = ({
                 `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
                 {
                   expression: `machineId==${machineName.id} && name.ToLower().Contains("${search}")`,
+                  sort,
                 }
               );
               setNewLoading(false);
@@ -227,7 +230,7 @@ const DataTableCustom = ({
             {
               resp = await axiosInstReporting.post(
                 `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
-                {}
+                { sort }
               );
               setNewLoading(false);
               setItems(resp.items);
@@ -264,7 +267,7 @@ const DataTableCustom = ({
             {
               resp = await axiosInstReporting.post(
                 `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
-                {}
+                { sort }
               );
               setNewLoading(false);
               setItems(resp.items);
@@ -301,16 +304,29 @@ const DataTableCustom = ({
         }
       } else {
         //auth.charpify
-        console.log("else 298 auth sharpify api");
+        // console.log("else 298 auth sharpify api");
         if (tag === userInAGroupTag) {
-          const resp = await getUserDatabyId(url, expression);
-          // console.log("RESP *****", resp);
+          console.log("expressions input", expressions);
+          const resp = await axios.post(
+            `${GROUPS_API}/${url}/users?page=${page}&itemsPerPage=${per_page}`,
+            {
+              expression: expressions
+                .map((item) => `${item}.ToLower().Contains("${search}")`)
+                .join(" || "),
+            }
+          );
+
           setItems(resp.items);
           setTotalRows(resp.totalItems);
           return;
         } else if (tag === machineInAGroupTag) {
-          const resp = await getMachineDatabyId(url, expression);
-          // console.log("RESP *****", resp);
+          console.log("expression", expression);
+          const resp = await axios.post(
+            `${GROUPS_API}/${url}/machines?page=${page}&itemsPerPage=${per_page}`,
+            {
+              expression: expression,
+            }
+          );
           setItems(resp.items);
           setTotalRows(resp.totalItems);
           return;
@@ -352,7 +368,7 @@ const DataTableCustom = ({
 
   const handleChange = (e) => {
     setSearch(e.target.value);
-    debouncedHandleChange(e.target.value);
+    debouncedHandleChange(e.target.value.toLowerCase());
   };
 
   const debouncedHandleChange = useRef(
@@ -362,8 +378,10 @@ const DataTableCustom = ({
   const sendQuery = (value) => {
     if (isNil(value)) setExpression("");
     else {
+      let newVal = value.toLowerCase();
+      console.log("check for lowecase value", expressions);
       const exp = expressions
-        .map((item) => `${item}.ToLower().Contains("${value}")`)
+        .map((item) => `${item}.ToLower().Contains("${newVal}")`)
         .join(" || ");
       setExpression(exp);
     }

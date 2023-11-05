@@ -19,7 +19,7 @@ const ConfirmationModal = (props) => {
       <Modal
         isOpen={props.modalState}
         toggle={() => {
-          props.getUserResponse(false);
+          props.confirmResp(false);
         }}
         unmountOnClose={true}
       >
@@ -28,7 +28,7 @@ const ConfirmationModal = (props) => {
             <Button
               type="button"
               onClick={() => {
-                props.getUserResponse(false);
+                props.confirmResp(false);
               }}
               className="btn-close m-lg-auto"
               aria-label="Close"
@@ -44,7 +44,7 @@ const ConfirmationModal = (props) => {
                   type="button"
                   color="info"
                   onClick={() => {
-                    props.getUserResponse(true);
+                    props.confirmResp(true);
                   }}
                 >
                   {t("YES")}
@@ -54,7 +54,7 @@ const ConfirmationModal = (props) => {
                   type="button"
                   color="success"
                   onClick={() => {
-                    props.getUserResponse(false);
+                    props.confirmResp(false);
                   }}
                   style={{ marginLeft: "3px" }}
                 >

@@ -169,7 +169,7 @@ const AllUsers = () => {
         />
         <ConfirmationModal
           title={t(`Do you wish to delete this user?`)}
-          getUserResponse={getUserResponse}
+          confirmResp={getUserResponse}
           modalState={confirmModal}
         />
       </Container>

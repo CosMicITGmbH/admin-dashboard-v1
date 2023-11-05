@@ -12,9 +12,6 @@ const ProductOrder = () => {
     {
       name: <span className="font-weight-bold fs-13">#{t("ID")}</span>,
       selector: (row) => row.id,
-      // cell: (row) => (
-      //   <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
-      // ),
       sortable: true,
       database_name: "id",
     },
@@ -30,44 +27,9 @@ const ProductOrder = () => {
     {
       name: <span className="font-weight-bold fs-13">{t("Name")}</span>,
       selector: (row) => row.name,
-      // cell: (row) => <a href={`/order?oid=${row.id}`}>{row.order}</a>,
       database_name: "name",
       sortable: true,
     },
-    // {
-    //   name: <span className="font-weight-bold fs-13">Total Sheets</span>,
-    //   selector: (row) => row.totalResults,
-    // },
-    // {
-    //   name: <span className="font-weight-bold fs-13">Good Sheets</span>,
-    //   selector: (row) => row.goodResults,
-    // },
-    // {
-    //   name: <span className="font-weight-bold fs-13">Bad Sheets</span>,
-    //   selector: (row) => row.badResults,
-    // },
-    // {
-    //   name: <span className="font-weight-bold fs-13">Ejected sheets</span>,
-    //   selector: (row) => row.ejectedTotalResults,
-    //   button: true,
-    // },
-    // {
-    //   name: <span className="font-weight-bold fs-13">View</span>,
-    //   cell: (row, column) => (
-    //     <Button
-    //       color="danger"
-    //       onClick={() => {
-    //         props.history.push(`/order?oid=${row.id}`);
-    //       }}
-    //     >
-    //       Details
-    //     </Button>
-    //   ),
-
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // },
   ];
 
   document.title = t("Product Order Details");

@@ -138,6 +138,7 @@ const AllGroups = (props) => {
 
   const deleteGroupById = async (id) => {
     try {
+      setReload(false);
       const delResp = await axios.delete(`/groups/${id}`);
       console.log("delREsp", delResp);
       if (delResp.status === 200) {
@@ -160,7 +161,7 @@ const AllGroups = (props) => {
         <Container fluid>
           <>
             <Row>
-              <Col lg="6">
+              <Col lg="12">
                 {successMsg.error === true ? (
                   <Alert color="danger">{successMsg.msg}</Alert>
                 ) : successMsg.success === true ? (
@@ -190,14 +191,14 @@ const AllGroups = (props) => {
                   columns={columns}
                   url={"groups"}
                   expressions={["name"]}
-                  reloadData={reloading}
+                  reloadData={reloadData}
                   tag={groupTag}
                 />
               </CardBody>
             </Card>
             <ConfirmationModal
               title={t(`Do you wish to delete this group?`)}
-              getUserResponse={getUserResponse}
+              confirmResp={getUserResponse}
               modalState={confirmModal}
             />
             <CreateGroupModal

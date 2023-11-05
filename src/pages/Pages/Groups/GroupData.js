@@ -14,6 +14,11 @@ import {
   Col,
   Container,
   Row,
+  TabContent,
+  TabPane,
+  Nav,
+  NavItem,
+  NavLink,
 } from "reactstrap";
 import ConfirmationModal from "../../../Components/Reusable/ConfirmationModal";
 import { getUserRole } from "../../../helpers/api_helper";
@@ -24,7 +29,6 @@ import {
 } from "../../../helpers/appContants";
 import DataTableCustom from "../../Widgets/DataTableCustom";
 import CreateGroupModal from "./CreateGroupModal";
-// import { machineColumns } from "./MachineGroupdata";
 import { AxiosInstance } from "../../../Axios/axiosConfig";
 import "./groupStyles.css";
 
@@ -165,7 +169,13 @@ const GroupData = (props) => {
   const groupname = new URLSearchParams(searchParams).get("groupname");
   const [userToDelete, setUsertoDelete] = useState(null);
   const [machineToDelete, setMachinetoDelete] = useState(null);
-  console.log("detail group", { groupId, groupname });
+  const [activeTab, setActiveTab] = useState("tab1");
+
+  const toggleTab = (tab) => {
+    if (activeTab !== tab) {
+      setActiveTab(tab);
+    }
+  };
   const history = useHistory();
 
   useEffect(() => {
@@ -253,71 +263,104 @@ const GroupData = (props) => {
                   </div>
                 </CardTitle>
                 <CardBody>
-                  {/* USER TABLE */}
-                  <DataTableCustom
-                    columns={userColumns}
-                    url={groupId}
-                    expressions={["firstName", "lastName", "email"]}
-                    tag={userInAGroupTag}
-                    title="Users"
-                  />
-                  {/* Machine TABLE */}
-                  <DataTableCustom
-                    columns={machineColumns}
-                    url={groupId}
-                    expressions={["name", "endpoint"]}
-                    tag={machineInAGroupTag}
-                    title="Machines"
-                    reloadData={reloading}
-                  />
-
-                  <ConfirmationModal
-                    title={`Do you wish to remove this user from group?`}
-                    confirmResp={getUserResponse}
-                    modalState={confirmModal}
-                  />
-                  <ConfirmationModal
-                    title={`Do you wish to remove this machine from group?`}
-                    confirmResp={getMachineResponse}
-                    modalState={confirmModalMachine}
-                  />
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "nowrap",
-                      alignContent: "center",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "5px",
-                    }}
-                  >
-                    <Button
-                      type="button"
-                      color="success"
-                      onClick={() => {
-                        setAddUser(true);
-                        setAddMachine(false);
-                        setOpenGroupModal(true);
-                        setreLoading(false);
-                      }}
-                    >
-                      Add User
-                    </Button>
-
-                    <Button
-                      type="button"
-                      color="secondary"
-                      onClick={() => {
-                        setAddUser(false);
-                        setAddMachine(true);
-                        setOpenGroupModal(true);
-                        setreLoading(false);
-                      }}
-                    >
-                      Add Machine
-                    </Button>
-                  </div>
+                  <Nav tabs>
+                    <NavItem className="mb-2">
+                      <NavLink
+                        onClick={() => toggleTab("tab1")}
+                        active={activeTab === "tab1"}
+                      >
+                        Users
+                      </NavLink>
+                    </NavItem>
+                    <NavItem className="mb-2">
+                      <NavLink
+                        onClick={() => toggleTab("tab2")}
+                        active={activeTab === "tab2"}
+                      >
+                        Machines
+                      </NavLink>
+                    </NavItem>
+                  </Nav>
+                  <TabContent activeTab={activeTab}>
+                    <TabPane tabId="tab1">
+                      {/* USER TABLE */}
+                      <DataTableCustom
+                        columns={userColumns}
+                        url={groupId}
+                        expressions={["firstName", "lastName", "email"]}
+                        tag={userInAGroupTag}
+                        reloadData={reloading}
+                        title="Users"
+                      />
+                      <ConfirmationModal
+                        title={`Do you wish to remove this user from group?`}
+                        confirmResp={getUserResponse}
+                        modalState={confirmModal}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "nowrap",
+                          alignContent: "center",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        <Button
+                          type="button"
+                          color="success"
+                          onClick={() => {
+                            setAddUser(true);
+                            setAddMachine(false);
+                            setOpenGroupModal(true);
+                            setreLoading(false);
+                          }}
+                        >
+                          Add User
+                        </Button>
+                      </div>
+                    </TabPane>
+                    <TabPane tabId="tab2">
+                      {/* Machine TABLE */}
+                      <DataTableCustom
+                        columns={machineColumns}
+                        url={groupId}
+                        expressions={["name", "endpoint"]}
+                        tag={machineInAGroupTag}
+                        title="Machines"
+                        reloadData={reloading}
+                      />
+                      <ConfirmationModal
+                        title={`Do you wish to remove this machine from group?`}
+                        confirmResp={getMachineResponse}
+                        modalState={confirmModalMachine}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "nowrap",
+                          alignContent: "center",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        <Button
+                          type="button"
+                          color="secondary"
+                          onClick={() => {
+                            setAddUser(false);
+                            setAddMachine(true);
+                            setOpenGroupModal(true);
+                            setreLoading(false);
+                          }}
+                        >
+                          Add Machine
+                        </Button>
+                      </div>
+                    </TabPane>
+                  </TabContent>
 
                   <CreateGroupModal
                     title="Update Group"
@@ -330,7 +373,10 @@ const GroupData = (props) => {
                     addUser={addUser}
                     addMachine={addMachine}
                     action={"update"}
-                    reload={() => setreLoading(true)}
+                    reload={() => {
+                      console.log("reload called");
+                      setreLoading(true);
+                    }}
                   />
                 </CardBody>
               </Card>

@@ -48,24 +48,8 @@ const Customers = (props) => {
       allowOverflow: true,
       button: true,
       width: "150px",
-      // style: {
-      //   width: "auto",
-      //   background: "orange",
-      //   display: "block",
-      // },
     },
   ];
-  // const [reload, setreload] = useState(false);
-  // const machineName = useSelector((state) => state.Machine.machineName);
-  // useEffect(() => {
-  //   console.log("*** out ", machineName);
-  //   //setreload(false);
-  //   if (machineName.name) {
-  //     console.log("*** in ");
-  //     //setreload(true);
-  //     //window.location.reload();
-  //   }
-  // }, [machineName.name]);
 
   document.title = t("Customer");
 
@@ -81,9 +65,6 @@ const Customers = (props) => {
           performanceUrl={"customers"}
           isPieChartVisible={true}
           title={"Customers"}
-          // reloadData={reload}
-          // unsetReload={() => setreload(false)}
-          // machineData={machineName}
         />
       </Container>
     </div>
