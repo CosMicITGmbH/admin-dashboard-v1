@@ -17,9 +17,9 @@ const Customers = (props) => {
     },
     {
       name: <span className="font-weight-bold fs-13">{t("Date")}</span>,
-      selector: (row) => row.date,
+      selector: (row) => row.insertedAt,
       cell: (row) => (
-        <span>{<Moment format="DD/MM/YYYY">{row.date}</Moment>}</span>
+        <span>{<Moment format="DD/MM/YYYY">{row.insertedAt}</Moment>}</span>
       ),
       sortable: true,
       database_name: "insertedAt",
@@ -32,7 +32,7 @@ const Customers = (props) => {
     },
     {
       name: <span className="font-weight-bold fs-13">{t("View")}</span>,
-      cell: (row, column) => (
+      cell: (row) => (
         <Button
           color="danger"
           onClick={() => {

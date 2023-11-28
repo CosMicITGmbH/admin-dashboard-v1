@@ -112,27 +112,34 @@ const Services = () => {
               </div>
             </CardBody>
           </Card>
-          <AddServiceModal
-            modalState={modalService}
-            closeServiceModal={() => {
-              setRealoading(true);
-              setmodalService(!modalService);
-            }}
-          />
-          <AddMachineModal
-            modalState={modalMachine}
-            closeMachineModal={() => {
-              setRealoading(true);
-              setmodalMachine(!modalMachine);
-            }}
-          />
-          <ConnectMachineServiceModal
-            modalState={modalConnectBoth}
-            closeConnectModal={() => {
-              setRealoading(true);
-              setModalConnectBoth(!modalConnectBoth);
-            }}
-          />
+          {modalService && (
+            <AddServiceModal
+              modalState={modalService}
+              closeServiceModal={() => {
+                setRealoading(true);
+                setmodalService(!modalService);
+              }}
+            />
+          )}
+          {modalMachine && (
+            <AddMachineModal
+              modalState={modalMachine}
+              closeMachineModal={() => {
+                setRealoading(true);
+                setmodalMachine(!modalMachine);
+              }}
+            />
+          )}
+
+          {modalConnectBoth && (
+            <ConnectMachineServiceModal
+              modalState={modalConnectBoth}
+              closeConnectModal={() => {
+                setRealoading(true);
+                setModalConnectBoth(!modalConnectBoth);
+              }}
+            />
+          )}
         </Container>
       </div>
     </React.Fragment>

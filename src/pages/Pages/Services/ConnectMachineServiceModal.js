@@ -12,13 +12,13 @@ import {
 import Loader from "../../../Components/Common/Loader";
 // Formik Validation
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import "react-toastify/dist/ReactToastify.css";
 import { AxiosInstance, customAxios } from "../../../Axios/axiosConfig";
 import {
   ALL_MACHINES_API,
-  ALL_SERVICES_API,
   CONNECT_MACHINE_SERVICE_API,
   GET_CONNECTED_SERVICE_API,
   REACT_APP_API_REPORTING_URL,
@@ -26,10 +26,8 @@ import {
 import {
   serviceFetchFailed,
   setConnectSuccess,
-  setServiceLoading,
-  setServiceSuccess,
 } from "../../../store/services/action";
-import { useTranslation } from "react-i18next";
+import { machineEndPoint } from "../../../helpers/api_helper";
 
 const ConnectMachineServiceModal = (props) => {
   const dispatch = useDispatch();
@@ -49,22 +47,23 @@ const ConnectMachineServiceModal = (props) => {
 
   const fetchMachines = async () => {
     try {
-      console.log("in fetchMachines");
-      let reportInstance = customAxios(
-        process.env.REACT_APP_API_REPORTING_URL || REACT_APP_API_REPORTING_URL
+      const endPoint = await machineEndPoint();
+      const response = await axios.post(
+        `/services?page=1&itemsPerPage=100000`,
+        {
+          sort: "",
+          expression: "machine!=null",
+        }
       );
-      const response = await reportInstance.post(`/${ALL_MACHINES_API}`, {
-        sort: "Id ASC",
-        expression: "",
-      });
       console.log("in fetchMachines response", response);
       const { items } = response;
       console.log("machine all:", response);
       if (items.length) {
         const options = items.map((item) => ({
-          label: item.uid,
-          value: item.id,
+          label: item.name,
+          value: item?.machine?.id,
         }));
+        console.log("machine all options", options);
         setMachines([{ options }]);
       }
     } catch (error) {
@@ -101,7 +100,7 @@ const ConnectMachineServiceModal = (props) => {
 
       if (unConnectedServiceResp.items.length) {
         const options = unConnectedServiceResp.items.map((item) => ({
-          label: `${item.name}`,
+          label: item.name,
           value: item.key,
         }));
         setFilteredServices([{ options }]);
@@ -201,7 +200,7 @@ const ConnectMachineServiceModal = (props) => {
                     {/* MACHINES DROPDOWN */}
                     <div
                       className="form-group mb-1"
-                      style={{ width: "max-content" }}
+                      style={{ minWidth: "250px" }}
                     >
                       <Label className="form-label">
                         {t("Select Machine")}
@@ -218,6 +217,7 @@ const ConnectMachineServiceModal = (props) => {
                         id="choices-single-default"
                         className="role-select"
                         name="machine"
+                        styles={{ minWidth: "150px" }}
                       />
                     </div>
 

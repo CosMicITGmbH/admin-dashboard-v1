@@ -50,14 +50,17 @@ async function getJobItemResponse(dataSet) {
 }
 
 async function getJobItemResponseV2(dataSet) {
+  console.log("dataSet", dataSet);
   let customerObj = dataSet.map((data) => {
-    const { customer, product } = data;
+    // const { customer, product } = data;
+    // console.log("lates job api", customerObj);
     let finalres = {
       id: data.id,
+      name: data.name,
       date: data.insertedAt,
-      customer: `${customer.name} #${customer.id}`,
-      product: `${product.name} #${product.id}`,
-      order: `${data.name} #${data.id}`,
+      productId: data.productId,
+      schemaId: data.schemaId,
+      state: data.state,
     };
     return finalres;
   });

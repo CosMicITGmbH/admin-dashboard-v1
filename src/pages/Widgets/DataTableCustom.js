@@ -176,6 +176,7 @@ const DataTableCustom = ({
               );
               if (resp.items.length) {
                 let finalItems = await getJobItemResponseV2(resp.items);
+                console.log("latest jobs resp", finalItems);
                 setItems(finalItems);
               }
 
@@ -187,7 +188,9 @@ const DataTableCustom = ({
               resp = await axiosInstReporting.post(
                 `${finalUrl}?page=${page}&itemsPerPage=${per_page}`,
                 {
-                  expression: `machineId==${machineName.id} && name.ToLower().Contains("${search}")`,
+                  expression: `machineId==${
+                    machineName.id
+                  } && name.ToLower().Contains("${search.toLowerCase()}")`,
                   sort,
                 }
               );
@@ -306,12 +309,15 @@ const DataTableCustom = ({
         //auth.charpify
         // console.log("else 298 auth sharpify api");
         if (tag === userInAGroupTag) {
-          console.log("expressions input", expressions);
+          //  console.log("expressions input", expressions);
           const resp = await axios.post(
             `${GROUPS_API}/${url}/users?page=${page}&itemsPerPage=${per_page}`,
             {
               expression: expressions
-                .map((item) => `${item}.ToLower().Contains("${search}")`)
+                .map(
+                  (item) =>
+                    `${item}.ToLower().Contains("${search.toLowerCase()}")`
+                )
                 .join(" || "),
             }
           );
@@ -320,7 +326,7 @@ const DataTableCustom = ({
           setTotalRows(resp.totalItems);
           return;
         } else if (tag === machineInAGroupTag) {
-          console.log("expression", expression);
+          //  console.log("expression", expression);
           const resp = await axios.post(
             `${GROUPS_API}/${url}/machines?page=${page}&itemsPerPage=${per_page}`,
             {
@@ -379,10 +385,12 @@ const DataTableCustom = ({
     if (isNil(value)) setExpression("");
     else {
       let newVal = value.toLowerCase();
-      console.log("check for lowecase value", expressions);
+      // console.log("searched val", newVal);
+
       const exp = expressions
-        .map((item) => `${item}.ToLower().Contains("${newVal}")`)
+        .map((item) => `${item}.ToLower().Contains("${newVal.toLowerCase()}")`)
         .join(" || ");
+      console.log("check for lowecase value", { exp, newVal });
       setExpression(exp);
     }
   };

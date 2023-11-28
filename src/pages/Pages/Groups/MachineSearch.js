@@ -14,7 +14,7 @@ const MachineSearch = (props) => {
 
     try {
       const response = await AxiosInstance.post(`/services`, {
-        expression: `name.ToLower().contains("${inputValue}") && machine != null && identity.services.Any(x => x.Name == "api.reporting")`,
+        expression: `name.ToLower().contains("${inputValue.toLowerCase()}") && machine != null && identity.services.Any(x => x.Name == "api.reporting")`,
         sort: "key asc",
       });
       //console.log(": response", response);
@@ -54,7 +54,7 @@ const MachineSearch = (props) => {
   return (
     <AsyncSelect
       styles={{
-        width: "250px",
+        minWidth: "250px",
       }}
       loadOptions={loadOptions}
       onInputChange={onSearchChange}

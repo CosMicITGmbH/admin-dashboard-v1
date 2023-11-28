@@ -1,6 +1,6 @@
 import React from "react";
 import Moment from "react-moment";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Container } from "reactstrap";
 import { productOrderTag } from "../../helpers/appContants";
 import DataTableCustom from "../Widgets/DataTableCustom";
